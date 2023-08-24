@@ -39,6 +39,7 @@ async def 로그인():
     await page.goto('https://us02web.zoom.us/recording/management') # 기록관리 페이지로 이동
     await asyncio.sleep(sS)
     await page.wait_for_selector('h1[data-v-d8466eb2]:has-text("기록 관리")', timeout=30000)
+    await asyncio.sleep(sS)
     
     
     
