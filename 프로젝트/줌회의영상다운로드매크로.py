@@ -89,28 +89,20 @@ async def 영상다운(이름):
     
 async def 삭제():
     global page  # 전역 변수로 사용
-    c = 0
-    while c :
-        delete_element = await page.query_selector('button:nth-child(3)')
-        if delete_element:
-            await delete_element.click()
+    delete_element = await page.query_selector('button:nth-child(3)')
+    if delete_element:
+        await delete_element.click()
+        await asyncio.sleep(mS)
+        delete1_selector = 'button.zm-button--primary.zm-button--small.zm-button > span'
+        await asyncio.sleep(sS)
+        delete1_element = await page.query_selector(delete1_selector)
+        if delete1_element: 
+            await page.get_by_role("button", name="휴지통으로 이동").click()
             await asyncio.sleep(mS)
-            delete1_selector = 'button.zm-button--primary.zm-button--small.zm-button > span'
-            print("버튼지정")
-            await asyncio.sleep(sS)
-            print("버튼찾기다리기")
-            delete1_element = await page.query_selector(delete1_selector)
-            print("버튼찾기")
-            if delete1_element: 
-                print("버튼클릭")
-                await page.get_by_role("button", name="휴지통으로 이동").click()
-                await asyncio.sleep(mS)
-                await page.wait_for_load_state()
-        else:
-            c = 1              
+            await page.wait_for_load_state()            
     await asyncio.sleep(sS)
     await page.reload() 
-    await asyncio.sleep(lS)
+    await asyncio.sleep(llS)
     
     
 async def 동작():
@@ -132,12 +124,6 @@ async def 동작():
                     await 영상다운('갤러리 공유화면')
                 if inner_text == "갤러리 보기":
                     await 영상다운('갤러리')
-                if inner_text == "발표자 보기가 포함된 공유 화면":
-                    await 영상다운('발표자 공유화면2')
-                if inner_text == "갤러리 보기가 포함된 공유 화면":
-                    await 영상다운('갤러리 공유화면2')
-                if inner_text == "갤러리 보기2":
-                    await 영상다운('갤러리2')
             await 삭제()
         await browser.close() # 브라우저 종료
 
