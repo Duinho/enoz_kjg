@@ -4,7 +4,7 @@ import os
 from playwright.async_api import async_playwright
 
 fm = 1
-sS = 1
+sS = 2
 mS = 3
 lS = 5
 llS = 10
@@ -36,6 +36,7 @@ async def 로그인():
     await page.goto('https://us02web.zoom.us/recording/management') # 기록관리 페이지로 이동
     await asyncio.sleep(sS)
     await page.wait_for_selector('a.mgb-0.cursor-pointer.topic-actived', timeout=30000)
+    
     
 async def 정보가져오기():
     global page, 강의이름, 강의날짜, 폴더정보, fm
@@ -107,7 +108,6 @@ async def 삭제():
             await page.get_by_role("button", name="휴지통으로 이동").click()
             await asyncio.sleep(mS)              
     await page.wait_for_load_state()
-    await page.wait_for_selector('a.mgb-0.cursor-pointer.topic-actived', timeout=30000)
     await asyncio.sleep(sS)
     await page.reload() 
     await asyncio.sleep(lS)
@@ -127,11 +127,17 @@ async def 동작():
             for item in downloadlist:
                 inner_text = await item.inner_text()
                 if inner_text == "발표자 보기가 포함된 공유 화면":
-                    await 영상다운('공유화면')
+                    await 영상다운('발표자 공유화면')
                 if inner_text == "갤러리 보기가 포함된 공유 화면":
-                    await 영상다운('공유화면')
+                    await 영상다운('갤러리 공유화면')
                 if inner_text == "갤러리 보기":
                     await 영상다운('갤러리')
+                if inner_text == "발표자 보기가 포함된 공유 화면":
+                    await 영상다운('발표자 공유화면2')
+                if inner_text == "갤러리 보기가 포함된 공유 화면":
+                    await 영상다운('갤러리 공유화면2')
+                if inner_text == "갤러리 보기2":
+                    await 영상다운('갤러리2')
             await 삭제()
         await browser.close() # 브라우저 종료
 
