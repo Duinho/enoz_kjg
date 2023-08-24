@@ -5,9 +5,10 @@ from playwright.async_api import async_playwright
 import openpyxl
 
 fm = 1
-sS = 1
+sS = 2
 mS = 3
 lS = 5
+lsS = 7
 llS = 10
 강의날짜 = 202308
 아이디 = None
