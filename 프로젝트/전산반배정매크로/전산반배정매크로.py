@@ -76,19 +76,19 @@ async def 반배정():
         new_handle.on('dialog', lambda dialog: asyncio.ensure_future(handle_alert(new_handle, dialog))) # Alert 팝업창 핸들링
         
         await asyncio.sleep(mS)
-        await new_handle.click('a.button_yellow.bold:has-text("수강 변경")') ## 수강 변경 클릭
+        await new_handle.click('a.button_yellow.bold:has-text("수강 변경")') # 수강 변경 클릭
         
         await asyncio.sleep(sS)
-        await page.bring_to_front()
+        await page.bring_to_front() # 만약 창이 안 닫히면 무시하고 다음 동작하도록 함
         await asyncio.sleep(sS)
         print(학생이름,"(",아이디,")",반이름,"로 배정 완료") 
         
     # 엑셀 파일 닫기
     wb.close()
 
-# 'dialog' 이벤트 핸들러
+
 async def handle_alert(page, dialog):
-    await dialog.accept()
+    await dialog.accept() # Alert 팝업창이 열리면 확인을 누름
 
 
 async def 동작():
