@@ -66,24 +66,24 @@ async def 영상다운(이름):
     global item, browser, 폴더정보, 강의이름, 강의날짜, new_handle  # 전역 변수로 사용
     await item.click()            
     await asyncio.sleep(lS)
-    new_handle = None # 새로 열린 창 핸들 얻기
+    new_handle = None  # 새로 열린 창 핸들 얻기
     while not new_handle:
         for handle in browser.contexts[0].pages:
             if handle != page:
                 new_handle = handle
                 break
         await asyncio.sleep(mS)
-    dl_element = await new_handle.query_selector('a.download-btn') # 다운로드 버튼을 찾기
+    dl_element = await new_handle.query_selector('a.download-btn')  # 다운로드 버튼을 찾기
     await asyncio.sleep(sS)
     if dl_element:
         async with new_handle.expect_download() as download_info:
-            await dl_element.click()
+            await dl_element.click()  
             download = await download_info.value
             await download.path()
-    await download.save_as(os.path.join(폴더정보, f"{강의이름}_{이름}_{강의날짜}.mp4"))
-    await new_handle.close()    
-    await asyncio.sleep(mS)
-    await page.wait_for_selector('span.meeting-topic', timeout=30000)
+        await download.save_as(os.path.join(폴더정보, f"{강의이름}_{이름}_{강의날짜}.mp4")) # 지정한 폴더에 다운로드하고 이름 바꾸기
+        await new_handle.close()
+        await asyncio.sleep(mS)
+        await page.wait_for_selector('span.meeting-topic', timeout=30000)
      
     
 async def 삭제():
