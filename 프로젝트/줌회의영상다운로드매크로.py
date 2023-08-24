@@ -105,9 +105,9 @@ async def 삭제():
                 print("버튼클릭")
                 await page.get_by_role("button", name="휴지통으로 이동").click()
                 await asyncio.sleep(mS)
+                await page.wait_for_load_state()
         else:
             c = 1              
-    await page.wait_for_load_state()
     await asyncio.sleep(sS)
     await page.reload() 
     await asyncio.sleep(lS)
