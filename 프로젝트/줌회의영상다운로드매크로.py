@@ -41,15 +41,13 @@ async def 로그인():
 async def 정보가져오기():
     global page, 강의이름, 강의날짜, 폴더정보, fm
     fm = 1
-    first_meeting_link_selector = 'a.mgb-0.cursor-pointer.topic-actived' # 첫 번째 회의 링크 찾기
-    link_element = await page.query_selector(first_meeting_link_selector)
+    link_element = await page.query_selector('a.mgb-0.cursor-pointer.topic-actived') # 첫 번째 회의 링크 찾기
     if link_element is None: # 첫 번째 회의 링크가 없으면 종료(다운로드 받을 회의가 없으면)
         fm = 0
     await link_element.click()
     await page.wait_for_selector('span.meeting-topic', timeout=30000)
     await asyncio.sleep(sS)
-    topic_selector = 'span.meeting-topic' # 회의 주제(타이틀) 가져오기
-    topic_element = await page.query_selector(topic_selector)
+    topic_element = await page.query_selector('span.meeting-topic') # 회의 주제(타이틀) 가져오기
     if topic_element:
         강의이름 = await topic_element.inner_text()
     date_selector = 'span.mgr-md' # 날짜 값 가져오기
@@ -76,8 +74,7 @@ async def 영상다운(이름):
                 new_handle = handle
                 break
         await asyncio.sleep(sS)
-    dl_selector = 'a.download-btn'
-    dl_element = await new_handle.query_selector(dl_selector)
+    dl_element = await new_handle.query_selector('a.download-btn')
     await asyncio.sleep(mS)
     if dl_element:
         async with new_handle.expect_download() as download_info:
@@ -92,21 +89,24 @@ async def 영상다운(이름):
     
 async def 삭제():
     global page  # 전역 변수로 사용
-    delete_selector = 'button:nth-child(3)'
-    delete_element = await page.query_selector(delete_selector)
-    if delete_element:
-        await delete_element.click()
-        await asyncio.sleep(mS)
-        delete1_selector = 'button.zm-button--primary.zm-button--small.zm-button > span'
-        print("버튼지정")
-        await asyncio.sleep(sS)
-        print("버튼찾기다리기")
-        delete1_element = await page.query_selector(delete1_selector)
-        print("버튼찾기")
-        if delete1_element: 
-            print("버튼클릭")
-            await page.get_by_role("button", name="휴지통으로 이동").click()
-            await asyncio.sleep(mS)              
+    c = 0
+    while c :
+        delete_element = await page.query_selector('button:nth-child(3)')
+        if delete_element:
+            await delete_element.click()
+            await asyncio.sleep(mS)
+            delete1_selector = 'button.zm-button--primary.zm-button--small.zm-button > span'
+            print("버튼지정")
+            await asyncio.sleep(sS)
+            print("버튼찾기다리기")
+            delete1_element = await page.query_selector(delete1_selector)
+            print("버튼찾기")
+            if delete1_element: 
+                print("버튼클릭")
+                await page.get_by_role("button", name="휴지통으로 이동").click()
+                await asyncio.sleep(mS)
+        else:
+            c = 1              
     await page.wait_for_load_state()
     await asyncio.sleep(sS)
     await page.reload() 
