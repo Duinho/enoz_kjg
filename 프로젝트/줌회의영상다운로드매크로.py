@@ -21,7 +21,7 @@ page = None
 browser = None
 new_handle = None
 
-폴더경로 = "os.path.dirname(os.path.abspath(__file__))"
+폴더경로 = os.path.dirname(os.path.abspath(__file__))
 
 async def 로그인():
     global page  # 전역 변수로 사용
@@ -57,7 +57,7 @@ async def 정보가져오기():
         
         await link_element.click()
         await page.wait_for_selector('span.meeting-topic', timeout=30000)
-        await asyncio.sleep(sS)
+        await asyncio.sleep(mS)
         topic_element = await page.query_selector('span.meeting-topic') # 회의 주제(타이틀) 가져오기
         if topic_element:
             강의이름 = await topic_element.inner_text() # 강의 이름 가져오기
@@ -68,7 +68,7 @@ async def 정보가져오기():
             matches = re.search(pattern, date_text)
             강의날짜 = matches.group(1)
             폴더이름 = f"{강의이름}_{강의날짜}" # 폴더 경로 설정 및 생성
-            폴더정보 = os.path.join(폴더경로, 폴더이름)
+            폴더정보 = os.path.join(폴더경로, 강의날짜, 폴더이름)
             os.makedirs(폴더정보, exist_ok=True)
     except Exception as e:
         print(f"{강의이름}정보가져오기에서 오류 발생: {e}")   # 디버깅을 위한 오류 위치 출력    
