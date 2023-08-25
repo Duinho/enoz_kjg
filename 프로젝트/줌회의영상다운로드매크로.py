@@ -8,7 +8,7 @@ from playwright.async_api import async_playwright
 sS = 2
 mS = 3
 lS = 5
-lsS = 8
+lsS = 7
 llS = 10
 fm = None
 강의이름 = None

@@ -5,9 +5,10 @@ from playwright.async_api import async_playwright
 import openpyxl
 
 fm = 1
-sS = 1
+sS = 2
 mS = 3
 lS = 5
+lsS = 7
 llS = 10
 강의날짜 = 202308
 아이디 = None
@@ -31,7 +32,7 @@ async def 로그인():
     await asyncio.sleep(sS)
     await page.goto('https://enozsw-bukgu.enoz.kr/Admin/Class/StudyList.asp') # 수강 관리로 이동
     await asyncio.sleep(sS)
-    await page.select_option('select[name="ddlKeyField"]', value='b.m_id')
+    await page.select_option('select[name="ddlKeyField"]', value='b.m_id') # 아이디로 검색으로 바꾸기
     await asyncio.sleep(sS)
 
 async def 반배정():
@@ -50,7 +51,7 @@ async def 반배정():
         await page.fill('input[name="tbKeyWord"].font_blue', 아이디)   # 아이디 검색
         await page.press('input[name="tbKeyWord"].font_blue', 'Enter')
         await asyncio.sleep(mS)
-        await page.click(f'a[href*="{강의날짜}"].button_red_small')
+        await page.click(f'a[href*="{강의날짜}"].button_red_small') # 강의 날짜에 맞는 것으로 선택
         await asyncio.sleep(mS)
         new_handle = None # 새로 열린 창 핸들 얻기
         while not new_handle:
@@ -60,7 +61,7 @@ async def 반배정():
                     break
             await asyncio.sleep(sS)
             
-            await new_handle.evaluate('''(name) => {
+            await new_handle.evaluate('''(name) => { 
             const selectElement = document.querySelector('select[name="ddlTargetGroupNo"]');
             for (const option of selectElement.options) {
                 if (option.textContent.includes(name)) {
@@ -70,25 +71,24 @@ async def 반배정():
                     break;
                 }
             }
-        }''', 반이름)
+        }''', 반이름) # 반이름에 해당되는 항목 선택
         
-            # 'dialog' 이벤트 핸들러를 등록하여 Alert 팝업을 핸들링합니다.
-        new_handle.on('dialog', lambda dialog: asyncio.ensure_future(handle_alert(new_handle, dialog)))
+        new_handle.on('dialog', lambda dialog: asyncio.ensure_future(handle_alert(new_handle, dialog))) # Alert 팝업창 핸들링
         
         await asyncio.sleep(mS)
-        await new_handle.click('a.button_yellow.bold:has-text("수강 변경")')
+        await new_handle.click('a.button_yellow.bold:has-text("수강 변경")') # 수강 변경 클릭
         
         await asyncio.sleep(sS)
-        await page.bring_to_front()
+        await page.bring_to_front() # 만약 창이 안 닫히면 무시하고 다음 동작하도록 함
         await asyncio.sleep(sS)
-        print(학생이름,"(",아이디,")",반이름,"로 배정 완료")
+        print(학생이름,"(",아이디,")",반이름,"로 배정 완료") 
         
     # 엑셀 파일 닫기
     wb.close()
 
-# 'dialog' 이벤트 핸들러
+
 async def handle_alert(page, dialog):
-    await dialog.accept()
+    await dialog.accept() # Alert 팝업창이 열리면 확인을 누름
 
 
 async def 동작():
