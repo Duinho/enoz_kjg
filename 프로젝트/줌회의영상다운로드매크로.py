@@ -8,7 +8,7 @@ from playwright.async_api import async_playwright
 sS = 2
 mS = 3
 lS = 5
-lsS = 7
+lsS = 8
 llS = 10
 fm = None
 강의이름 = None
@@ -86,7 +86,7 @@ async def 영상다운(이름):
                     break
             await asyncio.sleep(mS)
         dl_element = await new_handle.query_selector('a.download-btn')  # 다운로드 버튼을 찾기
-        await asyncio.sleep(sS)
+        await asyncio.sleep(mS)
         if dl_element:
             async with new_handle.expect_download() as download_info:
                 await dl_element.click()  
@@ -125,16 +125,17 @@ async def 동작():
         )
         page = await browser.new_page(accept_downloads=True) # 새로운 창이 열리면 page에 저장
         await 로그인()
-        await 정보가져오기()
-        downloadlist = await page.query_selector_all('div.item_list_header.relative > a')  # 영상 다운로드 하기 위해 각 항목으로 접속
-        for item in downloadlist:
-            inner_text = await item.inner_text()
-            if inner_text == "발표자 보기가 포함된 공유 화면":
-                await 영상다운('발표자 공유화면')
-            if inner_text == "갤러리 보기가 포함된 공유 화면":
-                await 영상다운('갤러리 공유화면')
-            if inner_text == "갤러리 보기":
-                await 영상다운('갤러리')
-        await 삭제()
+        while(1):
+            await 정보가져오기()
+            downloadlist = await page.query_selector_all('div.item_list_header.relative > a')  # 영상 다운로드 하기 위해 각 항목으로 접속
+            for item in downloadlist:
+                inner_text = await item.inner_text()
+                if inner_text == "발표자 보기가 포함된 공유 화면":
+                    await 영상다운('발표자 공유화면')
+                if inner_text == "갤러리 보기가 포함된 공유 화면":
+                    await 영상다운('갤러리 공유화면')
+                if inner_text == "갤러리 보기":
+                    await 영상다운('갤러리')
+            await 삭제()
 
 asyncio.run(동작())
