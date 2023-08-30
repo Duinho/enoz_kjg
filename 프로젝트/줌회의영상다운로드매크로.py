@@ -8,7 +8,7 @@ from playwright.async_api import async_playwright
 sS = 2
 mS = 3
 lS = 5
-lsS = 8
+lsS = 7
 llS = 10
 fm = None
 강의이름 = None
@@ -51,10 +51,7 @@ async def 정보가져오기():
             print("모든 영상 다운로드 완료")
             await browser.close()
             sys.exit()
-        link_element = await page.query_selector('a.mgb-0.cursor-pointer.topic-actived') # 첫 번째 회의 링크 찾기
-        if link_element is None: # 첫 번째 회의 링크가 없으면 종료(다운로드 받을 회의가 없으면)
-            fm = 0
-        
+        link_element = await page.query_selector('a.mgb-0.cursor-pointer.topic-actived') # 첫 번째 회의 링크 찾기        
         await link_element.click()
         await page.wait_for_selector('span.meeting-topic', timeout=30000)
         await asyncio.sleep(mS)
@@ -68,10 +65,11 @@ async def 정보가져오기():
             matches = re.search(pattern, date_text)
             강의날짜 = matches.group(1)
             폴더이름 = f"{강의이름}_{강의날짜}" # 폴더 경로 설정 및 생성
-            폴더정보 = os.path.join(폴더경로, 강의날짜, 폴더이름)
+            폴더정보 = os.path.join(폴더경로, '녹화영상', 강의날짜, 폴더이름)
             os.makedirs(폴더정보, exist_ok=True)
     except Exception as e:
         print(f"{강의이름}정보가져오기에서 오류 발생: {e}")   # 디버깅을 위한 오류 위치 출력    
+      
         
 async def 영상다운(이름):
     global item, browser, 폴더정보, 강의이름, 강의날짜, new_handle  # 전역 변수로 사용
@@ -84,7 +82,9 @@ async def 영상다운(이름):
                 if handle != page:
                     new_handle = handle
                     break
-            await asyncio.sleep(mS)
+                await asyncio.sleep(mS)
+
+        await new_handle.wait_for_selector('a.download-btn', timeout=30000)
         dl_element = await new_handle.query_selector('a.download-btn')  # 다운로드 버튼을 찾기
         await asyncio.sleep(mS)
         if dl_element:
@@ -94,10 +94,14 @@ async def 영상다운(이름):
                 await download.path()
             await download.save_as(os.path.join(폴더정보, f"{강의이름}_{이름}_{강의날짜}.mp4")) # 지정한 폴더에 다운로드하고 이름 바꾸기
             await new_handle.close()
+            new_handle = None
             await asyncio.sleep(mS)
             await page.wait_for_selector('span.meeting-topic', timeout=30000)
     except Exception as e:
         print(f"{강의이름}의 {이름} 영상다운에서 오류 발생: {e}") # 디버깅을 위한 오류 위치 출력
+        if new_handle:
+            await new_handle.close()
+    
     
 async def 삭제():
     global page  # 전역 변수로 사용
@@ -116,6 +120,7 @@ async def 삭제():
         await asyncio.sleep(lsS)
     except Exception as e:
         print(f"{강의이름}삭제에서 오류 발생: {e}") # 디버깅을 위한 오류 위치 출력
+    
     
 async def 동작():
     global browser, page, item  # 전역 변수로 사용
