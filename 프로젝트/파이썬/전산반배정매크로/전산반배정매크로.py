@@ -35,7 +35,10 @@ async def 로그인():
     await page.select_option('select[name="ddlKeyField"]', value='b.m_id') # 아이디로 검색으로 바꾸기
     await asyncio.sleep(sS)
 
-async def 반배정():
+
+
+
+async def 반배정(대상):
     global page, new_handle  # 전역 변수로 사용
     
     # 엑셀 파일 열기
@@ -44,10 +47,19 @@ async def 반배정():
     ws = wb.active
     
     for row in ws.iter_rows(min_row=2, values_only=True):  # 첫 번째 행은 헤더이므로 건너뜁니다.
-        반이름 = row[0]
-        아이디 = row[1]
-        학생이름 = row[2]
-        
+        if 대상 == '망령출동':
+            반이름 = row[5]
+            아이디 = row[6]
+            학생이름 = row[7]
+        if 대상 == '망령퇴장':
+            반이름 = row[10]
+            아이디 = row[11]
+            학생이름 = row[12]  
+        if 대상 == '학생':
+            반이름 = row[0]
+            아이디 = row[1]
+            학생이름 = row[2]             
+               
         await page.fill('input[name="tbKeyWord"].font_blue', 아이디)   # 아이디 검색
         await page.press('input[name="tbKeyWord"].font_blue', 'Enter')
         await asyncio.sleep(mS)
@@ -79,6 +91,7 @@ async def 반배정():
         await new_handle.click('a.button_yellow.bold:has-text("수강 변경")') # 수강 변경 클릭
         
         await asyncio.sleep(sS)
+        await new_handle.close()
         await page.bring_to_front() # 만약 창이 안 닫히면 무시하고 다음 동작하도록 함
         await asyncio.sleep(sS)
         print(학생이름,"(",아이디,")",반이름,"로 배정 완료") 
@@ -100,8 +113,10 @@ async def 동작():
         )
         page = await browser.new_page(accept_downloads=True)
         await 로그인()
-        await 반배정()
-        print("코드 종료")
+        await 반배정('망령출동')
+        await 반배정('학생')
+        await 반배정('망령퇴장')
+        print("반배정 완료")
         await browser.close() # 브라우저 종료
 
 asyncio.run(동작())
