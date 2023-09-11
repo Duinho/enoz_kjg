@@ -4,13 +4,15 @@ import os
 from playwright.async_api import async_playwright
 import openpyxl
 
-fm = 1
+
+강의날짜 = 202308
+
+
 sS = 2
 mS = 3
 lS = 5
 lsS = 7
 llS = 10
-강의날짜 = 202308
 아이디 = None
 반이름 = None
 학생이름 = None
@@ -18,7 +20,7 @@ page = None
 browser = None
 new_handle = None
 
-폴더경로 = "os.path.dirname(os.path.abspath(__file__))"
+폴더경로 = "os.path.dirname(os.path.abspath(__file__))" # 지금 코드 파일이 있는 위치를 저장
 
 async def 로그인():
     global page, new_handle  # 전역 변수로 사용
@@ -42,28 +44,28 @@ async def 반배정(대상):
     global page, new_handle  # 전역 변수로 사용
     
     # 엑셀 파일 열기
-    excel_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '반배정.xlsx')
+    excel_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '반배정.xlsx') # 이 코드파일이 있는 폴더에 반배정.xlsx 파일을 엶
     wb = openpyxl.load_workbook(excel_file_path)
     ws = wb.active
     
     for row in ws.iter_rows(min_row=2, values_only=True):  # 첫 번째 행은 헤더이므로 건너뜁니다.
-        if 대상 == '망령출동':
+        if 대상 == '학생배정': # A ~ C
+            반이름 = row[0]
+            아이디 = row[1]
+            학생이름 = row[2]  
+        if 대상 == '망령출동': # F ~ H
             반이름 = row[5]
             아이디 = row[6]
             학생이름 = row[7]
-        if 대상 == '망령퇴장':
+        if 대상 == '망령퇴장': # K ~ M
             반이름 = row[10]
             아이디 = row[11]
-            학생이름 = row[12]  
-        if 대상 == '학생':
-            반이름 = row[0]
-            아이디 = row[1]
-            학생이름 = row[2]             
+            학생이름 = row[12]             
                
-        await page.fill('input[name="tbKeyWord"].font_blue', 아이디)   # 아이디 검색
-        await page.press('input[name="tbKeyWord"].font_blue', 'Enter')
+        await page.fill('input[name="tbKeyWord"].font_blue', 아이디)   # 입력란에 아이디 입력
+        await page.press('input[name="tbKeyWord"].font_blue', 'Enter') # 엔터
         await asyncio.sleep(mS)
-        await page.click(f'a[href*="{강의날짜}"].button_red_small') # 강의 날짜에 맞는 것으로 선택
+        await page.click(f'a[href*="{강의날짜}"].button_red_small')     # 강의 날짜에 맞는 것으로 선택 몇 년 몇 월인지 적으면 됨
         await asyncio.sleep(mS)
         new_handle = None # 새로 열린 창 핸들 얻기
         while not new_handle:
@@ -86,26 +88,24 @@ async def 반배정(대상):
         }''', 반이름) # 반이름에 해당되는 항목 선택
         
         new_handle.on('dialog', lambda dialog: asyncio.ensure_future(handle_alert(new_handle, dialog))) # Alert 팝업창 핸들링
-        
         await asyncio.sleep(mS)
         await new_handle.click('a.button_yellow.bold:has-text("수강 변경")') # 수강 변경 클릭
-        
         await asyncio.sleep(sS)
-        await new_handle.close()
+        await new_handle.close()    # 변경 실패하면 창이 안 닫히므로 수동으로 닫음
         await page.bring_to_front() # 만약 창이 안 닫히면 무시하고 다음 동작하도록 함
         await asyncio.sleep(sS)
-        print(학생이름,"(",아이디,")",반이름,"로 배정 완료") 
+        print(학생이름,"(",아이디,")",반이름,"로 배정 완료") # 정상적으로 배정됐는지 터미널로 확인
         
     # 엑셀 파일 닫기
     wb.close()
 
 
 async def handle_alert(page, dialog):
-    await dialog.accept() # Alert 팝업창이 열리면 확인을 누름
+    await dialog.accept() # Alert 팝업 창이 열리면 확인을 누름
 
 
 async def 동작():
-    global browser, page, item  # 전역 변수로 사용
+    global browser, page  # 전역 변수로 사용
     async with async_playwright() as playwright:
         browser = await playwright.chromium.launch(
             headless=False,
@@ -114,7 +114,7 @@ async def 동작():
         page = await browser.new_page(accept_downloads=True)
         await 로그인()
         await 반배정('망령출동')
-        await 반배정('학생')
+        await 반배정('학생배정')
         await 반배정('망령퇴장')
         print("반배정 완료")
         await browser.close() # 브라우저 종료
