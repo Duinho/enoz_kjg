@@ -25,28 +25,24 @@ new_handle = None
 
 async def 로그인():
     global page  # 전역 변수로 사용
-    await page.goto('https://us02web.zoom.us/signin') # Zoom 로그인 페이지로 이동
+    await page.goto('https://accounts.google.com') # Zoom 로그인 페이지로 이동
     await page.wait_for_load_state()
-    await page.wait_for_selector('button#onetrust-accept-btn-handler', timeout=10000) # 쿠키 허용 버튼 클릭
-    await page.click('button#onetrust-accept-btn-handler')
     await asyncio.sleep(sS)
-    await page.wait_for_selector("i.zm-icon-down", timeout=10000)
+    await page.wait_for_selector("input[type='email']", timeout=10000)
     await asyncio.sleep(sS)
-    await page.click('i.zm-icon-down')
+    await page.fill("input[type='email']", 'enozedu') # 이메일 및 비밀번호 입력하고 로그인
     await asyncio.sleep(sS)
-    await page.wait_for_selector("span.zm-dropdown-menu__item-content:has-text('한국어')", timeout=10000)
+    await page.press("input[type='email']", 'Enter') 
     await asyncio.sleep(sS)
-    await page.click("span.zm-dropdown-menu__item-content:has-text('한국어')")
-    await asyncio.sleep(lS)
-    await page.fill('input#email', 'pds0335@hanmail.net') # 이메일 및 비밀번호 입력하고 로그인
-    await page.fill('input#password', 'Enoz7223')
-    await asyncio.sleep(100000)
-    await page.press('#password', 'Enter')     
-    await page.wait_for_url("*profile")
-    await page.goto('https://us02web.zoom.us/recording/management') # 기록관리 페이지로 이동
+    await page.wait_for_selector("input[type='password']", timeout=10000)
+    await page.fill("input[type='password']", 'enoz7410!@#$')   
     await asyncio.sleep(sS)
-    await page.wait_for_selector('h1[data-v-d8466eb2]:has-text("기록 관리")', timeout=30000)
-    await asyncio.sleep(lS)
+    await page.press("input[type='password']", 'Enter') 
+    await page.wait_for_selector("div.GiKO7c", timeout=10000)
+    await page.goto('https://drive.google.com/drive/u/0/folders/1Tw1l6_qZehztGHKS5NipXQBdQx2Vv3Ui') # 기록관리 페이지로 이동
+    await asyncio.sleep(sS)
+    await page.wait_for_selector("a[aria-label='추가 저장용량 구매']", timeout=10000)
+    await asyncio.sleep(100)
     
     
     
