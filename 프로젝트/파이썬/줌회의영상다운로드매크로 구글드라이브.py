@@ -39,10 +39,20 @@ async def 로그인():
     await asyncio.sleep(sS)
     await page.press("input[type='password']", 'Enter') 
     await page.wait_for_selector("div.GiKO7c", timeout=10000)
-    await page.goto('https://drive.google.com/drive/u/0/folders/1Tw1l6_qZehztGHKS5NipXQBdQx2Vv3Ui') # 기록관리 페이지로 이동
+    await page.goto('https://drive.google.com/drive/folders/1QtiAl3ZR4j4_K7VQ8xslgjRT0KGJVLlh') # 기록관리 페이지로 이동
     await asyncio.sleep(sS)
-    await page.wait_for_selector("a[aria-label='추가 저장용량 구매']", timeout=10000)
-    await asyncio.sleep(100)
+    await page.wait_for_selector("span.jYPt8c", timeout=10000)
+    await asyncio.sleep(sS)
+    await page.click("span.jYPt8c")
+    await asyncio.sleep(sS)
+
+    await page.keyboard.press("ArrowDown")
+    await asyncio.sleep(sS)
+    await page.keyboard.press("ArrowDown")
+    await asyncio.sleep(sS)
+    await page.keyboard.press("Enter")
+
+    await asyncio.sleep(30)
     
     
     

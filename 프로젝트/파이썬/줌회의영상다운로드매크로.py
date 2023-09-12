@@ -29,15 +29,7 @@ async def 로그인():
     await page.wait_for_load_state()
     await page.wait_for_selector('button#onetrust-accept-btn-handler', timeout=10000) # 쿠키 허용 버튼 클릭
     await page.click('button#onetrust-accept-btn-handler')
-    await asyncio.sleep(sS)
-    await page.wait_for_selector("i.zm-icon-down", timeout=10000)
-    await asyncio.sleep(sS)
-    await page.click('i.zm-icon-down')
-    await asyncio.sleep(sS)
-    await page.wait_for_selector("span.zm-dropdown-menu__item-content:has-text('한국어')", timeout=10000)
-    await asyncio.sleep(sS)
-    await page.click("span.zm-dropdown-menu__item-content:has-text('한국어')")
-    await asyncio.sleep(lS)
+    await asyncio.sleep(mS)
     await page.fill('input#email', 'pds0335@hanmail.net') # 이메일 및 비밀번호 입력하고 로그인
     await page.fill('input#password', 'Enoz7223')
     await asyncio.sleep(100000)
@@ -132,7 +124,7 @@ async def 삭제():
 async def 동작():
     global browser, page, item  # 전역 변수로 사용
     async with async_playwright() as playwright: # 크로미움(크롬)으로 브라우저 열기
-        browser = await playwright.firefox.launch(
+        browser = await playwright.chromium.launch(
             headless=False,
         )
         page = await browser.new_page(accept_downloads=True) # 새로운 창이 열리면 page에 저장
