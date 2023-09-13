@@ -1,0 +1,94 @@
+
+<html>
+<head>
+	<style>
+		table { 
+			border-left:1px solid #000; 
+			border-bottom:1px solid #000; 
+		}
+		td { 
+			border-top:1px solid #000; 
+			border-right:1px solid #000; 
+		}
+	</style>
+</head>
+
+<body>
+
+<table width="100%">
+	<tr>
+		<td style="background:#12436a;color:#fff;">강사 교육 활동 보고서</td>
+	</tr>
+</table>
+
+
+<table align="center" width="100%">
+	<tr>
+		<td>Group No</td>
+		<td colspan="3">202308_S2_2_10_1900_24_16_04</td>
+	</tr>
+	
+	<tr>
+		<td style="width:170px;">강좌명</td>
+		<td style="width:215px;">화상코딩(월수)</td>
+		<td>강좌서브명</td>
+		<td>1개월/주2회/월수/90분</td>
+	</tr>
+	
+	<tr>
+		<td>담당강사명</td>
+		<td>박지윤(월수)</td>
+		<td>교재명</td>
+		<td>생활 속 피지컬 컴퓨팅에 인공지능까지 <아두이노와 함께하는 게임 챌린지></td>
+	</tr>
+	
+	<tr>	
+		<td style="width:170px;"class="td2">시작일 ~ 종료일</td>
+		<td style="width:215px;">2023.08.21 ~ 2023.09.14</td>
+		<td>수업시간(분수)</td>
+		<td>19:00 ~ 20:30 (90 min.) - MON,WED</td>
+	</tr>
+	
+</table>
+<br />
+
+
+<table align="center" width="100%">
+	
+	<tr height="60">
+		<td width="100">수업일시</td>
+		<td colspan="3">
+			2023.09.11(MON)  &nbsp;
+			Time : 19:00 ~ 20:30(90 minutes)
+		</td>
+	</tr>
+	
+	<tr height="60">
+		<td width="100">출결현황</td>
+		<td colspan="3">김민표<font color='blue'>[출]</font>, 김수아<font color='blue'>[출]</font>, 유하은<font color='blue'>[출]</font>, 이도윤<font color='blue'>[출]</font>, 정강현<font color='blue'>[출]</font>, 한주형<font color='blue'>[출]</font>, 김수아[-], 이솜[-]</td>
+	</tr>
+	
+	<tr>
+		<td>교육내용</td>
+		<td colspan="3" style="height:250px">활동1 : 역량향상도 테스트에 앞서 복습 학습
+       (북구의 도시에 대해 살펴보기, 아두이노의 구조 및 전자회로, 코딩에 대해 알아보기 등 이해가 되지 않은 부분 다시 살펴보기)
+활동2 : 미로 찾기 게임 업그레이드 시키기
+활동3 : 초시계를 넣어 자신의 기록을 체크해 보며 재미있는 게임으로 만들어보기
+활동4 : 디지인을 수정하여 자신만의 게임으로 수정해보기
+활동5 : 수정된 게인 학습에 공유하기</td>
+	</tr>
+	
+	<tr>
+		<td>특이사항</td>
+		<td colspan="3" style="height:250px"></td>
+	</tr>
+</table>
+<br />
+
+
+
+</form>
+
+
+</body>
+</html>
