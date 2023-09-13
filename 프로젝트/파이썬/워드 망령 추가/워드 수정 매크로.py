@@ -65,18 +65,25 @@ async def 워드_수정(폴더_경로, result):
                             cell.text = cell.text.replace("[-]", "[출]")
                         if "[출]" in cell.text:
                             for paragraph in cell.paragraphs:
-                                new_paragraph = Document().add_paragraph()
-                                for run in paragraph.runs:
-                                    words = run.text.split(" ")
-                                    for word in words:
-                                        if word == "[출]":
-                                            new_run = new_paragraph.add_run(word)
-                                            new_run.font.color.rgb = RGBColor(0x00, 0x00, 0xFF)
-                                        else:
-                                            new_paragraph.add_run(word + " ")
-                                paragraph._element.getparent().replace(paragraph._element, new_paragraph._element)
-
-
+                                # 원래 단락의 텍스트를 저장
+                                original_text = paragraph.text
+                                # 원래 단락의 텍스트를 지웁니다
+                                paragraph.clear()
+                                # "[출]" 문자열을 찾아 파란색으로 바꿉니다
+                                index = 0
+                                while index < len(original_text):
+                                    start_index = original_text.find("[출]", index)
+                                    if start_index != -1:
+                                        # "[출]" 문자열 전의 텍스트를 추가
+                                        paragraph.add_run(original_text[index:start_index])
+                                        # 파란색 "[출]" 문자열을 추가
+                                        run = paragraph.add_run("[출]")
+                                        run.font.color.rgb = RGBColor(0x00, 0x00, 0xFF)
+                                        index = start_index + len("[출]")
+                                    else:
+                                        # 남은 텍스트를 추가
+                                        paragraph.add_run(original_text[index:])
+                                        break
 
             # 수정한 워드 파일 저장
             doc.save(워드_파일_경로)
