@@ -137,15 +137,9 @@ async def 삭제():
 
     
 async def 동작():
-<<<<<<< Updated upstream
     global browser, page, item, err  # 전역 변수로 사용
-    async with async_playwright() as playwright: # 파이어폭스로 브라우저 열기
+    async with async_playwright() as playwright: # 크로미움 브라우저 열기
         browser = await playwright.chromium.launch(
-=======
-    global browser, page, item  # 전역 변수로 사용
-    async with async_playwright() as playwright: # 파이어폭스로 브라우저 열기
-        browser = await playwright.firefox.launch(
->>>>>>> Stashed changes
             headless=False,
         )
         page = await browser.new_page(accept_downloads=True) # 새로운 창이 열리면 page에 저장
