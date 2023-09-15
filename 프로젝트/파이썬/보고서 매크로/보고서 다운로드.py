@@ -18,77 +18,76 @@ llS = 10
 
 날짜 = '202308'
 result = 0
-폴더경로 = os.path.dirname(os.path.abspath(__file__))
+폴더경로 = os.path.dirname(os.path.abspath(__file__))                               # 폴더경로를 코드가 있는 디렉토리로 저장 
 
 async def 로그인():
-    global page, new_handle  # 전역 변수로 사용
-    await page.goto('https://enozsw-bukgu.enoz.kr/Admin') # 로그인 사이트로 이동
-    await page.wait_for_load_state()
-    await asyncio.sleep(sS)
-    await page.fill('input[name="tbAdminId"]', 'admin') # 아이디 및 비밀번호 입력하고 로그인
+    global page, new_handle     
+    await page.goto('https://enozsw-bukgu.enoz.kr/Admin')                           # 로그인 사이트로 이동
+    await page.wait_for_load_state()                                                # 화면 바뀔 때까지 대기
+    await asyncio.sleep(1)                                                          # 1초 대기
+    await page.fill('input[name="tbAdminId"]', 'admin')                             # 아이디 및 비밀번호 입력하고 로그인
     await page.fill('input[name="tbAdminPass"]', 'admin55&&')
-    await asyncio.sleep(sS)
+    await asyncio.sleep(1)
     await page.press('input[name="tbAdminPass"]', 'Enter')
-    await asyncio.sleep(sS)
-    await page.goto('https://enozsw-bukgu.enoz.kr/Admin/Class/scheduleList.asp') # 수강 관리로 이동
-    await asyncio.sleep(sS)
-    await page.select_option('select[name="ddlTargetDate"]', value = 날짜)
-    await page.select_option('select[name="ddlKeyField"]', value ='Teacher') # 아이디로 검색으로 바꾸기
-    await asyncio.sleep(sS)
+    await asyncio.sleep(1)
+    await page.goto('https://enozsw-bukgu.enoz.kr/Admin/Class/scheduleList.asp')    # 수강 관리로 이동
+    await asyncio.sleep(1)
+    await page.select_option('select[name="ddlTargetDate"]', value = 날짜)          # 날짜를 해당 기수로 변경
+    await page.select_option('select[name="ddlKeyField"]', value ='Teacher')        # 아이디로 검색으로 바꾸기
+    await asyncio.sleep(1)
 
     
 async def 보고서다운():
     global browser, page, new_handle,폴더경로  # 전역 변수로 사용
     await 로그인()
     await 폴더_생성()
-    for i in range(1, 51):
-        if i < 26:
-            반 = 'MW_teacher'+ str(i).zfill(2)
-        else :
-            반 = 'TT_teacher' + str(i-25).zfill(2)
+    for i in range(1, 51):                                                                                              # 50번 반복
+        if i < 26:                                                                                                      # 26보다 작으면
+            반 = 'MW_teacher'+ str(i).zfill(2)                                                                          # 반에 월수 몇 반이라고 저장
+        else :                                                                                                          # 26 이상이면
+            반 = 'TT_teacher' + str(i-25).zfill(2)                                                                      # 반에 화목 몇 반이라고 저장
+                  
+        폴더_경로 = os.path.join(폴더경로, str(i))                                                                       # 폴더_경로를 폴더경로의 숫자로 지정
         
-        폴더_경로 = os.path.join(폴더경로, str(i))
-        
-        await page.fill('input[name="tbKeyWord"].font_blue', 반)
-        await page.press('input[name="tbKeyWord"].font_blue', 'Enter')
-        await page.wait_for_selector('//a[contains(@class, "button_gray_small") and text()="보고서"]', timeout=30000)
-        await asyncio.sleep(2)
-        buttons = await page.query_selector_all('//a[contains(@class, "button_gray_small") and text()="보고서"]') # 회색 버튼의 보고서를 전부 찾음
-        for button in buttons:
-            await button.click()
-            await asyncio.sleep(sS)
-            new_handle = None        # 새로 열린 창 핸들 얻기
+        await page.fill('input[name="tbKeyWord"].font_blue', 반)                                                        # 입력창에 반을 입력
+        await page.press('input[name="tbKeyWord"].font_blue', 'Enter')                                                  # 엔터로 검색
+        await page.wait_for_selector('//a[contains(@class, "button_gray_small") and text()="보고서"]', timeout=30000)   # 회색 버튼의 보고서가 나올 때까지 대기
+        await asyncio.sleep(2)                                                                                          # 2초 더 대기
+        buttons = await page.query_selector_all('//a[contains(@class, "button_gray_small") and text()="보고서"]')       # 회색 버튼의 보고서를 전부 찾음
+        for button in buttons:                                                                                          # 찾은 개수만큼 반복
+            await button.click()                                                                                        # 순차적으로 클릭
+            await asyncio.sleep(sS)                                                                                     
+            new_handle = None                                                                                           # 새로 열린 창 핸들 얻기
             while not new_handle:
                 for handle in browser.contexts[0].pages:
                     if handle != page:
                         new_handle = handle
                         break
-            element = await new_handle.query_selector('xpath=//td[text()="담당강사명"]/following-sibling::td[1]')
+            element = await new_handle.query_selector('xpath=//td[text()="담당강사명"]/following-sibling::td[1]')       
             if element:
-                강사이름 = await new_handle.evaluate('element => element.textContent', element)
+                강사이름 = await new_handle.evaluate('element => element.textContent', element)                          # 강사이름에 담당강사명 저장
             element = await new_handle.query_selector('td.p_left5 .font_red b')
             if element:
-                수업일시 = await new_handle.evaluate('element => element.textContent', element)       
+                수업일시 = await new_handle.evaluate('element => element.textContent', element)                          # 수업일시에 수업날짜 저장
             
-            file_name = f"{강사이름}_{수업일시}_보고서.doc"
-            # "다운로드[Word]" 버튼을 찾아 클릭
+            file_name = f"{강사이름}_{수업일시}_보고서.doc"                                                               # 파일 이름 저장
             
-            await new_handle.wait_for_selector('a.button_yellow', timeout=30000)
-            dl_element = await new_handle.query_selector('a.button_yellow')  # 다운로드 버튼을 찾기
+            await new_handle.wait_for_selector('a.button_yellow', timeout=30000)                                        # 다운로드 버튼이 나올 때까지 대기
+            dl_element = await new_handle.query_selector('a.button_yellow')                                             # 다운로드 버튼을 찾기
             if dl_element:
                 async with new_handle.expect_download() as download_info:
                     await dl_element.click()  
                     download = await download_info.value
-                await download.save_as(os.path.join(폴더_경로, file_name)) # 지정한 폴더에 다운로드하고 이름 바꾸기
-                await new_handle.close()
+                await download.save_as(os.path.join(폴더_경로, file_name))                                              # 지정한 폴더에 다운로드하고 이름 바꾸기
+                await new_handle.close()                                                                                # 새로 열린창 닫기
         
-        red_buttons = await page.query_selector_all('//a[contains(@class, "button_red_small") and text()="보고서"]')
+        red_buttons = await page.query_selector_all('//a[contains(@class, "button_red_small") and text()="보고서"]')    # 만약 빨간색으로 된 보고서 버튼이 있다면(미작성)
         for button in red_buttons:
             href_value = await button.get_attribute('href')
-            match = re.search(r"popTeacherReport\('.*?', '(.*?)', '.*?'\)", href_value)
+            match = re.search(r"popTeacherReport\('.*?', '(.*?)', '.*?'\)", href_value)                        
             if match:
                 date_value = match.group(1)
-                print(f"{강사이름}선생님은 {date_value}일 보고서를 작성하지 않으셨습니다.")
+                print(f"{강사이름}선생님은 {date_value}일 보고서를 작성하지 않으셨습니다.")                                # 강사이름과 미작성된 날짜 출력
     print('보고서 다운 완료')
     await browser.close()
                 
@@ -206,7 +205,7 @@ async def 동작():
         )
         page = await browser.new_page(accept_downloads=True) # 새로운 창이 열리면 page에 저장
 
-        #await 보고서다운()
+        await 보고서다운()
         await 변환_및_파일_수정()
 
 asyncio.run(동작())
