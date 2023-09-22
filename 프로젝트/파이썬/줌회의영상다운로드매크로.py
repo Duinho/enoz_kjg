@@ -121,7 +121,8 @@ async def 삭제():
                     await page.wait_for_load_state()            
             await asyncio.sleep(1)
             await page.reload() 
-            await asyncio.sleep(5)
+            await page.wait_for_selector('text=휴지통', timeout=30000)
+            await asyncio.sleep(2)
     except Exception as e:
         print(f"{강의이름}삭제에서 오류 발생: {e}")                                                                         # 디버깅을 위한 오류 위치 출력
         await page.goto('https://us02web.zoom.us/recording/management')                                                   # 기록관리 페이지로 이동
@@ -135,7 +136,7 @@ async def 동작():
     global browser, page, item, err                                                            # 전역 변수로 사용
     async with async_playwright() as playwright:                                               # 크로미움 브라우저 열기
         browser = await playwright.chromium.launch(
-            headle1=Fa5e,
+            headle1=False,
         )
         page = await browser.new_page(accept_downloads=True)                                   # 새로운 창이 열리면 page에 저장
         await 로그인()

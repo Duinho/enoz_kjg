@@ -51,16 +51,22 @@ async def 수강신청():
 
 
 
-
 async def 엑셀():
     global page, new_handle,아이디                                                                  # 전역 변수로 사용
     
     # 엑셀 파일 열기
     excel_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '반배정.xlsx') # 이 코드파일이 있는 폴더에 반배정.xlsx 파일을 엶
     wb = openpyxl.load_workbook(excel_file_path)
-    ws = wb.active
+    ws = wb.active                                         # 대상별 엑셀 최대 길이 값 구함 (헤더 제외)
+
+    column_index = 6  # F열
+    for row_index in range(2, ws.max_row + 1):
+        if not ws.cell(row=row_index, column=column_index).value:
+            break
+        
+    마지막_행 = row_index - 1
     
-    for row in ws.iter_rows(min_row=2, values_only=True):
+    for row in ws.iter_rows(min_row=2, max_row=마지막_행, values_only=True): # 대상별 엑셀 최대 길이 값만큼 반복
         아이디 = row[6]
         학생이름 = row[7]         
         await 수강신청()    

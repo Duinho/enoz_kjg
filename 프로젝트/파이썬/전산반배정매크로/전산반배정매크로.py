@@ -37,8 +37,7 @@ async def 로그인():
 
 async def 반배정(대상):
     global page, new_handle                                                                  # 전역 변수로 사용
-    
-    # 엑셀 파일 열기
+  
     excel_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '반배정.xlsx') # 이 코드파일이 있는 폴더에 반배정.xlsx 파일을 엶
     wb = openpyxl.load_workbook(excel_file_path)
     ws = wb.active

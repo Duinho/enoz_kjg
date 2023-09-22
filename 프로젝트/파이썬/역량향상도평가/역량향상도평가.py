@@ -17,21 +17,17 @@ col_l = None
 col_a = None
 
 
-
 async def 엑셀():
     global col_n,col_s,col_g,col_l,col_a
-
     desktop_path = os.path.dirname(os.path.abspath(__file__))             #현재 코드가 있는 디렉토리 위치 저장
     excel_file = os.path.join(desktop_path, '역량향상도학생리스트.xlsx')   # 디렉토리에 있는 역량향상도학생리스트.xlsx 위치 저장
     wb = openpyxl.load_workbook(excel_file, data_only=True)               # 엑셀 열기
     sheet = wb.active                                                     # sheet에 엑셀 값 저장
-
     col_n = [sheet[f"A{i}"].value for i in range(2, sheet.max_row + 1)]  # 이름 학교 학년 링크 정답 값 받아와 각 리스트에 저장
     col_s = [sheet[f"B{i}"].value for i in range(2, sheet.max_row + 1)]
     col_g = [sheet[f"C{i}"].value for i in range(2, sheet.max_row + 1)]
     col_l = [sheet[f"D{i}"].value for i in range(2, sheet.max_row + 1)]
     col_a = [sheet[f"E{i}"].value for i in range(2, sheet.max_row + 1)]
-
     wb.close()                                                           # 엑셀 닫음
      
 
@@ -58,13 +54,9 @@ async def 자동화():
         await page.click('span.NPEfkd.RveJvd.snByac')                             # 제출 클릭
         
 
-
-
 async def 동작():
     global browser, page                             # 전역 변수로 사용
-    
-    await 엑셀()
-    
+    await 엑셀()    
     async with async_playwright() as playwright:     # 크로미움 브라우저 열기
         browser = await playwright.chromium.launch(
             headless=False,
