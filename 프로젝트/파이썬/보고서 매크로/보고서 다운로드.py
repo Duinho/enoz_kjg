@@ -9,13 +9,6 @@ from docx import Document
 from docx.shared import RGBColor
 import win32com.client as win32
 
-
-sS = 1
-mS = 3
-lS = 5
-lsS = 7
-llS = 10
-
 날짜 = '202308'
 result = 0
 폴더경로 = os.path.dirname(os.path.abspath(__file__))                               # 폴더경로를 코드가 있는 디렉토리로 저장 
@@ -56,7 +49,7 @@ async def 보고서다운():
         buttons = await page.query_selector_all('//a[contains(@class, "button_gray_small") and text()="보고서"]')       # 회색 버튼의 보고서를 전부 찾음
         for button in buttons:                                                                                          # 찾은 개수만큼 반복
             await button.click()                                                                                        # 순차적으로 클릭
-            await asyncio.sleep(sS)                                                                                     
+            await asyncio.sleep(1)                                                                                     
             new_handle = None                                                                                           # 새로 열린 창 핸들 얻기
             while not new_handle:
                 for handle in browser.contexts[0].pages:

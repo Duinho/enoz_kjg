@@ -43,7 +43,7 @@ async def 자동화():
             await elements[col_a[k]-1].click()                                   # 클릭 항목을 순차적으로 체크함
     
         await page.fill('textarea[aria-labelledby="i33"]', str(col_9[i]))        # 마지막 주관식에 엑셀에 col_9에 있는 값을 적음
-        #await page.click('span.NPEfkd.RveJvd.snByac')                           # 제출 버튼을 누름
+        await page.click('span.NPEfkd.RveJvd.snByac')                           # 제출 버튼을 누름
         
 
 

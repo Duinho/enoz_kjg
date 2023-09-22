@@ -55,21 +55,21 @@ async def 자동화():
             await elements[col_a_list[k]-1].click()                               # 정답에 해당하는 항목을 클릭함
  
         print(f'{col_n[i]} 제출 완료')                                             # 제출한 학생 확인
-        #await page.click('span.NPEfkd.RveJvd.snByac')                             # 제출 클릭
+        await page.click('span.NPEfkd.RveJvd.snByac')                             # 제출 클릭
         
 
 
 
 async def 동작():
-    global browser, page  # 전역 변수로 사용
+    global browser, page                             # 전역 변수로 사용
     
     await 엑셀()
     
-    async with async_playwright() as playwright: # 크로미움 브라우저 열기
+    async with async_playwright() as playwright:     # 크로미움 브라우저 열기
         browser = await playwright.chromium.launch(
             headless=False,
         )
-        page = await browser.new_page() # 새로운 창이 열리면 page에 저장
+        page = await browser.new_page()              # 새로운 창이 열리면 page에 저장
         await 자동화()
     
 asyncio.run(동작())
