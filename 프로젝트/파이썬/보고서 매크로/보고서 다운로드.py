@@ -83,6 +83,7 @@ async def 보고서다운():
                 print(f"{강사이름}선생님은 {date_value}일 보고서를 작성하지 않으셨습니다.")                                # 강사이름과 미작성된 날짜 출력
     print('보고서 다운 완료')
     await browser.close()
+
                 
 async def 폴더_생성():
     global  폴더경로
@@ -90,6 +91,7 @@ async def 폴더_생성():
         폴더_경로 = os.path.join(폴더경로, str(반))
         if not os.path.exists(폴더_경로):
             os.mkdir(폴더_경로) # 반 폴더가 없으면 폴더를 만듦   
+
 
 async def 엑셀(반):
     global result,result1
@@ -116,6 +118,7 @@ async def 엑셀(반):
             column_values.append(value)
     result1 = column_values  # 결과를 result1 변수에 저장
     wb.close()
+
 
 async def 워드_수정(폴더_경로):
     global result,result1
@@ -172,6 +175,7 @@ async def 워드_수정(폴더_경로):
  
             doc.save(워드_파일_경로)
 
+
 async def 변환_및_파일_수정():
     global 폴더경로, 폴더_경로
     for 반 in range(1, 51):
@@ -190,6 +194,7 @@ async def 변환_및_파일_수정():
             await 워드_수정(폴더_경로)  # result 값을 전달
         print(f'{반}반 수정 완료')
         
+
 async def 동작():
     global browser, page, item, err  # 전역 변수로 사용
     async with async_playwright() as playwright: # 크로미움 브라우저 열기
