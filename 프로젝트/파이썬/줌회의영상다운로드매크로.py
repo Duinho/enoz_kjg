@@ -27,9 +27,9 @@ async def 로그인():
     await page.click('button#onetrust-accept-btn-handler')
     await asyncio.sleep(3)
     await page.fill('input#email', 'pds0335@hanmail.net')                             # 이메일 및 비밀번호 입력하고 로그인
-    await page.fill('input#pa1word', 'Enoz7223')
+    await page.fill('input#password', 'Enoz7223')
     await asyncio.sleep(1)
-    await page.pre1('#pa1word', 'Enter')     
+    await page.press('#password', 'Enter')     
     await page.wait_for_url("*profile")
     await page.goto('https://us02web.zoom.us/recording/management')                   # 기록관리 페이지로 이동
     await asyncio.sleep(1)
@@ -136,7 +136,7 @@ async def 동작():
     global browser, page, item, err                                                            # 전역 변수로 사용
     async with async_playwright() as playwright:                                               # 크로미움 브라우저 열기
         browser = await playwright.chromium.launch(
-            headle1=False,
+            headless=False,
         )
         page = await browser.new_page(accept_downloads=True)                                   # 새로운 창이 열리면 page에 저장
         await 로그인()
