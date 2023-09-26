@@ -95,19 +95,19 @@ async def 폴더_생성():
 
 async def 엑셀(반):
     global result,result1
-    excel_file = os.path.join(폴더경로, '가라추가.xlsx') # 같은 디렉토리에 가라추가라는 xlsx 파일에 정리해야 함.
-    wb = openpyxl.load_workbook(excel_file) # 엑셀 파일 열기
+    excel_file = os.path.join(폴더경로, '가라추가.xlsx')      # 같은 디렉토리에 가라추가라는 xlsx 파일에 정리해야 함.
+    wb = openpyxl.load_workbook(excel_file)                 # 엑셀 파일 열기
     sheet = wb.active
-    column_name = get_column_letter(반)  # 열 이름을 가져옴
+    column_name = get_column_letter(반)                     # 열 이름을 가져옴
     column_values = []
     result = ""
-    for cell in sheet[column_name][1:]:  # 첫 번째 행을 제외하고 순회 (반 이름 쓰는 곳)
+    for cell in sheet[column_name][1:]:                     # 첫 번째 행을 제외하고 순회 (반 이름 쓰는 곳)
         value = cell.value
-        if value:  # 셀이 비어있지 않으면 [출]을 추가
+        if value:                                           # 셀이 비어있지 않으면 [출]을 추가
             column_values.append(value + "[출]")
-            result = ", " + ", ".join(column_values) # ', 이름[출]'을 result에 저장
+            result = ", " + ", ".join(column_values)        # ', 이름[출]'을 result에 저장
     wb.close()
-    excel_file = os.path.join(폴더경로, '취소자.xlsx') # 같은 디렉토리에 취소자라는 xlsx 파일에 정리해야 함.
+    excel_file = os.path.join(폴더경로, '취소자.xlsx')       # 같은 디렉토리에 취소자라는 xlsx 파일에 정리해야 함.
     wb = openpyxl.load_workbook(excel_file) # 엑셀 파일 열기
     sheet = wb.active
     column_name = get_column_letter(반)  # 열 이름을 가져옴
@@ -196,7 +196,7 @@ async def 변환_및_파일_수정():
         
 
 async def 동작():
-    global browser, page, item, err  # 전역 변수로 사용
+    global browser, page  # 전역 변수로 사용
     async with async_playwright() as playwright: # 크로미움 브라우저 열기
         browser = await playwright.chromium.launch(
             headless=False,

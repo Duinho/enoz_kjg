@@ -17,12 +17,10 @@ col_9 = None
 
 async def 엑셀():
     global col_9
-
     desktop_path = os.path.dirname(os.path.abspath(__file__))           # 현재 코드가 있는 디렉토리 위치 저장
     excel_file = os.path.join(desktop_path, '만족도조사리스트.xlsx')     # 디렉토리에 있는 만족도조사리스트.xlsx 위치 저장 
     wb = openpyxl.load_workbook(excel_file, data_only=True)             # 엑셀 열기
     sheet = wb.active                                                   # sheet에 엑셀 값 저장
-
     col_9 = [sheet[f"A{i}"].value for i in range(2, sheet.max_row + 1)] # col_9에 A2부터 값 순차적으로 저장
     wb.close()                                                          # 엑셀 닫음
      
@@ -43,14 +41,12 @@ async def 자동화():
             await elements[col_a[k]-1].click()                                   # 클릭 항목을 순차적으로 체크함
     
         await page.fill('textarea[aria-labelledby="i33"]', str(col_9[i]))        # 마지막 주관식에 엑셀에 col_9에 있는 값을 적음
-        await page.click('span.NPEfkd.RveJvd.snByac')                           # 제출 버튼을 누름
+        await page.click('span.NPEfkd.RveJvd.snByac')                            # 제출 버튼을 누름
         
-
 
 
 async def 동작():
     global browser, page  # 전역 변수로 사용
-    
     await 엑셀()
     async with async_playwright() as playwright: # 크로미움 브라우저 열기
         browser = await playwright.chromium.launch(
