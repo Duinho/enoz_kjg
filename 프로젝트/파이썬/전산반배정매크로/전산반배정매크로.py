@@ -72,14 +72,14 @@ async def 반배정(대상):
         await page.press('input[name="tbKeyWord"].font_blue', 'Enter')  # 엔터
         await asyncio.sleep(1)
         await page.click(f'a[href*="{강의날짜}"].button_red_small')     # 강의 날짜에 맞는 것으로 선택 몇 년 몇 월인지 적으면 됨
-        await asyncio.sleep(2)
+        await asyncio.sleep(1)
         new_handle = None # 새로 열린 창 핸들 얻기
         while not new_handle:
             for handle in browser.contexts[0].pages:
                 if handle != page:
                     new_handle = handle
                     break
-            await asyncio.sleep(2)
+            await asyncio.sleep(1)
             
             await new_handle.evaluate('''(name) => { 
             const selectElement = document.querySelector('select[name="ddlTargetGroupNo"]');
