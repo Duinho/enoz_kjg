@@ -29,6 +29,7 @@ async def 로그인():
     await asyncio.sleep(2)
     await page.goto('https://enozsw-bukgu.enoz.kr/Admin/Class/StudyList.asp') # 수강 관리로 이동
     await asyncio.sleep(2)
+    await page.select_option('select[name="ddlTargetDate"]', value=str(강의날짜))    # 강의날짜로 검색으로 바꾸기
     await page.select_option('select[name="ddlKeyField"]', value='b.m_id')    # 아이디로 검색으로 바꾸기
     await asyncio.sleep(2)
 
