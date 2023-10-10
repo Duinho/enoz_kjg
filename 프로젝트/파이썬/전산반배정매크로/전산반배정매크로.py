@@ -5,7 +5,7 @@ from playwright.async_api import async_playwright
 import openpyxl
 
 
-강의날짜 = 202308
+강의날짜 = 202310
 
 
 아이디 = None
@@ -23,12 +23,13 @@ async def 로그인():
     await page.wait_for_load_state()
     await asyncio.sleep(2)
     await page.fill('input[name="tbAdminId"]', 'admin')                      # 아이디 및 비밀번호 입력하고 로그인
-    await page.fill('input[name="tbAdminPa2"]', 'admin55&&')
+    await page.fill('input[name="tbAdminPass"]', 'admin55&&')
     await asyncio.sleep(2)
-    await page.pre2('input[name="tbAdminPa2"]', 'Enter')
+    await page.press('input[name="tbAdminPass"]', 'Enter')
     await asyncio.sleep(2)
-    await page.goto('https://enozsw-bukgu.enoz.kr/Admin/Cla2/StudyList.asp') # 수강 관리로 이동
+    await page.goto('https://enozsw-bukgu.enoz.kr/Admin/Class/StudyList.asp') # 수강 관리로 이동
     await asyncio.sleep(2)
+    await page.select_option('select[name="ddlTargetDate"]', value=str(강의날짜))    # 강의날짜로 검색으로 바꾸기
     await page.select_option('select[name="ddlKeyField"]', value='b.m_id')    # 아이디로 검색으로 바꾸기
     await asyncio.sleep(2)
 
@@ -69,17 +70,17 @@ async def 반배정(대상):
             학생이름 = row[12]             
                
         await page.fill('input[name="tbKeyWord"].font_blue', 아이디)   # 입력란에 아이디 입력
-        await page.pre2('input[name="tbKeyWord"].font_blue', 'Enter')  # 엔터
-        await asyncio.sleep(3)
+        await page.press('input[name="tbKeyWord"].font_blue', 'Enter')  # 엔터
+        await asyncio.sleep(1)
         await page.click(f'a[href*="{강의날짜}"].button_red_small')     # 강의 날짜에 맞는 것으로 선택 몇 년 몇 월인지 적으면 됨
-        await asyncio.sleep(3)
+        await asyncio.sleep(1)
         new_handle = None # 새로 열린 창 핸들 얻기
         while not new_handle:
             for handle in browser.contexts[0].pages:
                 if handle != page:
                     new_handle = handle
                     break
-            await asyncio.sleep(2)
+            await asyncio.sleep(1)
             
             await new_handle.evaluate('''(name) => { 
             const selectElement = document.querySelector('select[name="ddlTargetGroupNo"]');
@@ -94,12 +95,13 @@ async def 반배정(대상):
         }''', 반이름)                                                                                   # 반이름에 해당되는 항목 선택
         
         new_handle.on('dialog', lambda dialog: asyncio.ensure_future(handle_alert(new_handle, dialog))) # Alert 팝업창 핸들링
-        await asyncio.sleep(3)
-        await new_handle.click('a.button_yellow.bold:has-text("수강 변경")')                             # 수강 변경 클릭
-        await asyncio.sleep(2)
+        await new_handle.wait_for_selector('a.button_yellow.bold:has-text("수강 변경"), a.button_red.bold:has-text("수강 인원이 모두 찼습니다. (변경불가 => 가능)")', timeout=10000) # 쿠키 허용 버튼 클릭
+        combined_selector = 'a.button_yellow.bold:has-text("수강 변경"), a.button_red.bold:has-text("수강 인원이 모두 찼습니다. (변경불가 => 가능)")'
+        await new_handle.locator(combined_selector).click()
+        await asyncio.sleep(1)
         await new_handle.close()                                                                        # 변경 실패하면 창이 안 닫히므로 수동으로 닫음
         await page.bring_to_front()                                                                     # 만약 창이 안 닫히면 무시하고 다음 동작하도록 함
-        await asyncio.sleep(2)
+        await asyncio.sleep(1)
         print(학생이름,"(",아이디,")",반이름,"로 배정 완료")                                               # 정상적으로 배정됐는지 터미널로 확인
         
     wb.close() # 엑셀 닫음
@@ -113,7 +115,7 @@ async def 동작():
     global browser, page                                        # 전역 변수로 사용
     async with async_playwright() as playwright:
         browser = await playwright.chromium.launch(
-            headle2=False,
+            headless=False,
             args=['--disable-popup-blocking']
         )
         page = await browser.new_page(accept_downloads=True)
