@@ -33,7 +33,7 @@ async def 로그인():
     await page.wait_for_url("*profile")
     await page.goto('https://us02web.zoom.us/recording/management')                   # 기록관리 페이지로 이동
     await asyncio.sleep(1)
-    await page.wait_for_selector('h1[data-v-d8466eb2]:has-text("기록 관리")', timeout=30000)
+    await page.wait_for_selector('//h1[contains(text(), "기록 관리") and contains(@style, "font-size: 24px;")]', timeout=30000)
     await asyncio.sleep(3)
     
     
@@ -103,7 +103,7 @@ async def 삭제():
         if err:
             await page.goto('https://us02web.zoom.us/recording/management')                                                # 기록관리 페이지로 이동
             await asyncio.sleep(1)
-            await page.wait_for_selector('h1[data-v-d8466eb2]:has-text("기록 관리")', timeout=30000)
+            await page.wait_for_selector('//h1[contains(text(), "기록 관리") and contains(@style, "font-size: 24px;")]', timeout=30000)
             print(f"{강의이름}설치 재시작")              
             await asyncio.sleep(1)
             err = None
@@ -127,7 +127,7 @@ async def 삭제():
         print(f"{강의이름}삭제에서 오류 발생: {e}")                                                                         # 디버깅을 위한 오류 위치 출력
         await page.goto('https://us02web.zoom.us/recording/management')                                                   # 기록관리 페이지로 이동
         await asyncio.sleep(1)
-        await page.wait_for_selector('h1[data-v-d8466eb2]:has-text("기록 관리")', timeout=30000)
+        await page.wait_for_selector('//h1[contains(text(), "기록 관리") and contains(@style, "font-size: 24px;")]', timeout=30000)
         print(f"{강의이름}설치 재시작")           
         await asyncio.sleep(3)
 
