@@ -14,7 +14,6 @@ browser = None
 col_9 = None
 만족도조사링크 = 'https://forms.gle/W8iM32CbPtJSsjrW9'                    # 그 때 그 때 맞는 링크로 수정해야 함
 
-
 async def 엑셀():
     global col_9
     desktop_path = os.path.dirname(os.path.abspath(__file__))           # 현재 코드가 있는 디렉토리 위치 저장
