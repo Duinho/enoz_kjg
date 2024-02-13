@@ -22,7 +22,7 @@ fg_color = "#FFFFFF"
 names = []
 current_team_index = 0
 team_order_window = None
-roulette_duration = 7  # 룰렛 애니메이션 지속 시간 (초)
+roulette_duration = 5  # 룰렛 애니메이션 지속 시간 (초)
 
 def read_colors_from_file():
     global bg_color, fg_color
