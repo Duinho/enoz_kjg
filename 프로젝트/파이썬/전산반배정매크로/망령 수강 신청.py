@@ -72,25 +72,25 @@ async def 수강취소():
                 handled_dialogs.add(dialog)# 전역 변수로 사용
         page.on('dialog', handle_dialog)
         await page.select_option('select[name="ddlTargetDate"]', value=str(강의날짜))    # 강의날짜로 검색으로 바꾸기
-        await page.select_option('select[name="ddlKeyField"]', value='b.m_id')    # 아이디로 검색으로 바꾸기
+        await page.select_option('select[name="ddlKeyField"]', value='b.m_id')          # 아이디로 검색으로 바꾸기
         await asyncio.sleep(1)
-        await page.fill('input[name="tbKeyWord"].font_blue', 아이디)   # 입력란에 아이디 입력
-        await page.press('input[name="tbKeyWord"].font_blue', 'Enter')  # 엔터
+        await page.fill('input[name="tbKeyWord"].font_blue', 아이디)                    # 입력란에 아이디 입력
+        await page.press('input[name="tbKeyWord"].font_blue', 'Enter')                  # 엔터
         await asyncio.sleep(1)
         await page.click('a.button_red_small:has-text("삭제")')
         await asyncio.sleep(1)
     except Exception as e:
-        print(f"{학생이름} 처리 과정에서 오류 발생: {e}")                                                        # 디버깅을 위한 오류 위치 출력    
+        print(f"{학생이름} 처리 과정에서 오류 발생: {e}")                                 # 디버깅을 위한 오류 위치 출력    
     
 
 
 async def 엑셀(모드):
-    global page, new_handle,아이디,학생이름                                                                  # 전역 변수로 사용
+    global page, new_handle,아이디,학생이름                                             # 전역 변수로 사용
     
     # 엑셀 파일 열기
     excel_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '반배정.xlsx') # 이 코드파일이 있는 폴더에 반배정.xlsx 파일을 엶
     wb = openpyxl.load_workbook(excel_file_path)
-    ws = wb.active                                         # 대상별 엑셀 최대 길이 값 구함 (헤더 제외)
+    ws = wb.active                                                                            # 대상별 엑셀 최대 길이 값 구함 (헤더 제외)
 
     column_index = 6  # F열
     for row_index in range(2, ws.max_row + 1):

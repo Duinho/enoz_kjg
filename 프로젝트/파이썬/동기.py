@@ -16,7 +16,7 @@ def 로그인(page):
     page.fill('input#email', 'pds0335@hanmail.net')
     page.fill('input#password', 'Enoz7223')
     page.press('#password', 'Enter')
-    page.wait_for_selector('span.font-bold:has-text("이앤오즈 주식회사")', timeout=30000)
+    page.wait_for_load_state()
     page.goto('https://us02web.zoom.us/recording/management')
 
 def 정보가져오기(page):
@@ -25,7 +25,6 @@ def 정보가져오기(page):
     if fm:
         print("모든 영상 다운로드 완료")
         sys.exit()
-    page.wait_for_selector('a.mgb-0.cursor-pointer.topic-actived")', timeout=30000)
     link_element = page.query_selector('a.mgb-0.cursor-pointer.topic-actived')
     link_element.click()
     page.wait_for_selector('span.meeting-topic', timeout=30000)
