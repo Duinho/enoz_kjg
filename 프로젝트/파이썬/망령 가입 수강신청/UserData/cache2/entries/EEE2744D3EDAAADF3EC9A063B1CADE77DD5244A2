@@ -1,0 +1,1934 @@
+var scroller, addDot;
+
+(function ($) {
+    
+    var gnb, gnbLayout, gnbScroll, changeTop, dot, dotLayout, dotRange, familySite, skrollrLayout, portfolioBtn,
+        isDot = false;
+    
+    
+    addDot = function(){
+        //ÁïôÎ®ØÏ®™ÔøΩÍæ™Î™¥ ÔøΩÎçâÏî†ÔøΩÍæ©ÏçêÊÑøÔøΩÔøΩÔøΩ
+        /*if( $(".newsList").length >= 1){ //ÔøΩÎåÅÎí™Á¥ê‚ë∏Ï§â ËπÇÎ™É–¶ html tag ÔøΩÏíìÍµÖ
+            dot.removeTag();
+        }*/
+        $(document).ready(function (e) {
+            
+            if( dot == undefined ){
+
+                dot = new Dot();
+
+                if( $(".newsList").length >= 1){
+                    dotRange = {pc: 768,mobile: 0}
+                }else if($(".recruitList").length >= 1){
+                    dotRange = {pc: 1281,tablet:768, mobile: 0}
+                }
+
+                if(dotRange != undefined){
+                    dotLayout = new Layout({
+                        range:dotRange,
+                        onChange: function (name) {
+                            //Ê≥•ÏÑèÏì¨ÈÅ∫ÔøΩÔøΩÔøΩ ÔøΩ„ÖΩÎªæ
+                            isDot = true;
+                            dot.change();
+                        }
+                    });
+                }
+            }
+            
+            if( isDot == true ){
+                dot.change();
+            }
+        });
+    }
+    
+    $(document).ready(function (e) {
+        
+        gnb = new Gnb();
+        familySite = new FamilySite();
+        portfolioBtn = new PortfolioBtn();
+        
+        gnbLayout = new Layout({
+            range: {
+                pc: 1281,
+                tablet: 768,
+                mobile: 0
+            },
+            onUpdate: function (prop) {
+                var name = prop["name"];
+                
+                if( name != "pc" && gnb.isGnbOpen() ){
+                    gnb.setMobileLayout();
+                }
+            },
+            onChange: function (prop) {
+                var name = prop["name"];
+                //Ê≥•ÏÑèÏì¨ÈÅ∫ÔøΩÔøΩÔøΩ ÔøΩ„ÖΩÎªæ
+                gnb.setMode(name);
+                
+                var top = $(window).scrollTop();
+                
+                setTimeout(function(){
+                    if (top < gnb.getGnbPos()) {
+                        gnb.setScrollLayout("top");
+                    }else{
+                        gnb.setScrollLayout("scroll");
+                    }  
+                },100);
+                
+                if (name != "pc") {
+                    gnb.removeMotion();
+                }
+
+                if (name == "pc") {
+                    gnb.addMotion();
+                    gnb.mobileGnbClose();
+                }
+            }
+        });
+        
+        gnbScroll = new Scroll({
+            onUpdate: function (prop) {
+                var top, direction, scrollEnd;
+                
+                top = prop["top"];
+                direction = prop["direction"];
+                scrollEnd = prop["scrollEnd"];
+                
+                if (top < gnb.getGnbPos()) {
+                    gnb.setScrollLayout("top");
+                }else{
+                    gnb.setScrollLayout("scroll");
+                }
+            }
+        });
+        
+        //$(document).bind("contextmenu", function(e) {
+        //    alert('Ï†ÄÏûëÍ∂å Î≥¥Ìò∏Î•º ÏúÑÌïòÏó¨ ÎßàÏö∞Ïä§ Ïò§Î•∏Ï™ΩÎ≤ÑÌäº ÏÇ¨Ïö©Ïù¥ Í∏àÏßÄÎêòÏóàÏäµÎãàÎã§.');
+        //    return false;
+        //});
+        
+        //$(document).bind("dragstart selectstart", function(e) {
+        //    return false;
+        //});
+
+    });
+
+    $(window).on('load',function (e) {
+        
+        var top = $(window).scrollTop();
+                
+//        if (top < gnb.getGnbPos()) {
+//            gnb.setScrollLayout("top");
+//        }else{
+//            gnb.setScrollLayout("scroll");
+//        }
+        
+        //ÔøΩÏÑéÏú∫ÔøΩÔøΩÎí™
+        if( $(".content.main").length == 0){
+            skrollrLayout = new Layout({
+                range: {
+                    pc: 1281,
+                    tablet: 768,
+                    mobile: 0
+                },
+                onChange: function (prop) {
+                    
+                    var name = prop["name"];
+                    //Ê≥•ÏÑèÏì¨ÈÅ∫ÔøΩÔøΩÔøΩ ÔøΩ„ÖΩÎªæ
+
+                    if( typeof skrollr == "object"){
+                        if(name != "pc"){
+                            $(".skrollable").attr({"style":""});
+                        }else{
+                            var obj = {};
+                            if( $('.history-wrap').length == 0){
+                                obj = {skrollrBody:"wrap"}
+                            }else{
+                                obj = {
+                                    skrollrBody:"wrap",
+                                    smoothScrollingDuration:800
+                                }
+                            }
+                            
+                            scroller = skrollr.init(obj);
+                        }
+                    }
+                }
+            });
+        }
+        
+        $('img').attr({"oncontextmenu":"return false;"});
+        $('img').css({"-webkit-touch-callout":"none"});
+        
+    });
+    
+    function Gnb() {
+
+        var header, gnb, gnbWrap, mobileOpenBtn, mobileCloseBtn, depth1, dim, transit,
+            gnbLayoutType, gnbScrollType, isGnbOpen, gnbMode, mobileLastFocus;
+
+        if (!(this instanceof Gnb)) {
+            return new Gnb();
+        }
+
+        this.setMode = function (type) {
+            gnbLayoutType = type;
+        }
+
+        this.addMotion = function () {
+            addMotion();
+        }
+
+        this.removeMotion = function () {
+            removeMotion();
+        }
+
+        this.mobileGnbClose = function () {
+            mobileGnbClose();
+        }
+
+        this.setScrollLayout = function (type) {
+            gnbScrollType = type;
+            setScrollLayout();
+        }
+        
+        this.setMobileLayout = function(){
+            setMobileLayout();
+        }
+        
+        this.isGnbOpen = function(){
+            return isGnbOpen;
+        };
+        
+        this.getGnbPos = function(){
+            return getGnbOpenPos();
+        }
+        
+        init();
+
+        function init() {
+            header = $("#header");
+            gnbWrap = $(".mobile-wrap");
+            gnb = $("#gnb");
+            mobileOpenBtn = header.find(".ico-menu");
+            mobileCloseBtn = header.find(".close");
+            depth1 = gnb.find(".menu1");
+            dim = $(".dim");
+            transit = $(".transit");
+            
+            addEvent();
+        }
+
+        function addMotion() {
+            transit.addClass("transition");
+        }
+
+        function removeMotion() {
+            transit.removeClass("transition");
+        }
+
+        function addEvent() {
+            gnb.mouseenter(function (e) {
+                
+                if (gnbLayoutType == "pc") {
+                    gnbOpen();
+                }
+            });
+
+            gnb.mouseleave(function (e) {
+                if (gnbLayoutType == "pc") {
+                    gnbClose();
+                }
+            });
+
+            mobileOpenBtn.click(function (e) {
+                if (gnbLayoutType != "pc") {
+                    mobileGnbOpen();
+                }
+                e.preventDefault();
+            });
+            
+            mobileCloseBtn.click(function (e) {
+                if (gnbLayoutType != "pc") {
+                    mobileGnbClose();
+                }
+                e.preventDefault();
+            });
+
+            depth1.click(function (e) {
+                if (gnbLayoutType != "pc") {
+                    var idx = depth1.index(this);
+                    mobileMenuOpen(idx);
+                    setMobileLayout();
+                    e.preventDefault();
+                }
+                //e.preventDefault();
+            });
+            
+            $("body").keyup(function (e) {
+                if (e.key == "Tab") {
+                    //ÔøΩ—äÎπ±ÔøΩÔøΩ ÊÑøÔøΩÁî±ÔøΩ
+                    if ($.contains(gnb[0], e.target)) {
+                        if (gnbLayoutType == "pc") {
+                            gnbOpen();
+                        }
+                    } else {
+                        if (gnbLayoutType == "pc") {
+                            gnbClose();
+                        }
+                    }
+                    e.preventDefault();
+                }
+            });
+            
+            $("body").keydown(function (e) {
+                if (e.key == "Tab") {
+                    var target = e.target;
+                    if(gnbLayoutType != "pc" && $.contains(header[0], target)){
+                        
+                        if(mobileCloseBtn.is(target)){
+                            gnb.find('a').eq(0).focus();
+                            e.preventDefault();
+                        }
+                    }
+                }
+            });
+        }
+
+        function gnbOpen() {
+            if ($(window).scrollTop() <= getGnbOpenPos()) {
+                if(!header.hasClass("white"))header.addClass("hopen");
+            }
+            header.css({height: (gnb.height() + 75) + "px"});
+            
+            gnb.addClass("open");
+            isGnbOpen = true;
+        }
+
+        function gnbClose() {
+            if ($(window).scrollTop() > getGnbOpenPos()) {
+                header.css({
+                    height: ""
+                });
+            } else {
+                header.css({
+                    height: ""
+                });
+                if(!header.hasClass("white"))header.removeClass("hopen");
+            }
+            gnb.removeClass("open");
+            isGnbOpen = false;
+        }
+
+        function mobileGnbOpen() {
+            bodyDisabled(true);
+            
+            header.removeClass("hopen scroll");
+            header.addClass("hmob");
+            dim.css({display:"block"});
+            isGnbOpen = true;
+        }
+
+        function mobileGnbClose() {
+            
+            bodyDisabled(false);
+
+            header.removeClass("hmob");
+            dim.css({display:"none"});
+            mobileOpenBtn.focus();
+            setScrollLayout();
+            isGnbOpen = false;
+        }
+
+        function mobileMenuOpen(idx) {
+            depth1.each(function (i) {
+                var li = $(this).parent();
+                if (idx == i && !li.hasClass('on')) {
+                    li.addClass('on');
+                } else {
+                    li.removeClass('on');
+                }
+            });
+            depth1.removeClass("on");
+        }
+
+        function setScrollLayout() {
+            
+            header.removeClass("scroll hopen");
+            if( !header.hasClass("hmob") ){
+                if( gnbScrollType == "top" ){
+                    if(header.hasClass("white"))header.addClass("hopen");
+                }else{
+                    /*if( gnbLayoutType != "mobile")*/header.addClass("hopen");
+                    if( gnbLayoutType == "pc")header.addClass("scroll");
+                }
+            }
+        }
+
+        function setMobileLayout() {
+            var titleHeight, gnbHeight, headerPadding, languageHeight, conHeight;
+                
+                headerPadding = parseInt($("#header").css('padding-bottom'));
+                gnbHeight = $("#header #gnb").height();
+                titleHeight = $("#header>h1.logo").height();
+                languageHeight = $("#header .language").height() + parseInt($("#header .language").css('margin-top'));
+            
+                conHeight = headerPadding + titleHeight + gnbHeight + languageHeight;
+            if(window.innerHeight < conHeight){
+                gnbWrap.css({height:window.innerHeight - titleHeight - headerPadding});
+            }else{
+                gnbWrap.removeAttr("style");
+            }
+        }
+        
+        function getGnbOpenPos(){
+            var changeTop;
+            //GNBÔøΩÎçâÏî†ÔøΩÍæ©Ïçê ÊÑøÔøΩÔøΩÔøΩ
+            if( $(".content.main").length == 1){
+                changeTop = $("#homeArea").height() - 60;
+            }else{
+                changeTop = 20;
+            }
+            
+            return changeTop;
+        }
+        
+        function bodyDisabled(type){
+            if( type == true ){
+                var distance, startScroll, startPosY;
+
+                $("body").css({overflow: "hidden"})
+                    .bind("touchstart", function (e) {
+                    startScroll = gnbWrap.scrollTop();
+                    //gnbÔøΩÏá∞Î∏£ ÔøΩÏíñÏòâ ÔøΩ—äÔøΩÔøΩÔøΩ 
+                    if ($.contains(gnbWrap[0], e.target) == true) {
+                        startPosY = e.originalEvent.touches[0].clientY;
+                    }
+                })
+                    .bind("touchmove", function (e) {
+                    if ($.contains(gnbWrap[0], e.target) == true) {
+                        distance = startPosY - e.originalEvent.touches[0].clientY;
+                        gnbWrap.scrollTop(startScroll + distance);
+                    }
+                    e.preventDefault();
+                });
+            }else{
+                $("body").removeAttr("style")
+                    .unbind("touchmove");
+            }
+        }
+    }
+    //ÔøΩÏÑéÔøΩÁî±ÔøΩ ÔøΩ—äÏî†ÔøΩÔøΩ
+    function FamilySite() {
+        if (!(this instanceof FamilySite)) {
+            return new FamilySite();
+        }
+
+        var btn;
+
+        init();
+
+        function init() {
+            btn = $(".family");
+            addEvent()
+        }
+
+        function addEvent() {
+
+            btn.find(".sel").click(function (e) {
+                
+                e.stopPropagation();
+                e.preventDefault();
+                
+                if( btn.hasClass("on") ){
+                    $(document).off("click touchend");
+                    btn.removeClass("on");
+                }else{
+                    btn.addClass("on");
+                    $(document).one("click touchend", function(e){
+                        setTimeout( function(){btn.removeClass("on");}, 100 );
+                    });
+                }
+            });
+        }
+    }
+    //ÁïôÎ®ØÏ®™ÔøΩÍæ™Î™¥
+    function Dot() {
+        if (!(this instanceof Dot)) {
+            return new Dot();
+        }
+
+        var dots,
+            dotMaxHeight;
+
+        dots = $(".dot");
+        dotMaxHeight = [];
+
+        this.update = function () {
+            updateDot();
+        }
+
+        this.change = function () {
+            reset();
+        }
+        
+        this.removeTag = function(){
+            removeTag();
+        }
+        
+        function getMaxHeight() {
+            dots.each(function (i) {
+                dotMaxHeight[i] = $(this).css("max-height");
+            });
+        }
+
+        function addDot() {
+            dots.each(function (i) {
+                $(this)
+                    //.css({"border":"solid 1px red"})
+                    .dotdotdot({
+                        watch: "window",
+                        wrap: 'letter',
+                        height: parseInt(dotMaxHeight[i])
+                    });
+            });
+        }
+
+        function reset() {
+            dots = $(".dot");
+            destroy();
+            getMaxHeight();
+            addDot();
+        }
+
+        function updateDot() {
+            dots.trigger("update.dot");
+        }
+
+        function destroy() {
+            dots.trigger("destroy");
+        }
+        
+        function removeTag(){//ÔøΩÎåÅÎí™ ËπÇÎ™É–¶ ÔøΩÏíìÎ†áÔøΩÏíìÍµÖ
+            $(".newsList .txt.dot").each(function(i){
+                var txt = $(this).text();
+                $(this).empty().append(txt);
+            });
+        }
+    }
+    
+    
+    //ÔøΩ—ãÎìÉÔøΩÎåÄ‚îÅÔøΩÔøΩ ÔøΩ„ÖªÏæ≠ÔøΩ‚ë£ÎÇµ
+    function PortfolioBtn(){
+        if (!(this instanceof PortfolioBtn)) {
+            return new PortfolioBtn();
+        }
+        
+        var menus;
+        
+        init();
+        addEvent();
+        
+        function init(){
+            menus = $(".portfolioList li");
+        }
+        
+        function addEvent(){
+            menus.mouseover(function (e) {
+                if( chkMobile() != "mobile"){
+                    e.preventDefault();
+                    $(this).find(".dimLayer")
+                        .velocity("stop")
+                        .velocity({
+                            opacity: [1,0]
+                        }, {
+                            duration: 300, display:"block"
+                        });
+                }
+            });
+            menus.mouseout(function (e) {
+                if( chkMobile() != "mobile"){
+                    e.preventDefault();
+                    $(this).find(".dimLayer")
+                        .velocity("stop")
+                        .velocity({
+                            opacity: [0,1]
+                        }, {
+                            duration: 100, display:"none"
+                        });
+                }
+            });
+        }
+    }
+}(jQuery));
+
+//window ÔøΩÎ≥¶Ïî†ËπÇÔøΩ ÔøΩÎåÄÍπΩÔøΩÔøΩ ÔøΩÎ™ÖÎòø
+function Layout(attr) {
+    var targetObj, currentState, propObj,
+        attributes, ranges, currentWidth, currentHeight,
+        onUpdate, onChange;
+
+    if (!(this instanceof Layout)) {
+        return new Layout();
+    }
+    
+    targetObj = this;
+    
+    propObj = {
+        name:"",
+        currentState:"",
+        changeWidth:false,
+        changeHeight:false,
+        width:0,
+        height:0,
+    }
+    
+    Layout.prototype.getWindowState = function(arr){
+        var state;
+        arr.forEach(function (val, idx, arr) {
+            //currentState
+            if (window.innerWidth >= val["width"]) {
+                state = val["name"];
+            }
+        });
+        return state;
+    }
+    
+    this.getState = function(){
+        return propObj["name"];
+    }
+    
+    init();
+
+    function init() {
+        
+        if (typeof attr == "object") {
+
+            attributes = attr;
+            //Ë∏∞Î∂øÏêû Ë´õÍ≥óÎø¥ ÂêèÔøΩÔøΩÔøΩ
+            if (typeof attributes["range"] == "object") {
+                //
+                ranges = [];
+                //Ë´õÍ≥óÎø¥ÔøΩÔøΩ Â™õÔøΩ ÔøΩÏéåÏóØ
+                $.each(attributes["range"], function (key, value) {
+                    ranges.push({
+                        width: value,
+                        name: key
+                    })
+                });
+                //Ë∏∞Î∂øÏêû Ë´õÍ≥óÎø¥ ÔøΩÎ∫£Ï†π
+                ranges.sort(function (a, b) {
+                    return a["width"] - b["width"];
+                });
+            }
+        } else {
+            //console.log("ÔøΩÎ™ÑÏòÑÂ™õÎØ™Ïî† ÔøΩÎÜÅÏì¨")
+        }
+        addEvent();
+        update();
+    }
+
+    function addEvent() {
+        $(window).resize(function (e) {
+            update();
+        })
+    }
+
+    function update() {
+        if( currentWidth !=  window.innerWidth){
+            propObj["changeWidth"] = true;
+            currentWidth = window.innerWidth;
+        }else{
+            propObj["changeWidth"] = false;
+        }
+        
+        if( currentHeight !=  window.innerHeight){
+            propObj["changeHeight"] = true;
+            currentHeight = window.innerHeight;
+        }else{
+            propObj["changeHeight"] = false;
+        }
+        
+        propObj["width"] = window.innerWidth;
+        propObj["height"] = window.innerHeight;
+        
+        //ÔøΩÎçâÏî†ÔøΩÍæ©Ïçê Ë´õÎ∂æÔøΩÎ∂æÎ∏£
+        if (targetObj.getWindowState(ranges) !=  propObj["name"] && typeof attributes.onChange == "function") {
+            propObj["name"] = targetObj.getWindowState(ranges);
+            attributes.onChange.call(this, propObj);
+        }
+        
+        if (typeof attributes.onUpdate == "function") {
+            attributes.onUpdate.call(this, propObj);
+        }
+    }
+}
+//ÔøΩ„ÖΩÍ≤ïÊø°ÔøΩ & ÁïôÎçâÏä¶ÔøΩÔøΩ ÔøΩÔøΩ ÔøΩÎåÄÍπΩÔøΩÔøΩ
+function Scroll(attr) {
+    if (!(this instanceof Scroll)) {
+        return new Scroll();
+    }
+
+    var obj, attributes, propObj,
+        lastScroll;
+
+    obj = this;
+    propObj = {};
+    
+    Scroll.prototype.preventDefault = function (e) {
+        e = e || window.event;
+        if (e.preventDefault)
+            e.preventDefault();
+        e.returnValue = false;
+    }
+
+    Scroll.prototype.preventDefaultForScrollKeys = function (e) {
+
+        var keys = {
+            37: 1,
+            38: 1,
+            39: 1,
+            40: 1
+        };
+
+        if (keys[e.keyCode]) {
+            obj.preventDefault(e);
+            return false;
+        }
+    }
+
+    //ÔøΩ„ÖΩÍ≤ïÊø°ÔøΩ ÈçÆÍæ™ÏÜ¢ÔøΩÔøΩ
+    Scroll.prototype.disableScroll = function () {
+        if (window.addEventListener) // older FF
+            window.addEventListener('DOMMouseScroll', obj.preventDefault, false);
+        window.onwheel = obj.preventDefault; // modern standard
+        window.onmousewheel = document.onmousewheel = obj.preventDefault; // older browsers, IE
+        window.ontouchmove = obj.preventDefault; // mobile
+        document.onkeydown = obj.preventDefaultForScrollKeys;
+    }
+    //ÔøΩ„ÖΩÍ≤ïÊø°ÔøΩ ÔøΩÏíñÍΩ¶ÔøΩÔøΩ
+    Scroll.prototype.enableScroll = function () {
+        if (window.removeEventListener)
+            window.removeEventListener('DOMMouseScroll', obj.preventDefault, false);
+        window.onmousewheel = document.onmousewheel = null;
+        window.onwheel = null;
+        window.ontouchmove = null;
+        document.onkeydown = null;
+    }
+    
+    init();
+
+    function init() {
+        lastScroll = 0;
+
+        if (typeof attr == "object") {
+            attributes = attr;
+        }
+
+        addEvent();
+
+        //if( attributes.initEvent == true)
+    }
+
+    function addEvent() {
+        $(window).scroll(function (e) {
+            scrollUpdate();
+            e.preventDefault();
+        });
+
+        $("html, body").bind('mousewheel DOMMouseScroll', function (e) {
+            wheelUpdate(e);
+        });
+    }
+
+    function scrollUpdate() {
+        var updateCallBack = attributes.onUpdate;
+        if (typeof updateCallBack == "function") {
+
+            scrollTop = $(window).scrollTop();
+            propObj["top"] = scrollTop;
+            //Ë´õ‚ë∫Îº¢ ÔøΩÎ™ÖÎòø
+            if (scrollTop > lastScroll) {
+                propObj["direction"] = "down";
+            } else {
+                propObj["direction"] = "up";
+            }
+            
+            if (scrollTop == $(document).height() - $(window).height()) {
+                propObj["scrollEnd"] = true;
+            }else{
+                propObj["scrollEnd"] = false;
+            }
+            
+            updateCallBack.call(this, propObj);
+
+            lastScroll = scrollTop;
+        }
+    }
+
+    function wheelUpdate(e) {
+        //ÔøΩÔøΩ ÔøΩÎåÄÍπΩÔøΩÔøΩ
+        var wheelCallBack = attributes.onWheel;
+
+        if (typeof wheelCallBack == "function") {
+
+            var orgEvent, delta, targetPos, scrollTop;
+
+            orgEvent = e.originalEvent;
+            delta = 0;
+            scrollTop = $(window).scrollTop();
+
+            if (orgEvent.detail) { //FireFox wheel event
+                delta = orgEvent.detail * -40;
+            } else { //etc
+                delta = orgEvent.wheelDelta;
+            };
+            
+            propObj["top"] = scrollTop;
+            propObj["targetPos"] = scrollTop - delta;
+            
+            if (delta > 0) {
+                propObj["direction"] = "up";
+            } else {
+                propObj["direction"] = "down";
+            }
+            
+            if (scrollTop == $(document).height() - $(window).height()) {
+                propObj["scrollEnd"] = true;
+            }else{
+                propObj["scrollEnd"] = false;
+            }
+            
+            wheelCallBack.call(this, propObj);
+        }
+    }
+}
+
+//ÊÄ®ÎìØÎÑª ÔøΩ—äÏäú modal
+var _ModalPopupBackgroundID, _currentModal, _ModalBtn;
+
+_ModalPopupBackgroundID = 'modal';
+
+function ShowModalPopup(btn, modalPopupID) {
+    _ModalBtn = btn;
+    var popupID = "#" + modalPopupID;
+    var popupMarginTop = $(popupID).height() / 2;
+    var popupMarginLeft = $(popupID).width() / 2;
+    
+    _currentModal = popupID;
+        
+    $('body').css('overflow', 'hidden');
+    $(popupID).css({
+        'left': '50%',
+        'top': '50%',
+        'margin-top': -popupMarginTop,
+        'margin-left': -popupMarginLeft,
+        'display': 'block',
+        'position': 'fixed',
+        'z-index': 99999
+    })
+    //ÔøΩ—äÎπ±ÔøΩÔøΩ
+    .attr("tabindex", "0")
+    .before("<div class='focusstart' tabindex='0'></div>")
+    .after("<div class='focusend' tabindex='0'></div>")
+    .find("a").eq(0).focus();
+
+    var backgroundSelector = $('<div id="' + _ModalPopupBackgroundID + '" ></div>');
+    backgroundSelector.appendTo('body');
+
+    backgroundSelector.css({
+        'width': $(document).width(),
+        'height': $(document).height(),
+        'display': 'none',
+        'background-color': '#000',
+        'filter':'alpha(opacity=80)',
+        'position': 'absolute',
+        'top': 0,
+        'left': 0,
+        'z-index': 99998
+    });
+
+    backgroundSelector.fadeTo('fast', 0.8);
+    backgroundSelector.click(function(){
+        HideModalPopup(modalPopupID)
+    });
+    
+    //ÔøΩ—äÎπ±ÔøΩÔøΩ ÔøΩÎåÄÍπΩÔøΩÔøΩ 
+    $(".focusstart").focusin(function(e){
+        $(popupID + " a").eq($(popupID + " a").length-1).focus();
+    });
+    
+    $(".focusend").focusin(function(e){
+        $(popupID).focus();
+    });
+}
+
+function HideModalPopup(modalPopupID) {
+    $(_ModalBtn).focus();
+    $(".focusend").remove();//ÔøΩ—äÎπ±ÔøΩÔøΩ ÊÑøÔøΩÔøΩÔøΩ Â™õÏïπÍªú ÔøΩÔøΩÏ†£
+    $(".focusstart").remove();//ÔøΩ—äÎπ±ÔøΩÔøΩ ÊÑøÔøΩÔøΩÔøΩ Â™õÏïπÍªú ÔøΩÔøΩÏ†£
+    $("#" + modalPopupID).css('display', 'none');
+    $("#" + _ModalPopupBackgroundID).remove();
+    $('body').css('overflow', 'auto');
+}
+
+function chkMobile(){
+    var mode = "pc"
+
+    if(navigator.platform){
+        if((/Android|iPhone|iPad|iPod|BlackBerry/i).test(navigator.userAgent || navigator.vendor || window.opera)){
+            mode = "mobile";
+        }else{
+            mode = "pc";
+        }
+    }
+    return mode;
+}        ò x ˇˇ     20230512001631-8l;   https://www.phswcoding.co.kr/Common/scripts/js/common_ui.js       Xh  var scroller, addDot;
+
+(function ($) {
+    
+    var gnb, gnbLayout, gnbScroll, changeTop, dot, dotLayout, dotRange, familySite, skrollrLayout, portfolioBtn,
+        isDot = false;
+    
+    
+    addDot = function(){
+        //ÁïôÎ®ØÏ®™ÔøΩÍæ™Î™¥ ÔøΩÎçâÏî†ÔøΩÍæ©ÏçêÊÑøÔøΩÔøΩÔøΩ
+        /*if( $(".newsList").length >= 1){ //ÔøΩÎåÅÎí™Á¥ê‚ë∏Ï§â ËπÇÎ™É–¶ html tag ÔøΩÏíìÍµÖ
+            dot.removeTag();
+        }*/
+        $(document).ready(function (e) {
+            
+            if( dot == undefined ){
+
+                dot = new Dot();
+
+                if( $(".newsList").length >= 1){
+                    dotRange = {pc: 768,mobile: 0}
+                }else if($(".recruitList").length >= 1){
+                    dotRange = {pc: 1281,tablet:768, mobile: 0}
+                }
+
+                if(dotRange != undefined){
+                    dotLayout = new Layout({
+                        range:dotRange,
+                        onChange: function (name) {
+                            //Ê≥•ÏÑèÏì¨ÈÅ∫ÔøΩÔøΩÔøΩ ÔøΩ„ÖΩÎªæ
+                            isDot = true;
+                            dot.change();
+                        }
+                    });
+                }
+            }
+            
+            if( isDot == true ){
+                dot.change();
+            }
+        });
+    }
+    
+    $(document).ready(function (e) {
+        
+        gnb = new Gnb();
+        familySite = new FamilySite();
+        portfolioBtn = new PortfolioBtn();
+        
+        gnbLayout = new Layout({
+            range: {
+                pc: 1281,
+                tablet: 768,
+                mobile: 0
+            },
+            onUpdate: function (prop) {
+                var name = prop["name"];
+                
+                if( name != "pc" && gnb.isGnbOpen() ){
+                    gnb.setMobileLayout();
+                }
+            },
+            onChange: function (prop) {
+                var name = prop["name"];
+                //Ê≥•ÏÑèÏì¨ÈÅ∫ÔøΩÔøΩÔøΩ ÔøΩ„ÖΩÎªæ
+                gnb.setMode(name);
+                
+                var top = $(window).scrollTop();
+                
+                setTimeout(function(){
+                    if (top < gnb.getGnbPos()) {
+                        gnb.setScrollLayout("top");
+                    }else{
+                        gnb.setScrollLayout("scroll");
+                    }  
+                },100);
+                
+                if (name != "pc") {
+                    gnb.removeMotion();
+                }
+
+                if (name == "pc") {
+                    gnb.addMotion();
+                    gnb.mobileGnbClose();
+                }
+            }
+        });
+        
+        gnbScroll = new Scroll({
+            onUpdate: function (prop) {
+                var top, direction, scrollEnd;
+                
+                top = prop["top"];
+                direction = prop["direction"];
+                scrollEnd = prop["scrollEnd"];
+                
+                if (top < gnb.getGnbPos()) {
+                    gnb.setScrollLayout("top");
+                }else{
+                    gnb.setScrollLayout("scroll");
+                }
+            }
+        });
+        
+        //$(document).bind("contextmenu", function(e) {
+        //    alert('Ï†ÄÏûëÍ∂å Î≥¥Ìò∏Î•º ÏúÑÌïòÏó¨ ÎßàÏö∞Ïä§ Ïò§Î•∏Ï™ΩÎ≤ÑÌäº ÏÇ¨Ïö©Ïù¥ Í∏àÏßÄÎêòÏóàÏäµÎãàÎã§.');
+        //    return false;
+        //});
+        
+        //$(document).bind("dragstart selectstart", function(e) {
+        //    return false;
+        //});
+
+    });
+
+    $(window).on('load',function (e) {
+        
+        var top = $(window).scrollTop();
+                
+//        if (top < gnb.getGnbPos()) {
+//            gnb.setScrollLayout("top");
+//        }else{
+//            gnb.setScrollLayout("scroll");
+//        }
+        
+        //ÔøΩÏÑéÏú∫ÔøΩÔøΩÎí™
+        if( $(".content.main").length == 0){
+            skrollrLayout = new Layout({
+                range: {
+                    pc: 1281,
+                    tablet: 768,
+                    mobile: 0
+                },
+                onChange: function (prop) {
+                    
+                    var name = prop["name"];
+                    //Ê≥•ÏÑèÏì¨ÈÅ∫ÔøΩÔøΩÔøΩ ÔøΩ„ÖΩÎªæ
+
+                    if( typeof skrollr == "object"){
+                        if(name != "pc"){
+                            $(".skrollable").attr({"style":""});
+                        }else{
+                            var obj = {};
+                            if( $('.history-wrap').length == 0){
+                                obj = {skrollrBody:"wrap"}
+                            }else{
+                                obj = {
+                                    skrollrBody:"wrap",
+                                    smoothScrollingDuration:800
+                                }
+                            }
+                            
+                            scroller = skrollr.init(obj);
+                        }
+                    }
+                }
+            });
+        }
+        
+        $('img').attr({"oncontextmenu":"return false;"});
+        $('img').css({"-webkit-touch-callout":"none"});
+        
+    });
+    
+    function Gnb() {
+
+        var header, gnb, gnbWrap, mobileOpenBtn, mobileCloseBtn, depth1, dim, transit,
+            gnbLayoutType, gnbScrollType, isGnbOpen, gnbMode, mobileLastFocus;
+
+        if (!(this instanceof Gnb)) {
+            return new Gnb();
+        }
+
+        this.setMode = function (type) {
+            gnbLayoutType = type;
+        }
+
+        this.addMotion = function () {
+            addMotion();
+        }
+
+        this.removeMotion = function () {
+            removeMotion();
+        }
+
+        this.mobileGnbClose = function () {
+            mobileGnbClose();
+        }
+
+        this.setScrollLayout = function (type) {
+            gnbScrollType = type;
+            setScrollLayout();
+        }
+        
+        this.setMobileLayout = function(){
+            setMobileLayout();
+        }
+        
+        this.isGnbOpen = function(){
+            return isGnbOpen;
+        };
+        
+        this.getGnbPos = function(){
+            return getGnbOpenPos();
+        }
+        
+        init();
+
+        function init() {
+            header = $("#header");
+            gnbWrap = $(".mobile-wrap");
+            gnb = $("#gnb");
+            mobileOpenBtn = header.find(".ico-menu");
+            mobileCloseBtn = header.find(".close");
+            depth1 = gnb.find(".menu1");
+            dim = $(".dim");
+            transit = $(".transit");
+            
+            addEvent();
+        }
+
+        function addMotion() {
+            transit.addClass("transition");
+        }
+
+        function removeMotion() {
+            transit.removeClass("transition");
+        }
+
+        function addEvent() {
+            gnb.mouseenter(function (e) {
+                
+                if (gnbLayoutType == "pc") {
+                    gnbOpen();
+                }
+            });
+
+            gnb.mouseleave(function (e) {
+                if (gnbLayoutType == "pc") {
+                    gnbClose();
+                }
+            });
+
+            mobileOpenBtn.click(function (e) {
+                if (gnbLayoutType != "pc") {
+                    mobileGnbOpen();
+                }
+                e.preventDefault();
+            });
+            
+            mobileCloseBtn.click(function (e) {
+                if (gnbLayoutType != "pc") {
+                    mobileGnbClose();
+                }
+                e.preventDefault();
+            });
+
+            depth1.click(function (e) {
+                if (gnbLayoutType != "pc") {
+                    var idx = depth1.index(this);
+                    mobileMenuOpen(idx);
+                    setMobileLayout();
+                    e.preventDefault();
+                }
+                //e.preventDefault();
+            });
+            
+            $("body").keyup(function (e) {
+                if (e.key == "Tab") {
+                    //ÔøΩ—äÎπ±ÔøΩÔøΩ ÊÑøÔøΩÁî±ÔøΩ
+                    if ($.contains(gnb[0], e.target)) {
+                        if (gnbLayoutType == "pc") {
+                            gnbOpen();
+                        }
+                    } else {
+                        if (gnbLayoutType == "pc") {
+                            gnbClose();
+                        }
+                    }
+                    e.preventDefault();
+                }
+            });
+            
+            $("body").keydown(function (e) {
+                if (e.key == "Tab") {
+                    var target = e.target;
+                    if(gnbLayoutType != "pc" && $.contains(header[0], target)){
+                        
+                        if(mobileCloseBtn.is(target)){
+                            gnb.find('a').eq(0).focus();
+                            e.preventDefault();
+                        }
+                    }
+                }
+            });
+        }
+
+        function gnbOpen() {
+            if ($(window).scrollTop() <= getGnbOpenPos()) {
+                if(!header.hasClass("white"))header.addClass("hopen");
+            }
+            header.css({height: (gnb.height() + 75) + "px"});
+            
+            gnb.addClass("open");
+            isGnbOpen = true;
+        }
+
+        function gnbClose() {
+            if ($(window).scrollTop() > getGnbOpenPos()) {
+                header.css({
+                    height: ""
+                });
+            } else {
+                header.css({
+                    height: ""
+                });
+                if(!header.hasClass("white"))header.removeClass("hopen");
+            }
+            gnb.removeClass("open");
+            isGnbOpen = false;
+        }
+
+        function mobileGnbOpen() {
+            bodyDisabled(true);
+            
+            header.removeClass("hopen scroll");
+            header.addClass("hmob");
+            dim.css({display:"block"});
+            isGnbOpen = true;
+        }
+
+        function mobileGnbClose() {
+            
+            bodyDisabled(false);
+
+            header.removeClass("hmob");
+            dim.css({display:"none"});
+            mobileOpenBtn.focus();
+            setScrollLayout();
+            isGnbOpen = false;
+        }
+
+        function mobileMenuOpen(idx) {
+            depth1.each(function (i) {
+                var li = $(this).parent();
+                if (idx == i && !li.hasClass('on')) {
+                    li.addClass('on');
+                } else {
+                    li.removeClass('on');
+                }
+            });
+            depth1.removeClass("on");
+        }
+
+        function setScrollLayout() {
+            
+            header.removeClass("scroll hopen");
+            if( !header.hasClass("hmob") ){
+                if( gnbScrollType == "top" ){
+                    if(header.hasClass("white"))header.addClass("hopen");
+                }else{
+                    /*if( gnbLayoutType != "mobile")*/header.addClass("hopen");
+                    if( gnbLayoutType == "pc")header.addClass("scroll");
+                }
+            }
+        }
+
+        function setMobileLayout() {
+            var titleHeight, gnbHeight, headerPadding, languageHeight, conHeight;
+                
+                headerPadding = parseInt($("#header").css('padding-bottom'));
+                gnbHeight = $("#header #gnb").height();
+                titleHeight = $("#header>h1.logo").height();
+                languageHeight = $("#header .language").height() + parseInt($("#header .language").css('margin-top'));
+            
+                conHeight = headerPadding + titleHeight + gnbHeight + languageHeight;
+            if(window.innerHeight < conHeight){
+                gnbWrap.css({height:window.innerHeight - titleHeight - headerPadding});
+            }else{
+                gnbWrap.removeAttr("style");
+            }
+        }
+        
+        function getGnbOpenPos(){
+            var changeTop;
+            //GNBÔøΩÎçâÏî†ÔøΩÍæ©Ïçê ÊÑøÔøΩÔøΩÔøΩ
+            if( $(".content.main").length == 1){
+                changeTop = $("#homeArea").height() - 60;
+            }else{
+                changeTop = 20;
+            }
+            
+            return changeTop;
+        }
+        
+        function bodyDisabled(type){
+            if( type == true ){
+                var distance, startScroll, startPosY;
+
+                $("body").css({overflow: "hidden"})
+                    .bind("touchstart", function (e) {
+                    startScroll = gnbWrap.scrollTop();
+                    //gnbÔøΩÏá∞Î∏£ ÔøΩÏíñÏòâ ÔøΩ—äÔøΩÔøΩÔøΩ 
+                    if ($.contains(gnbWrap[0], e.target) == true) {
+                        startPosY = e.originalEvent.touches[0].clientY;
+                    }
+                })
+                    .bind("touchmove", function (e) {
+                    if ($.contains(gnbWrap[0], e.target) == true) {
+                        distance = startPosY - e.originalEvent.touches[0].clientY;
+                        gnbWrap.scrollTop(startScroll + distance);
+                    }
+                    e.preventDefault();
+                });
+            }else{
+                $("body").removeAttr("style")
+                    .unbind("touchmove");
+            }
+        }
+    }
+    //ÔøΩÏÑéÔøΩÁî±ÔøΩ ÔøΩ—äÏî†ÔøΩÔøΩ
+    function FamilySite() {
+        if (!(this instanceof FamilySite)) {
+            return new FamilySite();
+        }
+
+        var btn;
+
+        init();
+
+        function init() {
+            btn = $(".family");
+            addEvent()
+        }
+
+        function addEvent() {
+
+            btn.find(".sel").click(function (e) {
+                
+                e.stopPropagation();
+                e.preventDefault();
+                
+                if( btn.hasClass("on") ){
+                    $(document).off("click touchend");
+                    btn.removeClass("on");
+                }else{
+                    btn.addClass("on");
+                    $(document).one("click touchend", function(e){
+                        setTimeout( function(){btn.removeClass("on");}, 100 );
+                    });
+                }
+            });
+        }
+    }
+    //ÁïôÎ®ØÏ®™ÔøΩÍæ™Î™¥
+    function Dot() {
+        if (!(this instanceof Dot)) {
+            return new Dot();
+        }
+
+        var dots,
+            dotMaxHeight;
+
+        dots = $(".dot");
+        dotMaxHeight = [];
+
+        this.update = function () {
+            updateDot();
+        }
+
+        this.change = function () {
+            reset();
+        }
+        
+        this.removeTag = function(){
+            removeTag();
+        }
+        
+        function getMaxHeight() {
+            dots.each(function (i) {
+                dotMaxHeight[i] = $(this).css("max-height");
+            });
+        }
+
+        function addDot() {
+            dots.each(function (i) {
+                $(this)
+                    //.css({"border":"solid 1px red"})
+                    .dotdotdot({
+                        watch: "window",
+                        wrap: 'letter',
+                        height: parseInt(dotMaxHeight[i])
+                    });
+            });
+        }
+
+        function reset() {
+            dots = $(".dot");
+            destroy();
+            getMaxHeight();
+            addDot();
+        }
+
+        function updateDot() {
+            dots.trigger("update.dot");
+        }
+
+        function destroy() {
+            dots.trigger("destroy");
+        }
+        
+        function removeTag(){//ÔøΩÎåÅÎí™ ËπÇÎ™É–¶ ÔøΩÏíìÎ†áÔøΩÏíìÍµÖ
+            $(".newsList .txt.dot").each(function(i){
+                var txt = $(this).text();
+                $(this).empty().append(txt);
+            });
+        }
+    }
+    
+    
+    //ÔøΩ—ãÎìÉÔøΩÎåÄ‚îÅÔøΩÔøΩ ÔøΩ„ÖªÏæ≠ÔøΩ‚ë£ÎÇµ
+    function PortfolioBtn(){
+        if (!(this instanceof PortfolioBtn)) {
+            return new PortfolioBtn();
+        }
+        
+        var menus;
+        
+        init();
+        addEvent();
+        
+        function init(){
+            menus = $(".portfolioList li");
+        }
+        
+        function addEvent(){
+            menus.mouseover(function (e) {
+                if( chkMobile() != "mobile"){
+                    e.preventDefault();
+                    $(this).find(".dimLayer")
+                        .velocity("stop")
+                        .velocity({
+                            opacity: [1,0]
+                        }, {
+                            duration: 300, display:"block"
+                        });
+                }
+            });
+            menus.mouseout(function (e) {
+                if( chkMobile() != "mobile"){
+                    e.preventDefault();
+                    $(this).find(".dimLayer")
+                        .velocity("stop")
+                        .velocity({
+                            opacity: [0,1]
+                        }, {
+                            duration: 100, display:"none"
+                        });
+                }
+            });
+        }
+    }
+}(jQuery));
+
+//window ÔøΩÎ≥¶Ïî†ËπÇÔøΩ ÔøΩÎåÄÍπΩÔøΩÔøΩ ÔøΩÎ™ÖÎòø
+function Layout(attr) {
+    var targetObj, currentState, propObj,
+        attributes, ranges, currentWidth, currentHeight,
+        onUpdate, onChange;
+
+    if (!(this instanceof Layout)) {
+        return new Layout();
+    }
+    
+    targetObj = this;
+    
+    propObj = {
+        name:"",
+        currentState:"",
+        changeWidth:false,
+        changeHeight:false,
+        width:0,
+        height:0,
+    }
+    
+    Layout.prototype.getWindowState = function(arr){
+        var state;
+        arr.forEach(function (val, idx, arr) {
+            //currentState
+            if (window.innerWidth >= val["width"]) {
+                state = val["name"];
+            }
+        });
+        return state;
+    }
+    
+    this.getState = function(){
+        return propObj["name"];
+    }
+    
+    init();
+
+    function init() {
+        
+        if (typeof attr == "object") {
+
+            attributes = attr;
+            //Ë∏∞Î∂øÏêû Ë´õÍ≥óÎø¥ ÂêèÔøΩÔøΩÔøΩ
+            if (typeof attributes["range"] == "object") {
+                //
+                ranges = [];
+                //Ë´õÍ≥óÎø¥ÔøΩÔøΩ Â™õÔøΩ ÔøΩÏéåÏóØ
+                $.each(attributes["range"], function (key, value) {
+                    ranges.push({
+                        width: value,
+                        name: key
+                    })
+                });
+                //Ë∏∞Î∂øÏêû Ë´õÍ≥óÎø¥ ÔøΩÎ∫£Ï†π
+                ranges.sort(function (a, b) {
+                    return a["width"] - b["width"];
+                });
+            }
+        } else {
+            //console.log("ÔøΩÎ™ÑÏòÑÂ™õÎØ™Ïî† ÔøΩÎÜÅÏì¨")
+        }
+        addEvent();
+        update();
+    }
+
+    function addEvent() {
+        $(window).resize(function (e) {
+            update();
+        })
+    }
+
+    function update() {
+        if( currentWidth !=  window.innerWidth){
+            propObj["changeWidth"] = true;
+            currentWidth = window.innerWidth;
+        }else{
+            propObj["changeWidth"] = false;
+        }
+        
+        if( currentHeight !=  window.innerHeight){
+            propObj["changeHeight"] = true;
+            currentHeight = window.innerHeight;
+        }else{
+            propObj["changeHeight"] = false;
+        }
+        
+        propObj["width"] = window.innerWidth;
+        propObj["height"] = window.innerHeight;
+        
+        //ÔøΩÎçâÏî†ÔøΩÍæ©Ïçê Ë´õÎ∂æÔøΩÎ∂æÎ∏£
+        if (targetObj.getWindowState(ranges) !=  propObj["name"] && typeof attributes.onChange == "function") {
+            propObj["name"] = targetObj.getWindowState(ranges);
+            attributes.onChange.call(this, propObj);
+        }
+        
+        if (typeof attributes.onUpdate == "function") {
+            attributes.onUpdate.call(this, propObj);
+        }
+    }
+}
+//ÔøΩ„ÖΩÍ≤ïÊø°ÔøΩ & ÁïôÎçâÏä¶ÔøΩÔøΩ ÔøΩÔøΩ ÔøΩÎåÄÍπΩÔøΩÔøΩ
+function Scroll(attr) {
+    if (!(this instanceof Scroll)) {
+        return new Scroll();
+    }
+
+    var obj, attributes, propObj,
+        lastScroll;
+
+    obj = this;
+    propObj = {};
+    
+    Scroll.prototype.preventDefault = function (e) {
+        e = e || window.event;
+        if (e.preventDefault)
+            e.preventDefault();
+        e.returnValue = false;
+    }
+
+    Scroll.prototype.preventDefaultForScrollKeys = function (e) {
+
+        var keys = {
+            37: 1,
+            38: 1,
+            39: 1,
+            40: 1
+        };
+
+        if (keys[e.keyCode]) {
+            obj.preventDefault(e);
+            return false;
+        }
+    }
+
+    //ÔøΩ„ÖΩÍ≤ïÊø°ÔøΩ ÈçÆÍæ™ÏÜ¢ÔøΩÔøΩ
+    Scroll.prototype.disableScroll = function () {
+        if (window.addEventListener) // older FF
+            window.addEventListener('DOMMouseScroll', obj.preventDefault, false);
+        window.onwheel = obj.preventDefault; // modern standard
+        window.onmousewheel = document.onmousewheel = obj.preventDefault; // older browsers, IE
+        window.ontouchmove = obj.preventDefault; // mobile
+        document.onkeydown = obj.preventDefaultForScrollKeys;
+    }
+    //ÔøΩ„ÖΩÍ≤ïÊø°ÔøΩ ÔøΩÏíñÍΩ¶ÔøΩÔøΩ
+    Scroll.prototype.enableScroll = function () {
+        if (window.removeEventListener)
+            window.removeEventListener('DOMMouseScroll', obj.preventDefault, false);
+        window.onmousewheel = document.onmousewheel = null;
+        window.onwheel = null;
+        window.ontouchmove = null;
+        document.onkeydown = null;
+    }
+    
+    init();
+
+    function init() {
+        lastScroll = 0;
+
+        if (typeof attr == "object") {
+            attributes = attr;
+        }
+
+        addEvent();
+
+        //if( attributes.initEvent == true)
+    }
+
+    function addEvent() {
+        $(window).scroll(function (e) {
+            scrollUpdate();
+            e.preventDefault();
+        });
+
+        $("html, body").bind('mousewheel DOMMouseScroll', function (e) {
+            wheelUpdate(e);
+        });
+    }
+
+    function scrollUpdate() {
+        var updateCallBack = attributes.onUpdate;
+        if (typeof updateCallBack == "function") {
+
+            scrollTop = $(window).scrollTop();
+            propObj["top"] = scrollTop;
+            //Ë´õ‚ë∫Îº¢ ÔøΩÎ™ÖÎòø
+            if (scrollTop > lastScroll) {
+                propObj["direction"] = "down";
+            } else {
+                propObj["direction"] = "up";
+            }
+            
+            if (scrollTop == $(document).height() - $(window).height()) {
+                propObj["scrollEnd"] = true;
+            }else{
+                propObj["scrollEnd"] = false;
+            }
+            
+            updateCallBack.call(this, propObj);
+
+            lastScroll = scrollTop;
+        }
+    }
+
+    function wheelUpdate(e) {
+        //ÔøΩÔøΩ ÔøΩÎåÄÍπΩÔøΩÔøΩ
+        var wheelCallBack = attributes.onWheel;
+
+        if (typeof wheelCallBack == "function") {
+
+            var orgEvent, delta, targetPos, scrollTop;
+
+            orgEvent = e.originalEvent;
+            delta = 0;
+            scrollTop = $(window).scrollTop();
+
+            if (orgEvent.detail) { //FireFox wheel event
+                delta = orgEvent.detail * -40;
+            } else { //etc
+                delta = orgEvent.wheelDelta;
+            };
+            
+            propObj["top"] = scrollTop;
+            propObj["targetPos"] = scrollTop - delta;
+            
+            if (delta > 0) {
+                propObj["direction"] = "up";
+            } else {
+                propObj["direction"] = "down";
+            }
+            
+            if (scrollTop == $(document).height() - $(window).height()) {
+                propObj["scrollEnd"] = true;
+            }else{
+                propObj["scrollEnd"] = false;
+            }
+            
+            wheelCallBack.call(this, propObj);
+        }
+    }
+}
+
+//ÊÄ®ÎìØÎÑª ÔøΩ—äÏäú modal
+var _ModalPopupBackgroundID, _currentModal, _ModalBtn;
+
+_ModalPopupBackgroundID = 'modal';
+
+function ShowModalPopup(btn, modalPopupID) {
+    _ModalBtn = btn;
+    var popupID = "#" + modalPopupID;
+    var popupMarginTop = $(popupID).height() / 2;
+    var popupMarginLeft = $(popupID).width() / 2;
+    
+    _currentModal = popupID;
+        
+    $('body').css('overflow', 'hidden');
+    $(popupID).css({
+        'left': '50%',
+        'top': '50%',
+        'margin-top': -popupMarginTop,
+        'margin-left': -popupMarginLeft,
+        'display': 'block',
+        'position': 'fixed',
+        'z-index': 99999
+    })
+    //ÔøΩ—äÎπ±ÔøΩÔøΩ
+    .attr("tabindex", "0")
+    .before("<div class='focusstart' tabindex='0'></div>")
+    .after("<div class='focusend' tabindex='0'></div>")
+    .find("a").eq(0).focus();
+
+    var backgroundSelector = $('<div id="' + _ModalPopupBackgroundID + '" ></div>');
+    backgroundSelector.appendTo('body');
+
+    backgroundSelector.css({
+        'width': $(document).width(),
+        'height': $(document).height(),
+        'display': 'none',
+        'background-color': '#000',
+        'filter':'alpha(opacity=80)',
+        'position': 'absolute',
+        'top': 0,
+        'left': 0,
+        'z-index': 99998
+    });
+
+    backgroundSelector.fadeTo('fast', 0.8);
+    backgroundSelector.click(function(){
+        HideModalPopup(modalPopupID)
+    });
+    
+    //ÔøΩ—äÎπ±ÔøΩÔøΩ ÔøΩÎåÄÍπΩÔøΩÔøΩ 
+    $(".focusstart").focusin(function(e){
+        $(popupID + " a").eq($(popupID + " a").length-1).focus();
+    });
+    
+    $(".focusend").focusin(function(e){
+        $(popupID).focus();
+    });
+}
+
+function HideModalPopup(modalPopupID) {
+    $(_ModalBtn).focus();
+    $(".focusend").remove();//ÔøΩ—äÎπ±ÔøΩÔøΩ ÊÑøÔøΩÔøΩÔøΩ Â™õÏïπÍªú ÔøΩÔøΩÏ†£
+    $(".focusstart").remove();//ÔøΩ—äÎπ±ÔøΩÔøΩ ÊÑøÔøΩÔøΩÔøΩ Â™õÏïπÍªú ÔøΩÔøΩÏ†£
+    $("#" + modalPopupID).css('display', 'none');
+    $("#" + _ModalPopupBackgroundID).remove();
+    $('body').css('overflow', 'auto');
+}
+
+function chkMobile(){
+    var mode = "pc"
+
+    if(navigator.platform){
+        if((/Android|iPhone|iPad|iPod|BlackBerry/i).test(navigator.userAgent || navigator.vendor || window.opera)){
+            mode = "mobile";
+        }else{
+            mode = "pc";
+        }
+    }
+    return mode;
+}”ò¿ŸI  *        /U      scroller   ÈyÔG      addDot     -¸˚√      gnb    &Áø!	      gnbLayout      ”j≠	      gnbScroll      jf_	      changeTop      ÕGsÒ      dot    Rê\	      dotLayout      Iï]=      dotRange	   Úá=
+      familySite
+     7éø∑      skrollrLayout      j€      portfolioBtn   /Ád€      isDot      ∏OÄ      document   ¢Ñ
+      ready      ;´ñË      Dot    √›T	      .newsList      
+Le      mobile     Ó"ü¶      .recruitList   ˆSw„      tablet     ﬂÑmu      Layout     x√       range      t®$ä      onChange   Á˛¡      change     î…yù      Gnb    ‹<Ê
+      FamilySite     ZÚŸÅ      PortfolioBtn   Sì_      onUpdate   “P…ù      prop   ©f“	      isGnbOpen      Äˆ¢´      setMobileLayout    6sP€      setMode     $√Á      top!    ¯2áâ      window"     ìGÎ	      scrollTop#      3AtŸ
+      setTimeout$     sò±	      getGnbPos%      âº¥i      setScrollLayout&    \z˚      scroll'     ÁoUz      removeMotion(   π®	      addMotion)      SóÙã      mobileGnbClose*     Ã ax      Scroll+     î’	ñ	      direction,      ˛ú¥	      scrollEnd-      2áU)      load.   <ˇ“      .content.main/      ‡®™¶      skrollr0    ©ØGJ      .skrollable1    A¢Ωê      attr2   ﬂN#9      obj3    Ñ$Œô      .history-wrap4      Å⁄HÉ      skrollrBody5    —Íc      wrap6   á¿z      smoothScrollingDuration7    íu`      init8   e ú      img9    ˝ö|      oncontextmenu:      å§“      return false;;      >ü      css<    Æ£V5      -webkit-touch-callout=      ,Ω      none>   kàˇ      header?     0õ      gnbWrap@    ågæ6      mobileOpenBtnA      (0ÙÈ      mobileCloseBtnB     Öûâ™      depth1C     o∑Yﬂ      dimD    ∞¡ø      transitE    8é0*      gnbLayoutTypeF      XÀˇ2      gnbScrollTypeG      ú      gnbModeH    %ÿ      mobileLastFocusI    J"º˘      getGnbOpenPosJ      ˜¡¬      #headerK    ¿aüË      .mobile-wrapL   xØF      #gnbM   I‹ë	      .ico-menuN      hoA™      .closeO     ‡=wÎ      .menu1P     ¬M¸À      .dimQ   $*Ê      .transitR   Êòâ6      addEventS   Bå|      addClassT   Ã∏
+      transitionU     ˆ+      removeClassV    ôF 
+      mouseenterW     !j      gnbOpenX    fNæ
+      mouseleaveY     µ-Zu      gnbCloseZ   ü™‚X      click[      àÌ%ﬁ      mobileGnbOpen\      B9∫¿      preventDefault]     “≥Lg      idx^    ~»i#      mobileMenuOpen_     òh;      body`   KH`      keyupa      B¸ø;      keyb    R†Â/      Tabc    µœê^      containsd   ù∫”      keydowne    KÃÌ      focusf      7ÑÉz      hasClassg   §Ω      whiteh      E3∆c      hopeni      ∑…≈      heightj     óx5      openk   èìÎv      bodyDisabledl   Eæ      hopen scrollm   @V2V      hmobn   e}ü      displayo    ü‡˚Å      blockp      ˛Ë˘2      parentq     ó¡éó      scroll hopenr   yÎò      titleHeights    m∏˚	      gnbHeightt      ?¨Ç8      headerPaddingu      ™Rƒ      languageHeightv     à∞yê	      conHeightw      A/+◊      padding-bottomx     ´)ø∂      #header #gnby   Ü(ë      #header>h1.logoz    Áxπ      #header .language{      A=
+      margin-top|     0Uó      innerHeight}    Ûûí
+      removeAttr~     %xA	      #homeArea      ÷S˙      distanceÄ   ØïÖ¶      startScrollÅ    è”À±	      startPosYÇ      ˝íc˛      overflowÉ   Ñ€ËW      hiddenÑ     ‡Õ      bindÖ   à8ı≠
+      touchstartÜ     Ÿ‹Ô      originalEventá      ªä ß      touchesà    À3&      clientYâ    ƒ|]+	      touchmoveä      ı˛«Æ      unbindã     h_ò0      btnå    å∞Ù      .familyç    ﬂº      .selé   ı/F/      stopPropagationè    ˙¯Öﬂ      offê    „éA‘      click touchendë     %j˘X      dotsí   ì∏ñ      dotMaxHeightì   ¨™X#      .dotî   üˇc9      updateï     ¢%	      updateDotñ      ÛWÄπ      resetó      «¿‡ 	      removeTagò      M¯
+      getMaxHeightô   ˜E
+      max-heightö     j›¨c	      dotdotdotõ      1@«Û      letterú     ŒÛ˝      destroyù    ˘!p¬      triggerû    û—˝ò
+      update.dotü     …2      .newsList .txt.dot†     æÇÅÂ      txt°    à3¿µ      text¢   ∏™˝      empty£      ‹B-      append§     Óóù      menus•      à'ﬂM      .portfolioList li¶      y˜ãÑ	      mouseoverß      {ÒÏs	      chkMobile®      ‹Wi	      .dimLayer©      gc˙7      velocity™   mêÅ      stop´   ﬂue…      opacity¨    ¿
+7      duration≠   †©˝c      mouseoutÆ   >Â/      jQueryØ     –E°b	      targetObj∞      æ=∞Œ      currentState±   ¥M€y      propObj≤    „å5∆
+      attributes≥     :ÏŒ3      ranges¥     s–<R      currentWidthµ   Ï!iè      currentHeight∂      ◊m∫      changeWidth∑    îd“      changeHeight∏   ÎƒJ˚      widthπ      –Â›Ö      getWindowState∫     õcà      arrª    &⁄õ      valº    Uü
+      innerWidthΩ     Q_ª      getStateæ   Ñu2      pushø   Ü}ÿ„      sort¿   ?/$_      resize¡     ÑkXl
+      lastScroll¬     II∑P      event√      ä!'»      returnValueƒ    5⁄Ìª      preventDefaultForScrollKeys≈    ≠5      keyCode∆    Ïäµ|      disableScroll«       rO      addEventListener»   Óì∂@      DOMMouseScroll…     EO†x      onwheel     G∂6Ø      onmousewheelÀ   dW{Q      ontouchmoveÃ    "æx	      onkeydownÕ      Òö¸’      enableScrollŒ   ]¸ç      removeEventListenerœ    {%q      scrollUpdate–   ﬁY˙
+      html, body—     Ô5
+B      mousewheel DOMMouseScroll“      ïáQ⁄      wheelUpdate”    ìëU      updateCallBack‘     ÅŒV      down’   Ωã∑      wheelCallBack÷      ¨∑_r      onWheel◊    Ú
+O¥      orgEventÿ   0      deltaŸ      ∫˘=	      targetPos⁄      (tS®      detail€     å€æ
+      wheelDelta‹     V¸      _ModalPopupBackgroundID›    ≈Já˛      _currentModalﬁ      ¨9•Ë	      _ModalBtnﬂ       ∫˚      modal‡      ’ve0      ShowModalPopup·     xY†      modalPopupID‚   Ï"Ä*      popupID„    ±Ìÿ      popupMarginTop‰     Áwº´      popupMarginLeftÂ    ı]á      leftÊ   ZŸØˇ      50%Á    Ú(:…      margin-leftË    »Åí      positionÈ   å≤ÜX      fixedÍ      å/Í      z-indexÎ    ≤Rz‘      tabindexÏ   çÕ”O      beforeÌ     ÛÒiM+      <div class='focusstart' tabindex='0'></div>Ó    ç≥T      afterÔ      OôFx)      <div class='focusend' tabindex='0'></div>      ({úG      backgroundSelectorÒ     l‡åÔ	      <div id="Ú      Ô¿r˙	      " ></div>Û      †Á„V      appendToÙ   b Y      background-colorı   J[µ:      #000ˆ   >	≈      filter˜     ı:Î      alpha(opacity=80)¯      H<*ê      absolute˘   iºxl      fadeTo˙     ˆï5û      fast˚   ’E ]      HideModalPopup¸     LP‚"      .focusstart˝    Ò‚M      focusin˛    qL◊A       aˇ     gÁ„	      .focusend      *N∑∆      remove    z¡≤S      auto  π„+	      navigator     KƒÄ      platform  ∂†àD#      Android|iPhone|iPad|iPod|BlackBerry   ìãà	      userAgent     ›¬∫      vendor    t9,¨      opera     ¸sB∏      addDot/<
+  ‚1
+ﬂ
+      onChange/<    !';ª      Gnb/this.setMode  s¨è      Gnb/this.addMotion    Û6£]      Gnb/this.removeMotion     ˛;∂§      Gnb/this.mobileGnbClose   fî=õ      Gnb/this.setScrollLayout  )û±¢      Gnb/this.setMobileLayout  ƒ◊Ë      Gnb/this.isGnbOpen    [O%      Gnb/this.getGnbPos    Æ;ﬁV      Gnb/addEvent/<    òƒ<      Gnb/mobileMenuOpen/<"  Âv◊Ç      Gnb/bodyDisabled/<%    BmP8      FamilySite/addEvent/<&     Œwÿ]      FamilySite/addEvent/</<'   !”íä      FamilySite/addEvent/</</<(     5™tÃ      Dot/this.update)   øZìè      Dot/this.change*   ]öe8      Dot/this.removeTag,    vOÀë      Dot/getMaxHeight/<.     dA°      Dot/addDot/<3   ;Ø•      Dot/removeTag/<6   Ÿ‡f      PortfolioBtn/addEvent/<7   /ˆŒ'&      Layout/Layout.prototype.getWindowState8    bzÔ(      Layout/Layout.prototype.getWindowState/<9  k¶Ôƒ      Layout/this.getState;  &Çå      Layout/init/<=     {Üˇy      Layout/addEvent/<?     `á|à&      Scroll/Scroll.prototype.preventDefault@    ¢.ç–3      Scroll/Scroll.prototype.preventDefaultForScrollKeysA   5-ı≥%      Scroll/Scroll.prototype.disableScrollB     ã…Ê$      Scroll/Scroll.prototype.enableScrollE  ﬁÃ‚∂      Scroll/addEvent/<H     Ê5‹’      ShowModalPopup/<     _   ≈  _   _              Ô%,â                                D                 H                 I                 J                 K                 L                 M                E                 F                 G              
+   N                 S                 T                 U                 V                 W                 X                 O                 P                 Q                 R                 Y                 Z                 [                 \                  ]                  ^                                                                                                           !                 !                 !                 !                 !                 !                 !                                              !                 "                 #                $      -           %                 &                 '                 (                )      2           *      2           +                                                                                                                                                        ,      =           -      =           .      ?           /      @           0      A           1             
+   2      C           6      D           7      C           8      F           9      C           :      C           ;      C           <      C           =      K           >      C           3      C           4      C           5                ?      P           @      P           A      R           B      R           C                       U                 V                                  X                 X                Z                 X           	                 
+      ]                 ≥Oåc
+   
+   
+          ê*  ê‹  ›  ﬁ  ‡  ê˚  êß  ê            1  PØ  P∞  ±  P≤  P≥  P¥  Pµ  P    7  R  Pî  Pq                                a  Ê               a  b                               e                q                ∫  † `             ª  ]  ∫                  
+            1  P2  P≤  P±  P¡  P7  R  Pœ  P“  Pq                                                e               e                ”  q               e  ’  ◊  ÿ  Ÿ  "  q                e              e                                                ã  ·  P‚  P„  ‰                                 e               e               ·                &              $ `  P  P  P    P  P  P	  P
+  P  P  P  P  P  P  P              H    P@  PE  PR  P(  PW  PB  Pk  P  P%  PG  ?  P7  Y  PD  P^  PI  P  PA  P[  PF  P'  P>  P)  Pq   C  P                                                                             e               e               e               e              e  ]  q                e              e  ≠                                                                               ]  P            i  R q                                 r  s  t  u  v                               «    PÄ  PÅ  P             e               e               «                                                               «                                                                ã  P7  R  Pq                                                e               e                  	              ë  Pí  Pò  P  Pñ  Pï  Pú  Pó  Pq                               i  q                               i  q                                                                               i  †  q                                                                 §  P7  R  q                                               e  q               e  q                                e               .               e                .                .     P                                 +  ,              e                   .  2  Ø¬0∞    IÙ$KEÆ˙ö   
+      ∏  .         .  ∞  ∂  ∑  ∏  i                     #      Â     {  Á  n  Ë  Í  	   -   ∏  i  n  Ù  ˆ  Ë     Â  Í          i          i          i          n          n          i          Ç            5  i        ´     
+     ¨  n         ´     
+     ¨  n     
+    L          L        
+                          L                
+                L           ®                 4     
+     4  6         9          <  á&’™ç!´!_   h      å,Æ.h   %                         ”   j    ¥   t ÿ±   	   √   ÿ°E `PFÄ 2%PDÄ '00`Pê@Ä u P  ‡   @Úv\‡   é   	             
+       ∂  «   ÿj   «   ÿj   «   ÿj   «   ÿj   «   ÿ«   ÿ±   j   √   ÿ∫    ¥   p ⁄H   ›j	   t ÿ∫    ¥
+   p ⁄H   ›   j   t ÿ°µ@0 `PG `Pê@) `P+P/PDq `P+Pî 	PDÄ 0P   T   ;_\’T                             ∫    ¥   p ⁄H   ›j   t ÿ°@ `P+P/PD! P   §  ∑ù?g§                          ∫   ¥   ñÂ   ì   ∫   }‹  ~  «   ÿ∫       p H   ñ(   ì   7    :   :   «   ÿïJ   ì   ∫       p H   ñ+   ì   7   :    :	   :   «   ÿì   ∫   ¥   ñ6   ì   ¥
+   }7   ∫   :   j   :   ‹  ~ «   ÿì   ∫   ñ   ì   ∫   ⁄H   ›t  ÿì   °@ `Pï@ `P*PI `P+Pî0 `P%(ñ0 `P+Pî0 `P%(	(ë@ `Pï0 `P; : N  PN `Pë0 `P,PI P   L   è:îNL                            «   ÿ∫   ⁄H   ›t  ÿ°@ `P7 `P,P4 P   ó   ®                         ∫   }‹  ~  «   ÿ∫   }‹  ~  « 	  ÿ∫   }‹  ~  «   ÿ¥   }7   7   :    :   :   :   j   :	   j
+   :   ‹  ~ «   ÿ¥   }7   j   :	   ‹  ~ «   ÿ°@ `P*P9 `P*P9 `P*PI `P; 5 8 8 K J N PI- `P; N- PIF P    ò   ˆ "8ò   V                        µ  H   ∆   ÿ∑      ò   ì   ÿ∫   ⁄H   ›p  ì   ñ   ì   ∫   ⁄H   ›t  ÿì   °0 `PM `P° Pí0 `P,PI P    (  “+%∏(  ≥                        µ  H   ∆   ÿ∫  ⁄H   ›∑   t ÿ∫   ¥   p ⁄H   ›p  «   ÿ¥    j   dt ÿ∑      ñ   ì   ∫  ⁄H   ›t  ÿì   ∑      ñ*   ì   ∫  ⁄H	   ›t  ÿ∫  ⁄H
+   ›t  ÿì   °0 `PM `Pê PD `P+P*	PI `PKB PD `Pî0 `P,PI `Pî0 `P,P4 `P,PI P ú   Ôª#ú   Y                          ∫   ∫  ⁄H   ›p  ñ$   ì   ∫  ⁄H   ›   t ÿï   ì   ∫  ⁄H   ›   t ÿì   °0 `Pë 
+P> `Pë P>0 `Pë PI P ‘   F€Ù‘                           µ  H   ∆   ÿµ  H   ∆  ÿµ  H   ∆  ÿ∑   ∫   ⁄H   ›p  ñ$   ì   ∫   ⁄H   ›   t ÿï   ì	   ∫   ⁄H   ›   t ÿì   °0@ `P= `P= `PM `Pê 
+P> `Pë P>0 `Pë PI P L  ˛‡rPL  ‘                        ∫    ¥   p ⁄H   ›p  ∆   ÿ∫       p H   ñL   ì   ¥   }7   7   :    :	   :
+   :   j   :   ‹  ~ « 
+  ÿì   ∫       p ⁄H   ›7      :   t ÿ∫       p ⁄H   ›7      :   t ÿ°@ `P+P*	PH `P+Pî0 `P; 5 8 8 K N PN, `P+P/*ˇˇˇ˙P4 `P+P/*ˇˇˇ˚PD/ P p  ∑8gp  ı                        µ  H   ∆   ÿ¥      ñ÷   ì   ∑      ñ7   ì   ∫       p ⁄H   ›7      :	   t ÿïê   ì   7
+   ∆  ÿ∫       p H   ñ#   ì   7      :   ∆  ÿï&   ì   7      :    :   ∆  ÿì   ±   ¥   ⁄H   ›∑  p √   ÿì   °@ `PM `Pñ0 `Pî0 `P+P/*ˇˇˇ˙P>0 &`P:  `P+Pî0  `P%ô00  `P5 $: $í@ `Pï PN P    ∏  Ûé+Ø∏  =                      ◊∆  ÿj   ∆  ÿj   «   ÿj   «   ÿj   «   ÿj   «   ÿj   «   ÿj   «   ÿj   «   ÿj	   «   ÿj
+   «   ÿj   «   ÿj   «   ÿj   « 	  ÿ∑  ∫   ó   ì   ∫  }‹  ~  ûì   ∑  j   J   ÿ∑  j   J   ÿ∑  j   J   ÿ∑  j   J   ÿ∑  j   J   ÿ∑  j   J   ÿ∑  j   J   ÿ∑  j   J   ÿ∑   t  ÿ°ˇï@@ `Pî0 `P*PCÄ  ˇ F	 `PO `PO `PO `PO `PO `PO" `PO& `PO* `PIÄ  ˇ P  8   É¨8   
+                          µ  «   ÿ°0 `P9 P    8   Hv‹d8                             ∫    t  ÿ°0 `P: P   8   Pü~E8                             ∫    t  ÿ°0 `P: P   8   "˜Q8                             ∫    t  ÿ°0 `P: P   D   ¶ßD                            µ  «   ÿ∫    t  ÿ°0 `P9 `P: P 8   6*é8                             ∫    t  ÿ°0 `P: P   4   ö'Â4                              ∫ 
+  û°0 `P5 Q   <   bíﬁ<                             ∫    p  û°0 `P&P3 Q    ,  HDæ,  Ω                          ∫      p «   ÿ∫      p «   ÿ∫      p «   ÿ∫   ⁄H   ›   p «   ÿ∫   ⁄H   ›   p «   ÿ∫   ⁄H   ›   p «   ÿ∫      p «   ÿ∫   	   p «   ÿ∫    t  ÿ°0 `P+	P9 `P+
+P9 `P+P9 `Pë P9 `Pë P9 `Pë P9 `P+P9 `P+
+PI
+ `P: P H   ∆Z.H                             ∫   ⁄H   ›   t ÿ°0 `Pë P4 P    H   ∆Z.H                             ∫   ⁄H   ›   t ÿ°0 `Pë P4 P      ÑëKü  ¶                          ∫   ⁄H   ›j   t ÿ∫   ⁄H   ›j   t ÿ∫   ⁄H   ›j   t ÿ∫   ⁄H   ›j   t ÿ∫   ⁄H   ›j   t ÿ∫   	   p ⁄H
+   ›j   t ÿ∫   	   p ⁄H   ›j   t ÿ°0 `Pë PD `Pë PD `Pë PD `Pë PD `Pë PD& `P+P/	PD6 `P+P/	PDB P   X   ¸zıX   %                         ∫      ñ   ì   ∫    t  ÿì   °@ `Pï0 `PO P X   L9dX   %                         ∫      ñ   ì   ∫    t  ÿì   °0 `Pï0 `PO P  p   '=˛pp   3                         ∫      ñ   ì   ∫    t  ÿì   µ  ⁄H   ›t  ÿ°0 `Pï0 `PO `P*P4 P    p   ¯ﬂØ:p   3                         ∫      ñ   ì   ∫    t  ÿì   µ  ⁄H   ›t  ÿ°0 `Pï0 `PO `P*P4 P    ¨   öüœ¬¨   _                       ◊∆  ÿ∫      ñH   ì   ∫   ⁄H   ›∑  p ∆   ÿ∫    ∑   t ÿ∫    t  ÿµ  ⁄H   ›t  ÿì   °6 `Pï0 `Pê P8 `P*P4 `P: `P*PI P      Í≤Íº   ¶                         µ  H      ñí   ì   ∫  ⁄H   ›∫   Iµ  H   p ñ3   ì   ∫      ñ   ì
+   ∫    t  ÿì   ï)   ì   ∫      ñ   ì   ∫    t  ÿì   µ  ⁄H   ›t  ÿì   °0 `Pò@ `Põ P= `Pï0 `Pô@0 `Pï0 `PO `P*PI P    €BÁ  ø                        µ  H      ñ´   ì   µ  H   ∆   ÿ∫      ò%   ì   ÿ∫  ⁄H   ›∫   I∑   p ì	   ñ_   ì
+   ∫   ⁄H   ›∑   p ñB   ì   ∫   ⁄H   ›   p ⁄H	   ›p ⁄H
+   ›t  ÿµ  ⁄H   ›t  ÿì   °0 `Pò0 !`P= `P≠ Pí@ `Pê P= `Pë P+
+P*P4 `P*PI P   mt‰⁄  ≥                          ∫   ¥   p ⁄H   ›p  ∫    p  ñ=   ì   ∫   ⁄H   ›   p ó   ì
+   ∫   ⁄H   ›   t ÿì   ∫   ⁄H   ›7   ∫   ⁄H	   ›p  K%
+   %:	   t ÿ∫   ⁄H   ›   t ÿ« 
+  ÿ°0 `P+P*	P)P> `Pë P-`Pë PI `Pë ,Pë ˇˇˇÓPD `Pë P4 `P7 P   <  ‡é_Ì<  …                          ∫   ¥   p ⁄H   ›p  ∫    p  ñ.   ì   ∫   ⁄H   ›7      :   t ÿï\   ì   ∫   ⁄H   ›7      :   t ÿ∫   ⁄H   ›	   p ó   ì   ∫   ⁄H
+   ›   t ÿì   ∫   ⁄H
+   ›   t ÿ« 
+  ÿ°0 `P+P*	P)P> `Pë0 J PN0 `Pë0 J PD	 `Pë P-`Pë PI `Pë P4 `P7 P ∞   ˚|'Ó∞   \                  	        ∫ 	   t ÿ∫   ⁄H   ›   t ÿ∫   ⁄H   ›   t ÿ∫   ⁄H   ›7      :   t ÿ« 
+  ÿ°0 `P'PD `Pë P4 `Pë P4 `Pë 	*ˇˇˇ˚P4 `P7 P º   Ü$$-º   a                  
+        ∫ 	   t ÿ∫   ⁄H   ›   t ÿ∫   ⁄H   ›7      :   t ÿ∫   ⁄H   ›t  ÿ∫    t  ÿ« 
+  ÿ°@ `P'PD `Pë P4 `Pë 	*ˇˇˇ˚P4 `P,P4 `P: `P7 P   p   Çoà3p   4   	                     ∂  «   ÿ∫  ⁄H   ›j   t ÿ∫  ⁄H   ›   t ÿ°9 `Pë PD	 `Pë P4 P    ‰   ìfí‰   ë                       ◊∆  ÿ∫   ∑  p ⁄H   ›p  ∆   ÿ∫   µ  ò   ì   ÿ∑   ⁄H   ›   p ì   ñ#   ì	   ∑   ⁄H   ›   t ÿï   ì   ∑   ⁄H   ›   t ÿì   °6 `P*P*P8 `Pî ê Pì0 `Pê P>0 `Pê PI P  <  ƒä¯<  œ                          ∫   ⁄H   ›   t ÿ∫   ⁄H   ›   p ó†   ì   ∫      ñG   ì   ∫   ⁄H   ›   p ñ   ì
+   ∫   ⁄H   ›   t ÿì   ïI   ì   ∫   ⁄H   ›   t ÿ∫   	   ñ   ì   ∫   ⁄H   ›
+   t ÿì   °@ `Pë P4 `Pë P= `Pï0 `Pë P-`Pë Pì00 6`Pë P4 `Pï `Pë PI P    º   Œ∏Xº  -                %        ¥    ∫      p ⁄H   ›   p p ∆  ÿ∫      p ⁄H   ›p  ∆  ÿ∫      p ⁄H   ›p  ∆   ÿ∫      p ⁄H   ›p  ¥    ∫      p ⁄H   ›	   p p %∆  ÿ∑  ∑   %∑  %∑  %∆  ÿ¥
+   H   ∑  ñ=   ì   ∫   ⁄H   ›7   ¥
+   H   ∑   &∑  &:   t ÿï   ì#   ∫   ⁄H   ›   t ÿì%   °0@ `Pë P/P#ˇˇˇÍP8 `P+P*P8 `P+P*P8 `P+P*Pî P/P#ˇˇˇ‡PI `Pò0 `Pô0 `Pë ô ˇˇˇ˚P>0 `Pë PI P §   #Kü§   [                         ∫      p H   ñ/   ì   ∫      p ⁄H   ›p  <&∆   ÿï   ì   ∆   ÿì   ∑   û°0@ `P+Pî0 `P+P*Pï00 `PL	 `P4 Q Ù   ˇ*ﬁÙ   ú                         µ  ñ_   ì   ∫      p ⁄H   ›7      :   p ⁄H   ›   j   p ⁄H   ›	   j
+   t ÿï7   ì   ∫      p ⁄H   ›   p ⁄H   ›	   t ÿì   °0 `P?@ `P+P/*ˇˇˇ˚P:*PJ*PN0 `P+P/	P:%PI P †   õ†   _                         ∫  ⁄H   ›p  «   ÿ∫  ⁄H   ›∫  Iµ  H   p ñ$   ì   µ  H   H   IH   «   ÿì   °0 `P,PI `Põ P? `Pü@ P   ¿   ¸[…¿   y                         ∫  ⁄H   ›∫  Iµ  H   p ñE   ì   ∫   µ  H   H   IH   &«   ÿ∫  ⁄H   ›∫   ∫   %t ÿì   µ  ⁄H   ›t  ÿ°0 `Põ P? `P†0 `Pó PI `P*P4 P ê   ?¸Fê   L                        ◊∆  ÿj   ∆   ÿj   «   ÿ∑  ∫   ó   ì   ∫  }‹  ~  ûì   ∑    t  ÿ°õ0 `Pî0 `P*PC  F@ `PI  P   T   ôµR!T                             ∫      p «   ÿ∫    t  ÿ°0 `P+P9 `P: P   \   16•\   %                          ∫   ⁄H   ›   p ⁄H   ›j   t ÿ°@ `Pë P/PD P    $  í€ô¿$  µ                         µ  ⁄H   ›t  ÿµ  ⁄H   ›t  ÿ∫   ⁄H   ›   p ñB   ì   ∫   ¥   p ⁄H   ›   t ÿ∫   ⁄H   ›   t ÿïB   ì   ∫   ⁄H	   ›   t ÿ∫   ¥   p ⁄H
+   ›   j   t ÿì   °@ `P*P4 `P*PD `Pë P= `P+P/P4 `Pë P>0 `Pë P4 `P+Pî PI P    @   »X@                            ¥    j   dt ÿ°0 `P-
+P4 P D   U\8©D                             ∫   ⁄H   ›   t ÿ° `Pë P$P    (∂ép  º                       ◊∆   ÿj   «   ÿj   «   ÿj   «   ÿj   «   ÿj   «   ÿj   « 	  ÿ∑   ∫   ó   ì   ∫  }‹  ~  ûì   ∫      p «   ÿe    «   ÿ∑   j   J	   ÿ∑   j
+   J   ÿ∑   j   J   ÿ°»0 `Pî0 `P*PC> F@ `P+P9 `PK `PO `PO `PO> P 8   ‘˜Ü8                             ∫    t  ÿ°0 `P: P   8   Hv‹d8                             ∫    t  ÿ°0 `P: P   8   «;›˛8                             ∫ 	   t  ÿ°0 `P: P   H   Xπ˚OH                             ∫   ⁄H   ›j   t ÿ°0 `Pë PD P   `   ˙B…`   -                       ◊∆   ÿ∫   µ  ∫   ∑   p ⁄H   ›   p Lÿ°6 `Pí P/P5 P  H   ıYÆhH                             ∫   ⁄H   ›j   t ÿ°0 `Pë PD
+ P   î   bñ:#î   O                
+       ◊∆   ÿ∫   ∑   p ⁄H   ›7      :      :   ¥    ∫   µ  Ip :   t ÿ°6 `P*PJ5 : : /PH PD P    p   !:„óp   3                          ∫      p «   ÿ∫    t  ÿ∫    t  ÿ∫    t  ÿ°0 `P+P9 `P: `P: `P: P H   ÷@9€H                             ∫   ⁄H   ›   t ÿ°0 `Pë P4 P    H   ÷@9€H                             ∫   ⁄H   ›   t ÿ°0 `Pë P4 P    T   Ö~fT                             ∫      p ⁄H   ›j   t ÿ°0 `P+P/PD P    à   \$Öà   I                       ◊∆  ÿ∫   ∑  p ⁄H   ›p  ∆   ÿ∫   ∑  p ⁄H   ›p  ⁄H   ›∑   t ÿ°6 `P*P*P8 `P*P*P.P4 P ú   ‚zÚ¿ú   T                        ◊∆  ÿj   ∆   ÿj   ∆  ÿ∑  ∫   ó   ì   ∫  }‹  ~  ûì   ∑    t  ÿ∑   t  ÿ°ö0 `Pî0 `P*PC( F@ `P9 `PI( P  D   5Ê:nD                             ∫      p «   ÿ°0 `P+P9 P  h   êÉh   +                          ∫   ⁄H   ›j   t ÿ∫   ⁄H   ›j   t ÿ°0 `Pë PD `Pë PD P    Ù   ›Z=Ù   õ                       ◊∆   ÿ¥    p     ñÄ   ì   µ  ⁄H   ›t  ÿ∫   ∑   p ⁄H   ›   p ⁄H   ›   p ⁄H   ›7   e   f    f   :	   7
+   ,:      :   t ÿì   °6 `Pô0 `P*P4 `P*P/P:%P:5 %
+&;5 (J PI P   Ù   *∂‚ Ù   ö                       ◊∆   ÿ¥    p     ñ   ì   µ  ⁄H   ›t  ÿ∫   ∑   p ⁄H   ›   p ⁄H   ›   p ⁄H   ›7   e   f    f   :	   7
+   d:      :   t ÿì   °6 `Pô0 `P*P4 `P*P/P:%P:5 %
+&;5 'J PI P    0  A`0  ≈                      ∂  «   ÿ◊∆  ÿj   ∆  ÿj   « 	  ÿj   « 
+  ÿ∑  ¥    ó   ì   ¥   }‹  ~  ûì   ∑  «   ÿ7      :      :   :	   :
+   :   :   «   ÿ¥   H   j   J   ÿ∑  j   J   ÿ∑   t  ÿ°Ø0@ `Pî0 `P*PCcF	 `PJ `P5 : : 6 6 6 L `Pï@ `PO# `PIcP   P   ’BÙP                            µ  ⁄H   ›j   t ÿ∫   û°00 `P/PD `P5 Q  h   $ﬁ•¥h   1                         ¥   H   µ  H   ñ   ì   µ  H   «   ÿì   °@ `Pù0 `Pì@ P    8   ?Z∏$8                             ∫   H   û°0 `P: Q    Ì;ë]  ü                          ∫      ñy   ì   ∫   «   ÿ∫   H      ñI   ì   e    «   ÿ¥   ⁄H   ›∫   H   j   t ÿ∫   ⁄H   ›j   t ÿì   ï   ì   ∫ 	   t  ÿ∫ 
+   t  ÿ°@ `Pñ@ `PK `Põ@ `PK
+ `Põ PD `Pë Pì@@ `P: `P: P    `   |ß=`   &                         ∫   ⁄H   ›7   µ :   µ  :   t ÿ°0 `Pë0 8 H PD P   @   “∞@                            µ  H   µ H   &û°0 `Pë0 Q  T   ;q3/T                             ¥    ¥   p ⁄H   ›j   t ÿ°0 `P+P/	PD P    8   cO˛68                            ∫ 
+   t  ÿ°0 `P: P   4  É :4  ù               ,        ◊∆   ÿ∫   ¥   H   ñ+   ì   ∫   J   ÿ¥   H   «   ÿï   ì   ∫   J   ÿì   ∫   ¥   H   ñ+   ì   ∫   J   ÿ¥   H   «   ÿï   ì   ∫   J   ÿì   ∫   ¥   H   J   ÿ∫   ¥   H   J   ÿ∫   ⁄H   ›∫   p ∫   H	   ò   ì   ÿ∫   H
+      ì   ñG   ì   ∫   ∫   ⁄H   ›∫   p J	   ÿ∫   H
+   ⁄H   ›∑   ∫   t ÿì%   ∫   H      ñ(   ì)   ∫   H   ⁄H   ›∑   ∫   t ÿì,   °6 `Pö0 `P< `Pö00 `Pë@ `Pö0 `P< `Pö00 `Pë@ `Pï0 `Pï@ `Pë 
+Pô .†0 `Pñ P9 `Pö PI `Põ0 `Pö PI P   @  Lp¯R@  ‘                       ∂  «   ÿ◊∆  ÿj   ∆   ÿj   «   ÿj   «   ÿj   « 	  ÿ∑  ¥    ó   ì   ¥   }‹  ~  ûì   ∑  «   ÿ7   «   ÿ¥   H   j   J	   ÿ¥   H   j
+   J   ÿ¥   H   j   J   ÿ¥   H   j   J   ÿ∑    t  ÿ°∫0 `Pî0 `P*PCÄ  äF@ `P: `PK `Pï@ `Pï@" `Pï@+ `Pï@4 `PIÄ  äP  ê   £´8øê   Q                         µ  ô   ì   ÿ¥   H   ì   ≈  ÿµ  H   ñ   ì   µ  ⁄H   ›t  ÿì   µ  J   ÿ°0 `P°0 `Pí0 `P*P9 `P: P ú   (¬•Åú   L                 
+       7   %=&='=(=∆   ÿ∑   µ  H   Iñ   ì   ∫   ⁄H   ›µ  t ÿûì
+   °@ `P5 4 4 4 I	 `Pó0 `P/P4 `PA V    Ë   *Á£Ë   ò                          ¥   H   ñ*   ì   ¥   ⁄H   ›   ∫   H   t ÿì   ¥   ∫   H   J   ÿ¥   ¥   ∫   H   J   J   ÿ¥   ∫   H   J   ÿ¥   ∫   H	   J
+   ÿ°0 `Pî0 `Pú P9 `Pï0 `Pü0 `Pï0 `Pï0 P    ¿   íYÄ¿   t                          ¥   H   ñ*   ì   ¥   ⁄H   ›   ∫   H   t ÿì   ¥   ¥   J   J   ÿ¥   J   ÿ¥   J   ÿ¥   J	   ÿ°0 `Pî0 `Pú P9 `Pñ0 `P< `P< `P< P   x   ˙
+Úèx   8                          «   ÿ∫      ñ   ì   ∫   «   ÿì   ∫    t  ÿ°0 `PG `Pñ0 `Pê@ `PJ
+ P  Ñ   ¶∆ÈTÑ   B                  	        ¥    ¥   p ⁄H   ›j   t ÿ¥       p ⁄H   ›   j   t ÿ°0 `P+P/	PD `P+Pî PD	 P    L   ª‚L                            ∫    t  ÿµ  ⁄H   ›t  ÿ°0 `P: `P*P4 P <   Ω•<                            ∫ 	   µ  t ÿ°0 `P)P4 P º  °“'ºº  2               %        ◊∆  ÿ∫   H   ∆   ÿ∑      ñ  ì   ±   ¥    ¥   p ⁄H   ›p  √   ÿ∫   ¥   J   ÿ¥   ∫   ñ   ì   ∫      J   ÿï   ì   ∫   	   J   ÿì   ¥   ¥    ¥
+   p ⁄H   ›p  ¥    ¥   p ⁄H   ›p  &ñ   ì    ∫   J   ÿï   ì!   ∫   J   ÿì"   ∑   ⁄H   ›∑  ∫   t ÿ¥   «   ÿì%   °6 `P? `Pï@ `Pê P*
+P9 `Pê@ `Pï0 `Pö00 `Pï@ `Pê P*P.P*
+P? `Pñ00 `Pë@ `Pî PD `Pê@ P ,  %ÒÁ,  Ç               '       ◊∆  ÿ∫   H   ∆   ÿ∑      ñ\  ì   µ  H   ∆  ÿ∆  ÿ¥    ¥   p ⁄H   ›p  ∆  ÿ∑  H   ñ    ì   ∑  H   ÿ)∆  ÿï   ì   ∑  H   ∆  ÿì   ∫   ∑  J	   ÿ∫   ∑  ∑  &J
+   ÿ∑  ñ   ì   ∫      J   ÿï   ì   ∫      J   ÿì   ∑  ¥    ¥   p ⁄H   ›p  ¥    ¥   p ⁄H   ›p  &ñ   ì#   ∫   J   ÿï   ì$   ∫   J   ÿì%   ∑   ⁄H   ›∑  ∫   t ÿì'   °F `PO `Pï@@ `P= `P6 `P+P*
+PH `Pì0 `Põ00 `Pì0@ `P? `Pî@ `Pê0 `Pö00 `Pï@ `P/P*P.P*
+P? `Pñ00 `Pë@! `Pî PI# P à  ΩƒÄ£à  Ä  	      	       V       ∂ «   ÿ±   µ  √   ÿ   ∫   %«   ÿ¥    ∫   p ⁄H   ›p  *∆   ÿ¥    ∫   p ⁄H   ›p  *∆  ÿ±   ∫   √   ÿ¥       p ⁄H   ›	   
+   t ÿ¥    ∫   p ⁄H   ›7      :      :   ∑   :   ∑  :      :      :   	üÜ:   p ⁄H   ›      p ⁄H   ›   p ⁄H   ›   p ⁄H   ›   p ⁄H   ›p ⁄H    ›t  ÿ¥    !   ¥"   %#   %p ∆  ÿ∑  ⁄H$   ›   t ÿ∑  ⁄H   ›7%   ¥    ¥&   p ⁄H   ›p  :   ¥    ¥&   p ⁄H   ›p  :   '   :   (   :)   *   :+   ,   :   :   :   	ûÜ:   t ÿ∑  ⁄H-   ›.   
+öôôôôôÈ?t ÿ∑  ⁄H/   ›j0   t ÿ¥    1   p ⁄H2   ›j3   t ÿ¥    4   p ⁄H2   ›j5   t ÿ°9 `P> `Pë0 `P+P*
+P; `P+P*
+PK `Pê@ `P+Pî 	P4 `P+P? : :  :  : : : I	 PJ*P:%P:%P:%P+
+P*PD `Pó P8 `Pê PD `Pê0 +	P*P8 +
+P*P8 : : : : 6 6 I PD' `Pô P4 `Pê PD- `P+P/PD1 `P+P/PD4P @   ¯yb”@                             ¥    ∫   t ÿ°0 `P+P4 P   Ñ   ËåJüÑ   E                         ¥    ∫      %p ⁄H   ›¥    ∫      %p H   &p ⁄H   ›t  ÿ°0 `Pë Põ P*ˇˇˇ˝P*P4 P    L   %¯;ŒL                            ¥    ∫   p ⁄H   ›t  ÿ°0 `P+P*
+P4 P     (-X   µ                         ¥    ¥   p ⁄H   ›t  ÿ¥       p ⁄H   ›t  ÿ¥       p ⁄H   ›t  ÿ¥       µ  %p ⁄H   ›	   
+   t ÿ¥       ¥   %p ⁄H   ›t  ÿ¥       p ⁄H   ›      t ÿ°0 `P+P*P4 `P+P*P4 `P+P*P4 `P/Pî P4 `Pë P* P4 `P+Pî 	P4P   ‰   °©c‰   ô                            ∆   ÿ¥   H   ñz   ì   i   ⁄H   ›¥   H   ô*   ì   ÿ¥   H   ô   ì
+   ÿ¥   H	   ì   p ñ   ì   
+   ∆   ÿï   ì      ∆   ÿì   ∑   û°0 `PJ `Pî0 `P≈ (P= `Pî00 `PO
+ `P4Q 3ıÿ  `æ     @∏  .    `∏    `    $  r   I  pø  J  p  `  `$  !  ¿  L  p  `!  º  ∂  |  ∑  ∏  i  π  .      3     	  `!  º  ∏  .    `ü   F  p
+  `.    `H  pK  pM  p    @v   .  ∞  ∂  ∑  ∏  i  j  E  pπ  G  pΩ    `    `\    `  `$  !  &  U  p–  Ñ  —  V  p  `    "  $  !     ‘  +  ô   i  ,  3     `÷    Ü  $  !  "  ⁄  €     Ÿ  ô +  ‘    i  ,  3     `!  ¬  \  √    `  @≈  \    `!  «  »  \  …       À  ƒ  Ã    `!  Œ  »  \       …  À  Ã    `S  pT  pW  pX  p*    @j  O  p\  P  pƒ  Q  p∆  R  pÕ    `˚    `$  ˛  ö   e    `$  e    `ﬁ  #  $  i  ∏  ›  _  ;  Ç  É    @Ê  Â     {  Á  o  n  È  Ë  Í  1  Î  0  Ï  Ì  Ó  Ô  í   a  ö e  Ò  ‹  Ú  Û    @  =  ı  Ù  ˜  ˆ  ¯  ˘  ˙  Z  Z  p¸  ˝  [  pˇ  \  p  `$  ﬁ  e  ˇ    ¸  #  ;  n  =  ‹  _  Ç     `L      PÆ    !       `J  K  L  í   M  N  O  P  Q    `S  T     `U  T  "  `L #  `L $  `L \  %  `L \  &  `L ‹   \  '  `a  b  c  ≠  L \  (  `a  b  ≠  L c  ú í   a  ö e  \  !  `V    pX    pZ    p  p  p_  `    pd    p)  `!  "  f  g  S  h  ;    @i  a j  *  `!  "  ;    @v   i    @f  g  U  h  j  +  `U  l  S  m  ;  	  @o  n  ,  `U  m  ;  
+  @=  n  e  .  `p  f   S  U  -  `r   %  pU   /  `U  q  f  m     g  S  h  L &  0  `[  J  ;  w  x  i  y  z  {  !  |    @}  ®  1  `.    ~  i  3  `"  c  ≠  Ü  á  à  4  `c  ≠  Ü  á  à  "  \  2  `_  ;    @É  Ç  Ñ  Ö  *  pâ  +  p}  ®  ä  5  `6  `7  `8  `9  `:  `;  `<  `  `  p  p  p  p   p!  p"  p#  p$  p&  p'  p(  p)  p  p    p(    p'    p)    p%    p    p    p$  >  `å  B  `U   A  `#  1  p@  `é  \  f     è  ê  U  S  S  0  p?  `í   ç  Z  /  p=  `-  p.  pE  `;  ô  D  `r   7  pG  `ö    @!    õ  5  [  i  F  `r   9  pH  `ì  I  `ù  û  J  `ù  ú  L  `°  ¢  £  K  `ü  r   >  pM  `N  `O  `C  `6  p8  p:  p;  p<  p=  pì  3  pî  4  p  5  pó  Q  `•  S  `ß    \  í   ®  ©  ™    @´    @¨  o  n  T  `ß    \  í   ®  ©  ™    @´    @¨  =  n  R  `¶  B  p≠  C  pP  `@  pA  pW  `  V  `        @L       @      @    p    U  `      pY  `.  L     [  `$  %     &  Z  `.    !  "  #    pL '  (  )  \  `   +  ,  $  %  &  X  `    @  @L         p    p  *    @	  p^  `.  /    L 0  1    @v   ®    @3      @5  4    @6     7  ]  `!  "  .        @  @L         p  8  1    @:  9  ;    @=  <    `  p,  p2  p?  p    p      p!   -  
+  p   `D  pN  pY  p]  p^  p  pÆ  ‹  ﬂ  ˇXÑª  
+              ≠             † S           †
+ C          † A           †
+ s             † W           †
+ a           †
+ \     
+     † l           †
+ ñ             † Ç           †
+ Æ           †  ¶          † ß          † ®          † ©          † ™          † ´          † ¨          † ≠          † ˆ   
+   7      †        (      †       '      †  '     R      †            †           † 
+          †           †           †           †           † 5     W      †  A     Y      †  N  	   [      †  W     )      †  e     ^      †  _          † j     %      †  u           †  Ñ     I      †  ò     k      †  â     "     † ê     "     † Â           †  Ã     7      †  ‡     R      †  ‘     %     † —     &     † Œ     '     †            †  
+     (     †      )     †      *     † Î     ò      †  Ë     ,     † ˜           †  Ó  	   .     † ˙     ñ      †  ¸     ï      †  ˇ     ú      †       ó      †       3     † >           †       7      †  9     R      †       6     † +     6     † -            †  (      7     † #      8     † +      9     †       7      †         ;     †       ;     †       R      †        =     †       î      †  ã      *      †  m      ?     † r      @     † v      A     † Å   
+   B     † ?      7      †  D   	   R      †  A      E     † C      E     † M      œ      †  [      “      †  ¶   6   ‡      †  õ      H     † ù      H     † £      H     † ‹      ˚      †  Î      ß      †  ùH©¿      Xh      Xh                 Ä#   ÎC     ÎC     
+           €   1  ”   1  	               »  (  ø  (     #            Ã  Ñ  √  Ñ     +           X     O     ,               ú  f  ì  f  8             Äà  â
+    â
+  ?               å  v	  Ñ  v	  F   #             „
+  ê  ⁄
+  ê  Z              '  à    à  t   !            E  ›  <  ›  Ü   #          Ç¢  ÿ4  ñ  ÿ4  •                «  ˝  æ  ˝  Æ                #  L    L  ≤   "             u  °  l  °  ∂   %             Ã  ˙  √  ˙  ∫   '             &  |    |  æ   (            Ø  ›  ß  ›  √   '             
+  7    7  «   !             e  ò  ]  ò  À   !             Ã  H  ø  H  —                f  ¢  T  ¢  ﬁ                √    Æ    ‚                 ∞#    ∞#  Ê                I  –  @  –  Á   $            ˙  p  Ò  p  Ó   $            ü  ?  ñ  ?  Ù   )            {    r    ˚   *           D  n  ;  n    "            •  ∞!  ú  ∞!    %            È!  £#  ‡!  £#    '            Ã#  ˛$  º#  ˛$  *               %  ¬&  
+%  ¬&  4               ‰&  ¡'  Œ&  ¡'  C               ‰'  ⁄(  Õ'  ⁄(  L             Ä˝(  R*  Ê(  R*  W             ')  *  )  *  X  !            v*  @,  ^*  @,  c                d,  V/  L,  V/  p                Ä/  ∫0  j/  ∫0  Ä             Ä„0  —4  Œ0  —4  å              ¨1  ﬂ2  £1  ﬂ2  ë  1            3  G4  	3  G4  ò  0          Ç5  z8  5  z8  ¶               ∫5  6  ≠5  6  Ø              6  s8  6  s8  ¥              S6  f8  J6  f8  ∂  ,           ◊7  B8  œ7  B8  ¿  >            	8  #8  8  #8  ¡  ,           Ç¶8  ≥>  ö8  ≥>  »               á9  ∞9  ~9  ∞9  ”               ”9  ¯9   9  ¯9  ◊               %:  M:  :  M:  €  !            v:  ˙:  a:  ˙:  ﬂ              õ:  Ì:  í:  Ì:  ‡             ;  u<  ;  u<  Â              :;  h<  1;  h<  Ê              è<  	=  Å<  	=  Ò               '=  _=  =  _=  ¯               {=  ∞=  k=  ∞=  ¸              ÷=  ¨>  ƒ=  ¨>                 3>  ü>  +>  ü>    1          Ç?  ËC  ˜>  ËC  
+               ·?  @  ‘?  @                A@  ·C  0@  ·C                k@  B  b@  B    %           4B  ‘C  +B  ‘C  %  $          Ç<D  1O  -D  1O  6            ÄF  
+G  F  
+G  J  .            GF  ÍF  >F  ÍF  L              .G  YG  &G  YG  U              ÅG  …J  tG  …J  [               ·H  áI  ÿH  áI  e  5            ·I  1J  ÿI  1J  l  %           ‚J  9K  —J  9K  w               
+K  1K  K  1K  x  "           PK  .O  AK  .O  }             Ç~O  	_  oO  	_  õ              hP  ÙP  _P  ÙP  ¶  /            4Q  R  +Q  R  ≠  <            xR  %T  oR  %T  Ω  .             {T  ™U  rT  ™U  ∆  -             “U  ëV  ≈U  ëV  —    ôf˛          ™V  üW  ôV  üW  ›               “V   W  …V   W  ﬁ  "            iW  ñW  `W  ñW  „  C           ºW  §Z  ßW  §Z  Ë              ¿Z  _  ¨Z  _              Ä†_  ≥e  â_  ≥e  ,              Öd  µd  }d  µd  T  %             e  Ye  e  Ye  Y  %            Üe  Æe  ~e  Æe  ]  #            Œe  'g  ∑e  'g  b              =g  Xh  +g  Xh  k             5°›O•a≠[‡^àï      hf?uff?ufFÂD‘h \   j    O^partitionKey=%28https%2Cphswcoding.co.kr%29,:https://www.phswcoding.co.kr/Common/scripts/js/common_ui.js strongly-framed 1 security-info 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 request-method GET response-head HTTP/2 200 OK
+cache-control: public,max-age=31536000
+content-type: application/javascript
+last-modified: Tue, 22 Sep 2020 14:01:36 GMT
+accept-ranges: bytes
+etag: "0e072e2e890d61:0"
+server: none
+date: Sat, 11 May 2024 02:15:56 GMT
+content-length: 26712
+X-Firefox-Spdy: h2
+ original-response-headers cache-control: public,max-age=31536000
+content-type: application/javascript
+last-modified: Tue, 22 Sep 2020 14:01:36 GMT
+accept-ranges: bytes
+etag: "0e072e2e890d61:0"
+server: none
+x-powered-by: 
+x-aspnet-version: 
+date: Sat, 11 May 2024 02:15:56 GMT
+content-length: 26712
+X-Firefox-Spdy: h2
+ ctid 2 uncompressed-len 0 net-response-time-onstart 160 net-response-time-onstop 165 alt-data 1;26712,javascript/moz-script-bytecode-20230512001631-8l alt-data-from-child 1  j
