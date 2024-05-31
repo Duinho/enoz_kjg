@@ -2,6 +2,7 @@ import os
 import openpyxl
 import time
 from playwright.sync_api import sync_playwright
+from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 import re
 from datetime import datetime, timedelta
@@ -165,15 +166,9 @@ def 특정열값검색(시트데이터, rows, page):
         time.sleep(0.3)
         page.keyboard.press('Enter')
         print(f'{a_value}반 {e_value} 학생 영상 발송 완료')
-        max_row = 1
-        for cell in ws['A']:
-            if cell.value is not None:
-                max_row = cell.row + 1
-
-        ws[f'A{max_row}'] = f'{a_value}반 {e_value}'
-        wb.save(excel_file_path)
 
 def 시트확인(page):
+    global 날짜위치, 영상_행목록
     시트아이디 = extract_spreadsheet_id(시트링크)   
     시트 = build('sheets', 'v4', developerKey=api키)
     
@@ -191,6 +186,87 @@ def 시트확인(page):
         특정열값검색(시트데이터, 영상_행목록, page)
     else:
         print(f'날짜 "{날짜}" not found in the second row')
+
+def 시트수정():
+    global 날짜위치, 영상_행목록, 시트이름, 폴더경로, 시트링크
+
+    # JSON 파일 경로 설정
+    json_file_path = os.path.join(폴더경로, 'auto-send-link-b97c1597bb00.json')
+
+    # OAuth2 인증 설정
+    SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+    creds = Credentials.from_service_account_file(json_file_path, scopes=SCOPES)
+    service = build('sheets', 'v4', credentials=creds)
+
+    # 스프레드시트 ID 추출
+    시트아이디 = extract_spreadsheet_id(시트링크)
+
+    # 시트 ID 가져오기
+    spreadsheet = service.spreadsheets().get(spreadsheetId=시트아이디).execute()
+    sheet_id = None
+    for sheet in spreadsheet['sheets']:
+        if sheet['properties']['title'] == 시트이름:
+            sheet_id = sheet['properties']['sheetId']
+            break
+
+    if sheet_id is None:
+        raise ValueError(f"Sheet name '{시트이름}' not found in the spreadsheet")
+
+    # 수정할 범위 및 값을 준비
+    requests = []
+    for i in range(len(영상_행목록)):
+        cell_range = f'{시트이름}!{chr(64 + 날짜위치)}{영상_행목록[i]}'  # 날짜위치는 열, 영상_행목록[i]는 행
+        requests.append({
+            'range': cell_range,
+            'values': [['O']]
+        })
+    # 스프레드시트 값 업데이트
+    body = {
+        'valueInputOption': 'RAW',
+        'data': requests
+    }
+    response = service.spreadsheets().values().batchUpdate(
+        spreadsheetId=시트아이디,
+        body=body
+    ).execute()
+
+    # 메모 추가
+    requests = []
+    for i in range(len(영상_행목록)):
+        requests.append({
+            "updateCells": {
+                "range": {
+                    "sheetId": sheet_id,
+                    "startRowIndex": 영상_행목록[i] - 1,
+                    "endRowIndex": 영상_행목록[i],
+                    "startColumnIndex": 날짜위치 - 1,
+                    "endColumnIndex": 날짜위치
+                },
+                "rows": [
+                    {
+                        "values": [
+                            {
+                                "userEnteredValue": {
+                                    "stringValue": "O"
+                                },
+                                "note": "영상 발송 완료"
+                            }
+                        ]
+                    }
+                ],
+                "fields": "note,userEnteredValue"
+            }
+        })
+
+    body = {
+        'requests': requests
+    }
+    response = service.spreadsheets().batchUpdate(
+        spreadsheetId=시트아이디,
+        body=body
+    ).execute()
+
+        
 
 def 로그인(page):
     page.goto(문자박스링크)
@@ -211,6 +287,8 @@ def 동작():
         엑셀()
         로그인(page)
         시트확인(page)
+        시트수정()
+        print('모든 영상 링크 발송 완료')
         browser.close()
 
 동작()
