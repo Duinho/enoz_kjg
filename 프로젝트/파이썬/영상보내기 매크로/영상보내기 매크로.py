@@ -76,19 +76,20 @@ def 엑셀():
     wb = openpyxl.load_workbook(excel_file_path)
     ws = wb.active
     날짜 = ws.cell(row=1, column=17).value    
-    시트이름 = ws.cell(row=2, column=17).value
-    if 시트이름 == '출석부(월/수)':
+    if '월' in 날짜 or '수' in 날짜:
+        시트이름 = '출석부(월/수)'
         요일 = '월수'
-    elif 시트이름 == '출석부(화/목)':
+    elif '화' in 날짜 or '목' in 날짜:
+        시트이름 = '출석부(화/목)'
         요일 = '화목'
-    api키 = ws.cell(row=3, column=17).value
-    시트링크 = ws.cell(row=4, column=17).value
-    드라이브링크 = ws.cell(row=5, column=17).value
-    멘트1 = ws.cell(row=6, column=17).value
-    멘트2 = ws.cell(row=7, column=17).value
-    문자박스링크 = ws.cell(row=8, column=17).value
-    문자박스아이디 = ws.cell(row=9, column=17).value
-    문자박스비번 = ws.cell(row=10, column=17).value
+    api키 = ws.cell(row=2, column=17).value
+    시트링크 = ws.cell(row=3, column=17).value
+    드라이브링크 = ws.cell(row=4, column=17).value
+    멘트1 = ws.cell(row=5, column=17).value
+    멘트2 = ws.cell(row=6, column=17).value
+    문자박스링크 = ws.cell(row=7, column=17).value
+    문자박스아이디 = ws.cell(row=8, column=17).value
+    문자박스비번 = ws.cell(row=9, column=17).value
     kst = pytz.timezone('Asia/Seoul')
     now = datetime.now(kst)
     yesterday = now - timedelta(1)
@@ -110,8 +111,10 @@ def 엑셀():
     if 날짜 == '자동' :
         날짜 = 어제날짜
         if weekday_kor == '월' or  weekday_kor == '수' :
+            시트이름 = '출석부(월/수)'
             요일 = '월수'
         elif weekday_kor == '화' or  weekday_kor == '목' :
+            시트이름 = '출석부(화/목)'
             요일 = '화목'
 
 def 날짜검색(시트데이터, search_value):
@@ -183,7 +186,6 @@ def 시트확인(page):
         return
 
     날짜위치 = 날짜검색(시트데이터, 날짜)  # 셀 주소 찾기
-    print(날짜위치)
     if 날짜위치:
         영상_행목록 = 영상검색(시트데이터, 날짜위치, '영상')
         특정열값검색(시트데이터, 영상_행목록, page)
