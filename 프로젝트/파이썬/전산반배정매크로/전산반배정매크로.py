@@ -41,6 +41,9 @@ def 반배정(page, 대상):
     마지막_행 = ws.max_row
     for row in ws.iter_rows(min_row=2, max_row=마지막_행, values_only=True):
         반이름, 아이디, 학생이름 = row[col_range]
+        아이디 = f'{아이디}'
+        if not 아이디:  # 아이디가 None인 경우 건너뜀
+            break
         page.fill('input[name="tbKeyWord"].font_blue', 아이디)
         page.press('input[name="tbKeyWord"].font_blue', 'Enter')
 
@@ -49,6 +52,7 @@ def 반배정(page, 대상):
         
         # 새 탭이 열릴 때까지 기다림
         new_page = browser.contexts[0].wait_for_event("page")
+        new_page.wait_for_load_state("load")
         # 새 탭에서 반이름 선택
         
         new_page.evaluate('''
@@ -82,7 +86,9 @@ def 동작():
         page = browser.new_page()
         초기화()
         로그인(page)
+        반배정(page, '망령출동')
         반배정(page, '학생배정')
+        반배정(page, '망령퇴장')
         browser.close()
 
 동작()
