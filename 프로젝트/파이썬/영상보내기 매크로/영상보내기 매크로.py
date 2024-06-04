@@ -278,16 +278,19 @@ def 로그인(page):
         page.click("a[onclick*='contentsLayerClose']")  # 닫기 버튼 클릭
     except:
         pass 
-
+    
+def 영상발송(page):
+    로그인(page)
+    시트확인(page)
+    시트수정()    
+    
 def 동작():
     global browser
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=False, args=['--disable-popup-blocking'])
         page = browser.new_page()
         엑셀()
-        로그인(page)
-        시트확인(page)
-        시트수정()
+        영상발송(page)
         print('모든 영상 링크 발송 완료')
         browser.close()
 
