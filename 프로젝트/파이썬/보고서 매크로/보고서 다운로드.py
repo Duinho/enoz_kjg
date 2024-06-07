@@ -9,13 +9,13 @@ from docx import Document
 from docx.shared import RGBColor
 import win32com.client as win32
 
-날짜 = '202308'
+날짜 = '202405'
 result = 0
 폴더경로 = os.path.dirname(os.path.abspath(__file__))                               # 폴더경로를 코드가 있는 디렉토리로 저장 
 
 async def 로그인():
     global page, new_handle     
-    await page.goto('https://enozsw-bukgu.enoz.kr/Admin')                           # 로그인 사이트로 이동
+    await page.goto('https://enozsw.enoz.kr/admin/')                           # 로그인 사이트로 이동
     await page.wait_for_load_state()                                                # 화면 바뀔 때까지 대기
     await asyncio.sleep(1)                                                          # 1초 대기
     await page.fill('input[name="tbAdminId"]', 'admin')                             # 아이디 및 비밀번호 입력하고 로그인
@@ -23,7 +23,7 @@ async def 로그인():
     await asyncio.sleep(1)
     await page.press('input[name="tbAdminPass"]', 'Enter')
     await asyncio.sleep(1)
-    await page.goto('https://enozsw-bukgu.enoz.kr/Admin/Class/scheduleList.asp')    # 수강 관리로 이동
+    await page.goto('https://enozsw.enoz.kr/Admin/Class/StudyList.asp')    # 수강 관리로 이동
     await asyncio.sleep(1)
     await page.select_option('select[name="ddlTargetDate"]', value = 날짜)          # 날짜를 해당 기수로 변경
     await page.select_option('select[name="ddlKeyField"]', value ='Teacher')        # 아이디로 검색으로 바꾸기
@@ -36,9 +36,9 @@ async def 보고서다운():
     await 폴더_생성()
     for i in range(1, 51):                                                                                              # 50번 반복
         if i < 26:                                                                                                      # 26보다 작으면
-            반 = 'MW_teacher'+ str(i).zfill(2)                                                                          # 반에 월수 몇 반이라고 저장
+            반 = 'GS_MW'+ str(i).zfill(2)                                                                          # 반에 월수 몇 반이라고 저장
         else :                                                                                                          # 26 이상이면
-            반 = 'TT_teacher' + str(i-25).zfill(2)                                                                      # 반에 화목 몇 반이라고 저장
+            반 = 'GS_TT' + str(i-25).zfill(2)                                                                      # 반에 화목 몇 반이라고 저장
                   
         폴더_경로 = os.path.join(폴더경로, str(i))                                                                       # 폴더_경로를 폴더경로의 숫자로 지정
         

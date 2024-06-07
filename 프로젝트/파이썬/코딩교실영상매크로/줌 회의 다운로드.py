@@ -212,7 +212,9 @@ async def 동작():
             for item in downloadlist:
                 inner_text = await item.inner_text()
                 if inner_text == "갤러리 보기가 포함된 공유 화면":
-                    await 영상다운(강의이름, '갤러리 공유화면')
+                    await 영상다운(강의이름, '강의 영상')
+                if inner_text == "발표자 보기가 포함된 공유 화면":
+                    await 영상다운(강의이름, '강의 영상')
             await 삭제()
             
 asyncio.run(동작())
