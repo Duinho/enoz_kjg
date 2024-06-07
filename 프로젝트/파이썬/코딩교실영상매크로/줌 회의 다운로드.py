@@ -156,7 +156,7 @@ async def 영상다운(강의이름, 이름):
 async def handle_download(download_info, 강의이름, 이름):
     download = await download_info.value
     download_path = await download.path()
-    target_path = os.path.join(폴더정보[강의이름], f"{강의이름}_{이름}_{강의날짜}.mp4")
+    target_path = os.path.join(폴더정보[강의이름], f"{강의이름}_{강의날짜}.mp4")
     shutil.move(download_path, target_path)  # 덮어쓰기 처리
 
 async def 삭제():
@@ -164,10 +164,14 @@ async def 삭제():
     try:
         if err:
             await page.goto(줌링크)                                                # 기록관리 페이지로 이동
-            await asyncio.sleep(1)
-            await page.wait_for_selector('//h1[contains(text(), "기록 관리") and contains(@style, "font-size: 24px;")]', timeout=30000)
-            print(f"{강의이름}설치 재시작")              
-            await asyncio.sleep(1)
+            await asyncio.sleep(3)
+            fm = None
+            fm = await page.query_selector('span[role="alert"]:has-text("검색과 일치하는 결과를 찾을 수 없습니다")')
+            if fm is not None:
+                await asyncio.sleep(1)
+                await page.wait_for_selector('//h1[contains(text(), "기록 관리") and contains(@style, "font-size: 24px;")]', timeout=30000)
+                print(f"설치 재시작")              
+                await asyncio.sleep(1)
             err = None
         else :
             delete_element = await page.query_selector('button:nth-child(4)')                                              # 삭제
