@@ -210,6 +210,7 @@ async def 동작():
         await 로그인()
         while 영상다운중:
             await 정보가져오기()
+<<<<<<< HEAD:프로젝트/파이썬/코딩교실/코딩교실영상매크로/줌 회의 다운로드.py
             if 영상다운중 == True :
                 downloadlist = await page.query_selector_all('div.item_list_header.relative > a')  # 영상 다운로드 하기 위해 각 항목으로 접속
                 for item in downloadlist:
@@ -217,5 +218,15 @@ async def 동작():
                     if inner_text == "갤러리 보기가 포함된 공유 화면":
                         await 영상다운(강의이름, '갤러리 공유화면')
                 await 삭제()
+=======
+            downloadlist = await page.query_selector_all('div.item_list_header.relative > a')  # 영상 다운로드 하기 위해 각 항목으로 접속
+            for item in downloadlist:
+                inner_text = await item.inner_text()
+                if inner_text == "갤러리 보기가 포함된 공유 화면":
+                    await 영상다운(강의이름, '강의 영상')
+                if inner_text == "발표자 보기가 포함된 공유 화면":
+                    await 영상다운(강의이름, '강의 영상')
+            await 삭제()
+>>>>>>> 7742d9f304e535b7d32df940e9b789e31ea7cd67:프로젝트/파이썬/코딩교실영상매크로/줌 회의 다운로드.py
             
 asyncio.run(동작())

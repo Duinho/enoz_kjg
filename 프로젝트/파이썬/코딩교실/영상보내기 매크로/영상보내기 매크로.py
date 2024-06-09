@@ -73,9 +73,10 @@ def 드라이브링크복사():
         print(e)
 
 def 엑셀():
-    global 날짜, api키, 시트링크, 시트이름, 드라이브링크, wb, ws, 요일, 멘트1, 멘트2, 문자박스링크, 문자박스아이디, 문자박스비번
+    global 알람받을번호, 날짜, api키, 시트링크, 시트이름, 드라이브링크, wb, ws, 요일, 멘트1, 멘트2, 문자박스링크, 문자박스아이디, 문자박스비번
     wb = openpyxl.load_workbook(excel_file_path)
     ws = wb.active
+    알람받을번호 = ws.cell(row=5, column=15).value
     날짜 = ws.cell(row=1, column=17).value    
     if '월' in 날짜 or '수' in 날짜:
         시트이름 = '출석부(월/수)'
@@ -166,6 +167,18 @@ def 특정열값검색(시트데이터, rows, page):
         time.sleep(0.3)
         page.keyboard.press('Enter')
         print(f'{a_value}반 {e_value} 학생 영상 발송 완료')
+    page.fill('textarea#recvList', 알람받을번호)
+    page.fill('textarea#msg', '영상 다운로드 완료')
+    page.click('div.num_select')
+    time.sleep(0.3)
+    frame = page.frame(name='callbackFrame')
+    frame.wait_for_selector("a:has-text('01053006552')", timeout=30000)
+    frame.click("a:has-text('01053006552')")
+    page.click('a:has(img[src*="send_btn.gif"])')
+    time.sleep(0.3)
+    page.keyboard.press('Enter')
+    time.sleep(0.3)
+    page.keyboard.press('Enter')
 
 def 시트확인(page):
     global 날짜위치, 영상_행목록
