@@ -168,7 +168,7 @@ def 특정열값검색(시트데이터, rows, page):
         page.keyboard.press('Enter')
         print(f'{a_value}반 {e_value} 학생 영상 발송 완료')
     page.fill('textarea#recvList', 알람받을번호)
-    page.fill('textarea#msg', '영상 다운로드 완료')
+    page.fill('textarea#msg', '영상 발송 완료')
     page.click('div.num_select')
     time.sleep(0.3)
     frame = page.frame(name='callbackFrame')
