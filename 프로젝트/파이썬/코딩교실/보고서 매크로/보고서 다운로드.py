@@ -12,82 +12,23 @@ result = 0
 폴더경로 = os.path.dirname(os.path.abspath(__file__))  # 폴더경로를 코드가 있는 디렉토리로 저장 
 excel_file_path = os.path.join(폴더경로, '보고서.xlsx')  # 엑셀 파일 경로
 
-async def 로그인():
-    global page, new_handle     
-    await page.goto('https://enozsw.enoz.kr/admin/')                           # 로그인 사이트로 이동
-    await page.wait_for_load_state()                                                # 화면 바뀔 때까지 대기
-    await asyncio.sleep(1)                                                          # 1초 대기
-    await page.fill('input[name="tbAdminId"]', 'admin')                             # 아이디 및 비밀번호 입력하고 로그인
-    await page.fill('input[name="tbAdminPass"]', 'admin55&&')
-    await asyncio.sleep(1)
-    await page.press('input[name="tbAdminPass"]', 'Enter')
-    await asyncio.sleep(1)
-    await page.goto('https://enozsw.enoz.kr/Admin/Class/ScheduleList.asp?ddlKeyField=a.group_no&tbKeyWord')    # 수강 관리로 이동
-    await page.goto('https://enozsw.enoz.kr/Admin/Class/StudyList.asp')    # 수강 관리로 이동
-    await asyncio.sleep(1)
-    await page.select_option('select[name="ddlTargetDate"]', value = 날짜)          # 날짜를 해당 기수로 변경
-    await page.select_option('select[name="ddlKeyField"]', value ='Teacher')        # 아이디로 검색으로 바꾸기
-    await asyncio.sleep(1)
+def 엑셀():
+    global 로그인링크, 아이디, 비번, 수강관리링크, 강의날짜, 월수이름, 화목이름, 월수반수, 화목반수, 추가인원, 취소자
 
-    
-async def 보고서다운():
-    global browser, page, new_handle,폴더경로  # 전역 변수로 사용
-    await 로그인()
-    await 폴더_생성()
-    for i in range(1, 11):                                                                                              # 50번 반복
-        if i < 6:                                                                                                      # 26보다 작으면
-            반 = 'GS_MW_'+ str(i).zfill(2)                                                                          # 반에 월수 몇 반이라고 저장
-        else :                                                                                                          # 26 이상이면
-            반 = 'GS_TT_' + str(i-5).zfill(2)                                                                      # 반에 화목 몇 반이라고 저장
-    for i in range(1, 51):                                                                                              # 50번 반복
-        if i < 26:                                                                                                      # 26보다 작으면
-            반 = 'GS_MW'+ str(i).zfill(2)                                                                          # 반에 월수 몇 반이라고 저장
-        else :                                                                                                          # 26 이상이면
-            반 = 'GS_TT' + str(i-25).zfill(2)                                                                      # 반에 화목 몇 반이라고 저장
-                  
-        폴더_경로 = os.path.join(폴더경로, str(i))                                                                       # 폴더_경로를 폴더경로의 숫자로 지정
-        
-        await page.fill('input[name="tbKeyWord"].font_blue', 반)                                                        # 입력창에 반을 입력
-        await page.press('input[name="tbKeyWord"].font_blue', 'Enter')                                                  # 엔터로 검색
-        await page.wait_for_selector('//a[contains(@class, "button_gray_small") and text()="보고서"]', timeout=30000)   # 회색 버튼의 보고서가 나올 때까지 대기
-        await asyncio.sleep(2)                                                                                          # 2초 더 대기
-        buttons = await page.query_selector_all('//a[contains(@class, "button_gray_small") and text()="보고서"]')       # 회색 버튼의 보고서를 전부 찾음
-        for button in buttons:                                                                                          # 찾은 개수만큼 반복
-            await button.click()                                                                                        # 순차적으로 클릭
-            await asyncio.sleep(1)                                                                                     
-            new_handle = None                                                                                           # 새로 열린 창 핸들 얻기
-            while not new_handle:
-                for handle in browser.contexts[0].pages:
-                    if handle != page:
-                        new_handle = handle
-                        break
-            element = await new_handle.query_selector('xpath=//td[text()="담당강사명"]/following-sibling::td[1]')       
-            if element:
-                강사이름 = await new_handle.evaluate('element => element.textContent', element)                          # 강사이름에 담당강사명 저장
-            element = await new_handle.query_selector('td.p_left5 .font_red b')
-            if element:
-                수업일시 = await new_handle.evaluate('element => element.textContent', element)                          # 수업일시에 수업날짜 저장
-            
-            file_name = f"{강사이름}_{수업일시}_보고서.doc"                                                               # 파일 이름 저장
-            
-            await new_handle.wait_for_selector('a.button_yellow', timeout=30000)                                        # 다운로드 버튼이 나올 때까지 대기
-            dl_element = await new_handle.query_selector('a.button_yellow')                                             # 다운로드 버튼을 찾기
-            if dl_element:
-                async with new_handle.expect_download() as download_info:
-                    await dl_element.click()  
-                    download = await download_info.value
-                await download.save_as(os.path.join(폴더_경로, file_name))                                              # 지정한 폴더에 다운로드하고 이름 바꾸기
-                await new_handle.close()                                                                                # 새로 열린창 닫기
-        
-        red_buttons = await page.query_selector_all('//a[contains(@class, "button_red_small") and text()="보고서"]')    # 만약 빨간색으로 된 보고서 버튼이 있다면(미작성)
-        for button in red_buttons:
-            href_value = await button.get_attribute('href')
-            match = re.search(r"popTeacherReport\('.*?', '(.*?)', '.*?'\)", href_value)                        
-            if match:
-                date_value = match.group(1)
-                print(f"{강사이름}선생님은 {date_value}일 보고서를 작성하지 않으셨습니다.")                                # 강사이름과 미작성된 날짜 출력
-    print('보고서 다운 완료')
-    await browser.close()
+    wb = openpyxl.load_workbook(excel_file_path)
+    ws = wb['정보']
+    로그인링크 = ws.cell(row=1, column=17).value
+    아이디 = ws.cell(row=2, column=17).value
+    비번 = ws.cell(row=3, column=17).value
+    수강관리링크 = ws.cell(row=4, column=17).value
+    강의날짜 = str(ws.cell(row=5, column=17).value)  # 문자열로 저장
+    월수이름 = ws.cell(row=6, column=17).value
+    화목이름 = ws.cell(row=7, column=17).value
+    월수반수 = int(ws.cell(row=8, column=17).value)  # 숫자로 저장
+    화목반수 = int(ws.cell(row=9, column=17).value)  # 숫자로 저장
+    추가인원 = wb['추가인원']
+    취소자 = wb['취소자']
+    wb.close()
 
 def 엑셀값저장(반):
     global result, result1
