@@ -23,11 +23,8 @@ async def 로그인():
     await asyncio.sleep(1)
     await page.press('input[name="tbAdminPass"]', 'Enter')
     await asyncio.sleep(1)
-<<<<<<< HEAD:프로젝트/파이썬/코딩교실/보고서 매크로/보고서 다운로드.py
     await page.goto('https://enozsw.enoz.kr/Admin/Class/ScheduleList.asp?ddlKeyField=a.group_no&tbKeyWord')    # 수강 관리로 이동
-=======
     await page.goto('https://enozsw.enoz.kr/Admin/Class/StudyList.asp')    # 수강 관리로 이동
->>>>>>> 7742d9f304e535b7d32df940e9b789e31ea7cd67:프로젝트/파이썬/보고서 매크로/보고서 다운로드.py
     await asyncio.sleep(1)
     await page.select_option('select[name="ddlTargetDate"]', value = 날짜)          # 날짜를 해당 기수로 변경
     await page.select_option('select[name="ddlKeyField"]', value ='Teacher')        # 아이디로 검색으로 바꾸기
@@ -38,19 +35,16 @@ async def 보고서다운():
     global browser, page, new_handle,폴더경로  # 전역 변수로 사용
     await 로그인()
     await 폴더_생성()
-<<<<<<< HEAD:프로젝트/파이썬/코딩교실/보고서 매크로/보고서 다운로드.py
     for i in range(1, 11):                                                                                              # 50번 반복
         if i < 6:                                                                                                      # 26보다 작으면
             반 = 'GS_MW_'+ str(i).zfill(2)                                                                          # 반에 월수 몇 반이라고 저장
         else :                                                                                                          # 26 이상이면
             반 = 'GS_TT_' + str(i-5).zfill(2)                                                                      # 반에 화목 몇 반이라고 저장
-=======
     for i in range(1, 51):                                                                                              # 50번 반복
         if i < 26:                                                                                                      # 26보다 작으면
             반 = 'GS_MW'+ str(i).zfill(2)                                                                          # 반에 월수 몇 반이라고 저장
         else :                                                                                                          # 26 이상이면
             반 = 'GS_TT' + str(i-25).zfill(2)                                                                      # 반에 화목 몇 반이라고 저장
->>>>>>> 7742d9f304e535b7d32df940e9b789e31ea7cd67:프로젝트/파이썬/보고서 매크로/보고서 다운로드.py
                   
         폴더_경로 = os.path.join(폴더경로, str(i))                                                                       # 폴더_경로를 폴더경로의 숫자로 지정
         
