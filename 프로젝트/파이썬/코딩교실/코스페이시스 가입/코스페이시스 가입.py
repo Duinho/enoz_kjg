@@ -38,14 +38,13 @@ async def 엑셀():
         page = await context.new_page()
         
         await page.goto('https://edu.cospaces.io/Auth/Signup/Student')                    # 로그인 사이트로 이동
+        await asyncio.sleep(3)
         elements = await page.query_selector_all('.dxTextFieldText')
         for i, element in enumerate(elements):
             if i < len(학급코드_리스트):  # 학급코드_리스트의 길이를 넘지 않도록 확인
                 await element.fill(학급코드_리스트[i])
         await element.press('Enter')
         await asyncio.sleep(1)
-        
-        
         await page.wait_for_selector('input[name="password"]', timeout=10000) # 비밀번호란 찾기
         await page.fill('input[name="name"]', 이름)
         await page.fill('input[name="username"]', 아이디)
@@ -68,9 +67,7 @@ async def 동작():
         browser = await playwright.chromium.launch(
             headless=False,
         )
-        
         await 엑셀()
-        
         await browser.close()
         
 asyncio.run(동작())

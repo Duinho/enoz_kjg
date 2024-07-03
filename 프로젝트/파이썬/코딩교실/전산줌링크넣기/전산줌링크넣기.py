@@ -5,7 +5,7 @@ from playwright.sync_api import sync_playwright
 
 # 변수 선언
 폴더경로 = os.path.dirname(os.path.abspath(__file__))  # 지금 코드 파일이 있는 위치를 저장
-excel_file_path = os.path.join(폴더경로, '전산강사배정.xlsx')  # 엑셀 파일 경로
+excel_file_path = os.path.join(폴더경로, '전산줌링크넣기.xlsx')  # 엑셀 파일 경로
 로그인사이트 = None
 adminID = None
 adminPW = None
