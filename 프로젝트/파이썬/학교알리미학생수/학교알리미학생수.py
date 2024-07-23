@@ -22,12 +22,12 @@ def 엑셀(): # 엑셀을 열어 정보를 가져오는 함수
     wb.close()
     return ws
 
-def 헤더추가(ws): # 엑셀에 헤더를 미리 추가하는 함수
+def 헤더추가(ws): # 엑셀에 제일 위에 헤더를 미리 추가하는 함수
     headers = ['학교명', '1학년', '2학년', '3학년', '4학년', '5학년', '6학년']
     for col_index, header in enumerate(headers, start=1):
         ws.cell(row=1, column=col_index, value=header)
 
-def 학교받아오기(page): # 내가 지정한 학교종류와 시,구에 있는 학교의 명단을 리스트에 저장
+def 학교받아오기(page): # 내가 지정한 학교 종류와 시,구에 있는 학교의 명단을 리스트에 저장
     page.goto(학교알리미주소)
     radio_buttons = page.query_selector_all('input[name="level1"]') # level1에 학교가 있는지 확인 후 클릭
     for radio in radio_buttons:
@@ -71,7 +71,7 @@ def 학교정보검색(page, 학교명, 학년, ws): # 가져온 학교 명단�
             page.wait_for_load_state('load')   
             page.click('#webSearchButton')
             time.sleep(0.1)
-            page.wait_for_load_state('load')  # 선택한 학교의 '학년별·학급별 학생수' 필터 선택
+            page.wait_for_load_state('load')  # 선택한 학교의 '학년별·학급별 학생수' 필터 선택 후 검색
             values = []
             row_header = page.query_selector('th:has-text("합 계")')
             if row_header:
