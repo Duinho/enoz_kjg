@@ -77,6 +77,7 @@ def 보고서다운(page, context):
         page.fill('input[name="tbKeyWord"].font_blue', 반)  # 입력창에 반을 입력
         page.press('input[name="tbKeyWord"].font_blue', 'Enter')  # 엔터로 검색
         page.wait_for_selector('//a[contains(@class, "button_gray_small") and text()="보고서"]', timeout=30000)  # 회색 버튼의 보고서가 나올 때까지 대기
+        time.sleep(3)
         buttons = page.query_selector_all('//a[contains(@class, "button_gray_small") and text()="보고서"]')  # 회색 버튼의 보고서를 전부 찾음
         for button in buttons:  # 찾은 개수만큼 반복
             with context.expect_page() as new_page_info:  # 새 페이지가 열리기를 대기
@@ -166,8 +167,6 @@ def 워드_수정(폴더_경로):
 
             doc.save(워드_파일_경로)
 
-
-
 def 변환_및_파일_수정():
     global 폴더경로, 폴더_경로
     for i in range(0, 월수반수 + 화목반수):
@@ -190,6 +189,32 @@ def 변환_및_파일_수정():
             워드_수정(폴더_경로)  # result 값을 전달
         print(f'{반}반 수정 완료')
 
+def 워드_파일_병합(폴더경로, 저장_파일명):
+    merged_document = Document()
+    for 반 in range(0, 월수반수 + 화목반수):
+        if 반 < 월수반수:
+            반_이름 = 월수이름 + str(반 + 1).zfill(2)
+        else:
+            반_이름 = 화목이름 + str(반 - 월수반수 + 1).zfill(2)
+        폴더_경로 = os.path.join(폴더경로, 반_이름)
+        if os.path.exists(폴더_경로):
+            for 파일명 in os.listdir(폴더_경로):
+                if 파일명.endswith(".docx"):
+                    파일_경로 = os.path.join(폴더_경로, 파일명)
+                    sub_doc = Document(파일_경로)
+                    for element in sub_doc.element.body:
+                        merged_document.element.body.append(element)
+
+    # 병합 후 '양식의 맨 아래' 문구와 빈 단락 제거
+    for paragraph in merged_document.paragraphs:
+        if '양식의 맨 아래' in paragraph.text:
+            paragraph.text = paragraph.text.replace('양식의 맨 아래', '')
+
+    # 빈 단락 제거
+    merged_document.paragraphs[:] = [p for p in merged_document.paragraphs if p.text.strip()]
+
+    merged_document.save(os.path.join(폴더경로, 저장_파일명))
+
 def 동작():
     global browser, page  # 전역 변수로 사용
     with sync_playwright() as p:  # 크로미움 브라우저 열기
@@ -197,7 +222,8 @@ def 동작():
         context = browser.new_context(accept_downloads=True)
         page = context.new_page()  # 새로운 창이 열리면 page에 저장
         엑셀()
-        #보고서다운(page, context)
+        보고서다운(page, context)
         변환_및_파일_수정()
+        워드_파일_병합(폴더경로, '합쳐진_보고서.docx')
 
 동작()
