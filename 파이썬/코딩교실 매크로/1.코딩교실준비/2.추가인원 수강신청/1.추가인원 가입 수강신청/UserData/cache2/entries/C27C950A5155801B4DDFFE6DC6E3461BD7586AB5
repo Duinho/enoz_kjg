@@ -1,0 +1,1057 @@
+﻿﻿﻿﻿﻿var NicePayCommon = {};
+var NicePayStd = {};
+
+var merchantForm;
+var existSubmitUrl;
+var existTarget;
+var hasFrame = false;
+var documentBody;
+
+var payMethod = "";
+var nAgt= navigator.userAgent;
+var disableScrollYN = "N";
+var jsVer = "nicepay-3.0";
+var jsDeployedVer = "1.1.3";
+var jsDeployedDate = "191128";
+
+var nicepayDomain = "https://web.nicepay.co.kr";
+
+// direct call option
+var POPUP = "POPUP";
+/************************************
+ * nicepay-3.0.js를                  *
+ * 다운로드 또는 무단 수정하여              *
+ * 연동 시                            *
+ * 안정적인 결제 서비스를 보장할수 없습니다.    * 
+ ************************************/
+function goPay(payForm){
+	
+	merchantForm = payForm;
+	existSubmitUrl = payForm.action;
+	
+	// scroll prevention
+	if(payForm.NPDisableScroll){
+		disableScrollYN = payForm.NPDisableScroll.value;
+	}
+
+	if(payForm.ConnWithIframe && payForm.ConnWithIframe.value=="Y"){
+		if(top!=self && self.name!="") {
+			hasFrame = true;
+			//NicePayCommon.errorReport("IN01", "THIS MERCHANT HAS FRAME", "LOG");
+		}
+	}
+	
+	if(hasFrame){
+		documentBody = parent.document.body || parent.document.documentElement;
+	}else{
+		documentBody = document.body || document.documentElement;
+	}
+	
+	try{
+		if(!document.body){
+			alert("정상적이지 않은 형태로 결제창이 요청되었습니다. 가맹점으로 문의 해주시기 바랍니다.");
+			NicePayCommon.errorReport("MJ04", "[MerchantJS]Merchant access fail document body");
+			return false;
+		}
+		
+		if(payForm.encoding.indexOf("multipart") > -1){
+			alert("지원하지 않는 방식으로 결제창이 요청되었습니다. 가맹점으로 문의 해주시기 바랍니다.");
+		    NicePayCommon.errorReport("MJ01", "[MerchantJS]Form encoding requested in multipart");
+			return false;
+		}
+		
+		var browser = NicePayStd.uaMatch(nAgt);
+		if(browser.msie && browser.version < 9){
+			alert("사용하시는 브라우저는 MicroSoft사의 보안지원이 종료된 버전입니다. \n 안전한 결제를 위해 Internet Explorer 9.0 이상 또는 크롬 등의 다른 브라우저 사용 요청 드립니다.");
+		    NicePayCommon.errorReport("MJ02", "[MerchantJS]Payment requested on IE9 or lower");
+			return false;
+		}
+		
+		if(browser.msedge){
+			// edge confirm check
+			if(payForm.DisableEdgeChk && payForm.DisableEdgeChk.value == "Y"){
+				// do nothing ~
+			}else{
+				if(browser.version < 17){
+					var str_comfirm = "Win10 Edge 환경 결제 안내 \n\n Win10 Edge 환경에서는 결제가 원할 하지 않을 수 있습니다. \n\n"
+						+ "결제를 이용하시려면 about:flags 창을 띄운 후 \n"
+						+ "개발자 설정 > Microsoft 호환성 목록 사용 항목을 체크 해제로 \n"
+						+ "설정하시면 결제를 진행하실 수 있습니다. \n\n"
+						+ "해제를 설정하러 가시려면 '확인'을 \n"
+						+ "결제를 진행하시려면 '취소'를 눌러주시기 바랍니다. \n\n";
+					
+					if(confirm(str_comfirm)){
+						window.open("about:flags","optionWindow","width=500 , height=750");
+						return;
+					}
+				}
+			}
+		}
+		
+		NicePayStd.setListener();
+		
+		if(payForm.TransType) {
+			if(payForm.TransType.value == "1"){
+				var tempPayMethod = payForm.PayMethod.value.split(",");
+				var isEscrow = true;
+				var possible = "CARD,BANK,VBANK,";
+					
+				for(var i=0; i<tempPayMethod.length; i++){
+					if(tempPayMethod[i] == ""){
+						isEscrow = false;
+						break;
+					}
+					if(possible.indexOf(tempPayMethod[i]+",") < 0){
+						isEscrow = false;
+						break;
+					}
+				}
+				if(!isEscrow){
+					alert("에스크로 서비스는 신용카드,계좌이체,가상계좌이체만 가능합니다.");
+					return false;
+				}
+			}
+		}
+		
+		var niceForm = payForm;
+		NicePayCommon.setFormData(niceForm, "VerifySType","S");
+		
+		var NpDirectCard = [
+			["02","459","456",""],
+			["03","590","430",""],
+			["04","400","400",""],
+			["06","400","400",""],
+			["07","400","400",""],
+			["08","644","489",""],
+			["11","644","480",""],
+			["12","400","400",""],
+			["15","644","510",""],
+			["16","590","430",""],
+			["17","644","510",""],
+			["37","500","456",""],
+			["44","644","480",""],
+			["SSG","640","685",""],
+			["SSG_MONEY","640","685",""],
+			["SSGPAY_MONEY","640","685",""],
+			["SamsungPay","440","630",""],
+			["SAMSUNGPAYV2","400","750",""],
+			["Payco","720","645",""],
+			["KakaoPay","426","550",""],
+			["SKPay","0","0","POPUP"],
+			["SSGV2","640","685",""],
+			["LPAY","450","470",""],
+			["NaverPay","0","0","POPUP"],
+			["APPLEPAY","0","0","POPUP"],
+			["PINPAY","540","700",""]
+		];
+		
+		var NpDirectBank = [
+			["LIIV","700","665",""],
+			["KBANK","0","0","POPUP"],
+		    ["BANK","0","0","POPUP"]
+		];
+		
+		var NpDirectCellPhone = [
+		    ["CELLPHONE","0","0","POPUP"],
+		    ["SAMSUNGPAYV2","400","750",""]
+		];
+		
+		var NpDirectSsgBank = [
+ 		    ["SSG_BANK","0","0","POPUP"]
+ 		];
+		
+		var NpDirectCmsBank = [
+		    ["CMS_BANK","450","670",""]
+		];
+		
+		var NpDirectTmoney = [
+		    ["GIFT_TMNY","0","0","POPUP"]
+		];
+		
+		var DirectShowOpt	= payForm.DirectShowOpt;
+		var TransType		= payForm.TransType;
+		var SelectCardCode	= payForm.SelectCardCode;
+		var PayMethod		= payForm.PayMethod;
+		var NicepayReserved = payForm.NicepayReserved;
+		var DirectEasyPay 	= payForm.DirectEasyPay;
+		var NpDirectEasyBank 	= payForm.DirectEasyBank;
+		var DirectEasyHpp 	= payForm.DirectEasyHpp;
+		var PayMethodValue	= "";
+		
+		var WindowWidth		= "660";
+		var WindowHeight	= "505";
+		var CallType		= "";
+		
+		var ReqSubPath		= "/v3/v3Payment.jsp";
+		var EscrowFlag		= false;
+		var DirectFlag		= false;
+		var DriectCardCd    = "";
+		var NpDriectBankCd 	= "";
+		var DirectCellPhoneCd	= "";
+		
+		// 에스크로 체크
+		if(TransType) {
+			if(TransType.value == "1") {
+				EscrowFlag = true;
+			}
+		}
+
+		// PayMethod 빈 값 체크
+		if(PayMethod) {
+			PayMethodValue = PayMethod.value;
+			PayMethodArray = PayMethodValue.split(",");
+			// 결제수단이 여러개일 경우 확인
+			if(PayMethodArray.length > 1 || PayMethodValue == "") {
+				PayMethodValue = "";
+			}
+		} else {
+			PayMethodValue = "";
+		}
+		
+		// DirectShowOpt 검증
+		if(DirectShowOpt && !EscrowFlag && PayMethodValue != "") {
+			var DirectShowArray = DirectShowOpt.value.split("|");
+			// 최대 9개까지 처리하도록
+			if(DirectShowArray.length > 0 && DirectShowArray.length < 10) {
+				for(var i = 0; i < DirectShowArray.length; i++) {
+					if(DirectShowArray[i] == PayMethodValue) {//CARD, BANK, CELLPHONE, SSG_BANK, CMS_BANK
+						if(PayMethodValue == "CARD" && SelectCardCode){
+							DriectCardCd = SelectCardCode.value;
+						}
+						if(PayMethodValue == "BANK"){
+							NpDriectBankCd = "BANK";
+						}
+						if(PayMethodValue == "CELLPHONE"){
+							DirectCellPhoneCd = "CELLPHONE";
+						}
+						DirectFlag = true;
+						break;
+					}else{//GIFT_SSG
+						if(DirectShowArray[i] == "GIFT_SSG" && PayMethodValue == "CARD" && SelectCardCode.value=="SSG_MONEY"){
+							DirectFlag = true;
+							DriectCardCd = SelectCardCode.value;
+							break;
+						}
+					}
+				}
+			} 
+		}//end of if
+
+		//NicepayReserved : easypay Direct Show vertify
+		if(NicepayReserved){
+			var NiceReservedArr = NicepayReserved.value.split("|");
+			if(NiceReservedArr.length >0){
+				for(var i=0;i<NiceReservedArr.length; i++){
+					var ReservedParamArr = NiceReservedArr[i].split("=");
+					if(ReservedParamArr[0] == "DirectSamsungPay" && ReservedParamArr[1] == "Y"){
+						DriectCardCd = "SamsungPay";
+						break;
+					}
+					if(ReservedParamArr[0] == "DirectPayco" && ReservedParamArr[1] == "Y"){
+						DriectCardCd = "Payco";
+						break;
+					}
+					if(ReservedParamArr[0] == "DirectKakao" && ReservedParamArr[1] == "Y"){
+						DriectCardCd = "KakaoPay";
+						break;
+					}
+					if(ReservedParamArr[0] == "DirectPay11" && ReservedParamArr[1] == "Y"){
+						DriectCardCd = "SKPay";
+						break;
+					}
+				}
+			}
+		}
+
+		//DirectEasyPay : easypay Direct Show verify
+		if(DirectEasyPay){
+			if(DirectEasyPay.value == "E007"){
+				DriectCardCd = "SSGV2";
+			}else if(DirectEasyPay.value == "E018"){
+				DriectCardCd = "LPAY";
+			}else if(DirectEasyPay.value == "E020"){
+				DriectCardCd = "NaverPay";
+			}else if(DirectEasyPay.value == "E021"){
+				DriectCardCd = "SAMSUNGPAYV2";
+			}else if(DirectEasyPay.value == "E022"){
+				DriectCardCd = "APPLEPAY";
+			}
+		}
+		
+		if(DirectFlag) {
+			if(PayMethodValue == "CARD") {
+				if(DriectCardCd != ""){
+					WindowWidth		= "440";
+					WindowHeight	= "456";
+					CallType		= "";
+					for(var i=0;i < NpDirectCard.length;i++){
+						if(NpDirectCard[i][0] == DriectCardCd){
+							WindowWidth		= NpDirectCard[i][1];
+							WindowHeight	= NpDirectCard[i][2];
+							CallType		= NpDirectCard[i][3];
+							break;
+						}
+					}
+					if ((DriectCardCd == "02" || DriectCardCd == "37") && DirectShowOpt && (payForm.OnlyISP && payForm.OnlyISP.value == "Y")) {
+						// KB카드/카카오뱅크 다이렉트 호출시 OnlyISP 파라미터가 "Y"일 경우 ISP 호출
+						WindowWidth	= "440";
+						WindowHeight = "456";
+					}
+				}else{
+					DirectFlag = false;
+					DirectShowOpt.value = "";
+				}
+			} else if(PayMethodValue == "BANK") {
+				//NpDirectEasyBank : easybank Direct Show verify
+				if(NpDirectEasyBank && NpDirectEasyBank.value != ""){
+					if(NpDirectEasyBank.value == "E019"){
+						NpDriectBankCd = "LIIV";
+					}else if(NpDirectEasyBank.value == "E023"){
+						NpDriectBankCd = "KBANK";
+					}else{
+						NpDriectBankCd = "";
+					}
+				}
+				
+				if(NpDriectBankCd != ""){
+					for(var i=0;i < NpDirectBank.length;i++){
+						if(NpDirectBank[i][0] == NpDriectBankCd){
+							WindowWidth		= NpDirectBank[i][1];
+							WindowHeight	= NpDirectBank[i][2];
+							CallType		= NpDirectBank[i][3];
+							break;
+						}
+					}
+				}else{
+					DirectFlag = false;
+					DirectShowOpt.value = "";
+				}
+			} else if(PayMethodValue == "CELLPHONE") {
+				if(DirectEasyHpp && DirectEasyHpp.value != "") {
+					if(DirectEasyHpp.value == "E021") {
+						DirectCellPhoneCd = "SAMSUNGPAYV2";
+					} else {
+						DirectCellPhoneCd = "";
+					}
+				}
+				
+				if(DirectCellPhoneCd != ""){
+					for(var i=0;i < NpDirectCellPhone.length;i++){
+						if(NpDirectCellPhone[i][0] == DirectCellPhoneCd){
+							WindowWidth		= NpDirectCellPhone[i][1];
+							WindowHeight	= NpDirectCellPhone[i][2];
+							CallType		= NpDirectCellPhone[i][3];
+							break;
+						}
+					}
+				}else{
+					DirectFlag = false;
+					DirectShowOpt.value = "";
+				}
+			} else if(PayMethodValue == "SSG_BANK") {
+				for(var i=0;i < NpDirectSsgBank.length;i++){
+					if(NpDirectSsgBank[i][0] == "SSG_BANK"){
+						WindowWidth		= NpDirectSsgBank[i][1];
+						WindowHeight	= NpDirectSsgBank[i][2];
+						CallType		= NpDirectSsgBank[i][3];
+						break;
+					}
+				}
+			} else if(PayMethodValue == "CMS_BANK") {
+				for(var i=0;i < NpDirectCmsBank.length;i++){
+					if(NpDirectCmsBank[i][0] == "CMS_BANK"){
+						WindowWidth		= NpDirectCmsBank[i][1];
+						WindowHeight	= NpDirectCmsBank[i][2];
+						CallType		= NpDirectCmsBank[i][3];
+						break;
+					}
+				}
+			} else if(PayMethodValue == "GIFT_TMNY") {
+				for(var i=0;i < NpDirectTmoney.length;i++){
+					if(NpDirectTmoney[i][0] == "GIFT_TMNY"){
+						WindowWidth		= NpDirectTmoney[i][1];
+						WindowHeight	= NpDirectTmoney[i][2];
+						CallType		= NpDirectTmoney[i][3];
+						break;
+					}
+				}
+			} else {// 카드, 계좌이체, 휴대폰을 제외한 결제수단은 일반 결제창 호출
+				WindowWidth		= "660";
+				WindowHeight	= "505";
+				CallType		= "";
+				DirectFlag = false;
+			}
+		} else {
+			if(DirectShowOpt) {// 바로호출이 아닐 경우 초기화
+				DirectShowOpt.value = "";
+			}
+		}
+
+		NicePayStd.creatLayer(WindowWidth, WindowHeight, CallType);
+		niceForm.action = nicepayDomain+ReqSubPath;
+		NicePayCommon.disableScroll();
+		//페이지 레이어 설정
+		existTarget = payForm.target;
+		niceForm.target = 'nice_frame';
+		NicePayCommon.setFormData(niceForm, "EncGoodsName", escape(niceForm.GoodsName.value));
+		NicePayCommon.setFormData(niceForm, "EncBuyerName", (niceForm.BuyerName)? escape(niceForm.BuyerName.value):"");
+		NicePayCommon.setFormData(niceForm, "NpDirectYn", (DirectFlag==true)? "Y" : "N");
+		NicePayCommon.setFormData(niceForm, "NpDirectLayer", "Y");
+		NicePayCommon.setFormData(niceForm, "NpForwardNew", "Y");
+		NicePayCommon.setFormData(niceForm, "JsVer", jsVer);
+		NicePayCommon.setFormData(niceForm, "NpSvcType", "WEBSTD");
+		NicePayCommon.setFormData(niceForm, "DeployedVer", jsDeployedVer);
+		NicePayCommon.setFormData(niceForm, "DeployedDate", jsDeployedDate);
+		NicePayCommon.setFormData(niceForm, "DeployedFileName", jsVer);
+		NicePayCommon.setFormData(niceForm, "EncVbankAccountName", (niceForm.VbankAccountName)? escape(niceForm.VbankAccountName.value):"");
+		
+		niceForm.submit();	
+	}catch(e){
+		alert("결제 요청 중 에러가 발생하였습니다. 다시 시도해 주십시오.");
+		NicePayCommon.errorReport("MJ03", "[MerchantJS]Exception : "+e.message);
+		return false;
+	}
+}
+
+function deleteLayer(){
+	NicePayStd.deleteLayer();
+}
+/////////////////////////////////////////////////////////////////////
+// NicePay Common Function
+/////////////////////////////////////////////////////////////////////
+NicePayCommon.createDivElement = function(frameID, zindex){
+	if(document.getElementById(frameID)==null){
+		var newDiv = (hasFrame==false) ? document.createElement('div') : parent.document.createElement('div');
+		
+		newDiv.id = frameID;
+		newDiv.style.position = "absolute";
+		newDiv.style.zIndex = zindex;
+		newDiv.style.clear = "both";
+		newDiv.style.top = 0;
+		newDiv.style.left = 0;
+		documentBody.appendChild(newDiv);
+	}
+}
+NicePayCommon.disableScroll = function(){
+	if(disableScrollYN == "Y"){
+		if( document.body  && document.body.scrollTop) {
+		 	document.body.style.overflowX = ""; 
+		} else if( document.documentElement ) {
+			document.documentElement.style.overflowX  = ""; 
+		}
+		documentBody.style.overflow = "hidden"; 
+	}else{
+		if( document.body  && document.body.scrollTop) {
+		 	document.body.style.overflowX = "hidden"; 
+		} else if( document.documentElement ) {
+			document.documentElement.style.overflowX  = "hidden"; 
+		}
+	} 
+}
+NicePayCommon.enableScroll = function(){
+	if(disableScrollYN == "Y"){
+		if( document.body && document.body.style.overflow) {
+			document.body.style.overflowX  = ""; 
+		} else if( document.documentElement && document.documentElement.style.overflow ) {
+			document.documentElement.style.overflowX  = ""; 
+		}
+		documentBody.style.overflow  = "auto";
+	}else{
+		if( document.body && document.body.style.overflow) {
+			document.body.style.overflowX  = "auto"; 
+		} else if( document.documentElement && document.documentElement.style.overflow ) {
+			document.documentElement.style.overflowX  = "auto"; 
+		}
+	}
+}
+NicePayCommon.setFormData = function(f, key, value){
+	if(f[key]){
+		f[key].value = value;
+	}else{
+		var input = document.createElement("input");
+		input.type = "hidden";
+		input.name = key;
+		input.value =  value;
+		f.appendChild(input);
+	}
+}
+NicePayCommon.errorReport = function(errorCd, errorMsg){
+	try{
+		var newForm = document.createElement('form');
+		newForm.id = "error_report";
+		newForm.name = "error_report";
+		newForm.method = "post";
+		newForm.target = "error_frame";
+		newForm.action = nicepayDomain + "/v3/api/errorReport.jsp";
+		documentBody.appendChild(newForm);
+		
+		var newIframe = document.createElement('iframe');
+		newIframe.id = "error_frame";
+		newIframe.name = "error_frame";
+		newIframe.width = "0px";
+		newIframe.height = "0px";
+		documentBody.appendChild(newIframe);
+		
+		var errorMsg = {
+			"MID" : merchantForm.MID.value,
+			"URL" : window.location.href,
+			"ERR_CD" : errorCd,
+			"ERR_MSG" : escape(errorMsg),
+			"PayMethod" : merchantForm.PayMethod.value,
+			"Worker" : "WEBSTD",
+			"SvcType" : "01",
+			"Moid" : merchantForm.Moid.value,
+			"JsVersion" : jsVer+"|"+jsDeployedVer+"|"+jsDeployedDate
+		};
+
+		for(var key in errorMsg){
+			var newInput = document.createElement('input');
+			newInput.name = key;
+			newInput.id = key;
+			newInput.value = errorMsg[key];
+			newInput.type = "hidden";
+			newForm.appendChild(newInput);
+		}
+		newForm.submit();
+		
+		setTimeout(function() {
+			documentBody.removeChild(document.getElementById("error_report"));
+			documentBody.removeChild(document.getElementById("error_frame"));
+		}, 1000);
+	}catch(e){
+	}
+}
+/////////////////////////////////////////////////////////////////////
+// WEB STD Function
+/////////////////////////////////////////////////////////////////////
+NicePayStd.receiveMessageValue = function(e) {
+	merchantForm.action = existSubmitUrl;
+	merchantForm.target = existTarget;
+	if (window.postMessage) {
+		//var obj = JSON.parse(e.data);
+		var obj = e.data;
+		if (obj.code) {
+			// obj.success is defined. We received the response via postMessage
+			// as an object, and we are using a browser that supports
+			// postMessage objects (not IE8/9).
+			NicePayStd.resultMessage(obj);
+		} else {
+			// We received the response via postMessage as a string. This works
+			// for all browsers that support postMessage, including IE8/9.
+			var str = eval("(" + obj + ")");
+			NicePayStd.resultMessage(str);
+		}
+	} else {
+		//alert('postMessage not supported');
+		NicePayStd.resultMessage({"code" : "1", "message" : "postMessage not supported"});
+	}
+}
+NicePayStd.resultMessage = function(obj){
+	switch(obj.code){
+		case "0" :
+			//success
+			if(obj.result){
+				NicePayCommon.setFormData(merchantForm, "AuthResultCode", "0000");
+				NicePayCommon.setFormData(merchantForm, "AuthResultMsg", "인증 성공");
+				NicePayCommon.setFormData(merchantForm, "AuthToken", obj.result.AuthToken);
+				NicePayCommon.setFormData(merchantForm, "TxTid", obj.result.TxTid);
+				if(obj.result.BillAuthYN == "Y") {
+					NicePayCommon.setFormData(merchantForm, "BillAuthYN", "Y");
+					if(obj.result.BillingNextAppURL != "") {
+						NicePayCommon.setFormData(merchantForm, "NextAppURL", obj.result.BillingNextAppURL);
+					}
+				} else {
+					NicePayCommon.setFormData(merchantForm, "NextAppURL", obj.result.NextAppURL);
+					NicePayCommon.setFormData(merchantForm, "NetCancelURL", obj.result.NetCancelURL);
+				}
+				NicePayCommon.setFormData(merchantForm, "Signature", obj.result.Signature);
+				
+				if(obj.result.NpCardBin){
+					NicePayCommon.setFormData(merchantForm, "NpCardBin", obj.result.NpCardBin);
+				}
+				
+				NicePayCommon.setFormData(merchantForm, "EncGoodsName", "");
+				NicePayCommon.setFormData(merchantForm, "EncBuyerName", "");
+
+				nicepaySubmit();
+				if(merchantForm.RmAuthLayer && merchantForm.RmAuthLayer.value=="Y"){
+					NicePayStd.deleteLayer();
+				}else{
+					NicePayStd.deletePayment();
+				}
+			}else{
+				resultMessage({"code" : "1", "message" : "not result value"});
+			}
+			break;
+		case "1" :
+			if(obj.result){
+				NicePayCommon.setFormData(merchantForm, "AuthResultCode", obj.result.AuthResultCode);
+				NicePayCommon.setFormData(merchantForm, "AuthResultMsg", obj.result.AuthResultMsg);
+				NicePayCommon.setFormData(merchantForm, "AuthToken", obj.result.AuthToken);
+				NicePayCommon.setFormData(merchantForm, "Signature", obj.result.Signature);
+			}else{
+				NicePayCommon.setFormData(merchantForm, "AuthResultCode", "9999");
+				NicePayCommon.setFormData(merchantForm, "AuthResultMsg", obj.message);
+			}
+			//iframe 삭제
+			NicePayStd.deleteLayer();
+			//cancel
+			try{
+				nicepayClose();
+			}catch(e){
+			}
+			break;
+		case "2" :
+			if(obj.result){
+				NicePayCommon.setFormData(merchantForm, "AuthResultCode", obj.result.AuthResultCode);
+				NicePayCommon.setFormData(merchantForm, "AuthResultMsg", obj.result.AuthResultMsg);
+				NicePayCommon.setFormData(merchantForm, "AuthToken", obj.result.AuthToken);
+				NicePayCommon.setFormData(merchantForm, "Signature", obj.result.Signature);
+			}else{
+				NicePayCommon.setFormData(merchantForm, "AuthResultCode", "9999");
+				NicePayCommon.setFormData(merchantForm, "AuthResultMsg", obj.message);
+			}
+			//iframe 삭제
+			NicePayStd.deleteLayer();
+			try{
+				nicepayClose();
+			}catch(e){
+			}
+			break;
+		case "10" :
+			var payLayer = (hasFrame == false) ? document.getElementById("nice_layer") : parent.document.getElementById("nice_layer");
+			payLayer.style.width = obj.width + "px";
+			break;
+		case "11" :
+			var payLayer = (hasFrame == false) ? document.getElementById("nice_layer") : parent.document.getElementById("nice_layer");
+			var niceFrame = (hasFrame == false) ? document.getElementById("nice_frame") : parent.document.getElementById("nice_frame");
+			payLayer.style.width = obj.width + "px";
+			payLayer.style.height = obj.height + "px";
+			niceFrame.style.width = obj.width + "px";
+			niceFrame.style.height = obj.height + "px";
+			niceFrame.style.borderRadius = "15px";
+			NicePayStd.niceLayerHandler();
+			break;
+		default :
+			//코드별 에러 처리
+			//obj.code
+			//obj.message
+			break;
+	}
+}
+//레이어생성
+NicePayStd.creatLayer = function(w, h, opt){
+	//************** 레이어 동적생성 *********************//
+	NicePayCommon.createDivElement("nice_layer", 9999);
+	NicePayCommon.createDivElement("bg_layer", 9998);
+	//iframe 동적 생성
+	var html = "";
+	html += "<div style=\"width:100%;text-align:center;padding:95px 0 0 0;\">";
+	
+	if(opt != POPUP) {
+		html += "	<div><span style=\"color:#FFF;font-size:15px;\">Please, wait...</span></div>";
+		html += "	<div style=\"position: relative;top: -180px;\"><img src=\""+nicepayDomain+"/webstd/images/loading.gif\" style=\"width: 344px;\"></div>";
+	} else {
+		html += "	<div style=\"position: relative;top: -400px;left:-200px;\"><img src=\""+nicepayDomain+"/webstd/images/loading.gif\" style=\"width: 344px;\"></div>";
+	}
+	html += "</div>";
+	
+	html += "<div id=\"payment_layer\" style=\"position: absolute; width: 100%; top: 0;\">";
+	html += "	<iframe title=\"NICE PAYMENT WINDOW\" name=\"nice_frame\" id=\"nice_frame\" src=\"\" width=\"100%\" height=\""+h+"px\" scrolling=\"no\" frameborder=\"no\"></iframe>";
+	html += "</div>";
+	
+	var payLayer = (hasFrame == false) ? document.getElementById("nice_layer") : parent.document.getElementById("nice_layer");
+	var bgLayer = (hasFrame == false) ? document.getElementById("bg_layer") : parent.document.getElementById("bg_layer");
+	
+	payLayer.innerHTML = html;
+	if(payLayer!=null){
+		payLayer.style.top = (NicePayStd.getWindowHeight() - h) / 2 + NicePayStd.getYposition() + "px";
+		payLayer.style.left = (NicePayStd.getWindowWidth() - w) / 2 + NicePayStd.getXposition() + "px";
+	}
+	
+	payLayer.style.width = w + "px";
+	payLayer.style.height = h + "px";
+	bgLayer.style.width = "100%";
+	bgLayer.style.height = documentBody.scrollHeight +"px";
+	bgLayer.style.background = "#4c4c4c";
+
+	var opacity = 65;
+	if(merchantForm.Opacity && merchantForm.Opacity.value != ""){
+		opacity = merchantForm.Opacity.value;
+	}
+	bgLayer.style.filter="alpha(opacity="+opacity+")";
+	bgLayer.style.opacity = opacity/100;
+	try{
+		if(merchantForm.OptionList!=null && merchantForm.OptionList!="undefined"){
+		var optionVal = merchantForm.OptionList.value;
+			if(optionVal.indexOf("hidden")!=-1){
+				nice_layer.style.filter="alpha(opacity=0)";
+				bgLayer.style.filter="alpha(opacity=0)";
+			}
+		}
+	}catch(e){
+	}
+}
+
+//레이어 동적생성삭제
+NicePayStd.deleteLayer = function(){
+	NicePayCommon.enableScroll();
+	
+	if(hasFrame){
+		documentBody.removeChild(parent.document.getElementById("nice_layer"));
+		documentBody.removeChild(parent.document.getElementById("bg_layer"));
+	}else{
+		documentBody.removeChild(document.getElementById("nice_layer"));
+		documentBody.removeChild(document.getElementById("bg_layer"));
+	}
+	NicePayStd.removeListener();
+}
+
+NicePayStd.deletePayment = function(){
+	var nicelayer = (hasFrame==false) ? document.getElementById("nice_layer") : parent.document.getElementById("nice_layer");
+	if(hasFrame){
+		nicelayer.removeChild(parent.document.getElementById("payment_layer"));
+	}else{
+		nicelayer.removeChild(document.getElementById("payment_layer"));
+	}
+	NicePayStd.removeListener();
+}
+
+NicePayStd.getYposition = function(){
+	  var scrollY = 0;
+	  if(hasFrame){
+		  if( typeof( parent.window.pageYOffset ) == 'number' ) {
+			  scrollY = parent.window.pageYOffset;
+		  } else if( parent.document.body && ( parent.document.body.scrollTop ) ) {
+			  scrollY =  parent.document.body.scrollTop;
+		  } else if( parent.document.documentElement && ( parent.document.documentElement.scrollTop ) ) {
+			  scrollY =  parent.document.documentElement.scrollTop;
+		  }
+	  }else{
+		  if( typeof( window.pageYOffset ) == 'number' ) {
+			  scrollY = window.pageYOffset;
+		  } else if( document.body && ( document.body.scrollTop ) ) {
+			  scrollY = (hasFrame==false) ?  document.body.scrollTop : parent.document.body.scrollTop;
+		  } else if( document.documentElement && ( document.documentElement.scrollTop ) ) {
+			  scrollY = (hasFrame==false) ? document.documentElement.scrollTop : parent.document.documentElement.scrollTop;
+		  }
+	  }
+  
+	  return scrollY ;
+}
+
+NicePayStd.getXposition = function(){
+	var scrollX = 0;
+	if(hasFrame){
+		if( typeof( parent.window.pageXOffset ) == 'number' ) {
+			scrollX = parent.window.pageXOffset;
+		} else if( parent.document.body && ( parent.document.body.scrollLeft ) ) {
+			scrollX =  parent.document.body.scrollLeft;
+		} else if( parent.document.documentElement && ( parent.document.documentElement.scrollLeft ) ) {
+			scrollX =  parent.document.documentElement.scrollLeft;
+		}
+	}else{
+		if( typeof( window.pageXOffset ) == 'number' ) {
+			scrollX = window.pageXOffset;
+		} else if( document.body && ( document.body.scrollLeft ) ) {
+			scrollX = (hasFrame==false) ?  document.body.scrollLeft : parent.document.body.scrollLeft;
+		} else if( document.documentElement && ( document.documentElement.scrollLeft ) ) {
+			scrollX = (hasFrame==false) ? document.documentElement.scrollLeft : parent.document.documentElement.scrollLeft;
+		}
+	}
+	return scrollX ;
+}
+
+NicePayStd.getWindowHeight = function() {
+	  var myHeight = 0;
+	  if(hasFrame){
+		  if( typeof( parent.window.innerWidth ) == 'number' ) {
+			  //Non-IE
+			  myHeight = parent.window.innerHeight;
+		  } else if( parent.document.documentElement && parent.document.documentElement.clientHeight ) {
+			  //IE 6+ in 'standards compliant mode'
+			  myHeight = parent.document.documentElement.clientHeight;
+		  } else if( parent.document.body && parent.document.body.clientHeight ) {
+			  //IE 4 compatible
+			  myHeight = parent.document.body.clientHeight;
+		  }
+	  }else{
+		  if( typeof( window.innerWidth ) == 'number' ) {
+			  //Non-IE
+			  myHeight = window.innerHeight;
+		  } else if( document.documentElement && document.documentElement.clientHeight ) {
+			  //IE 6+ in 'standards compliant mode'
+			  myHeight = document.documentElement.clientHeight;
+		  } else if( document.body && document.body.clientHeight ) {
+			  //IE 4 compatible
+			  myHeight = document.body.clientHeight;
+		  }
+	  }
+	  return myHeight;
+}
+
+NicePayStd.getWindowWidth = function() {
+	var myWidth = 0;
+	if(hasFrame){
+		if( typeof( parent.window.innerWidth ) == 'number' ) {
+			//Non-IE
+			myWidth = parent.window.innerWidth;
+		} else if( parent.document.documentElement && parent.document.documentElement.clientWidth ) {
+			//IE 6+ in 'standards compliant mode'
+			myWidth = parent.document.documentElement.clientWidth;
+		} else if( parent.document.body && parent.document.body.clientWidth ) {
+			//IE 4 compatible
+			myWidth = parent.document.body.clientWidth;
+		}
+	}else{
+		if( typeof( window.innerWidth ) == 'number' ) {
+			//Non-IE
+			myWidth = window.innerWidth;
+		} else if( document.documentElement && document.documentElement.clientWidth ) {
+			//IE 6+ in 'standards compliant mode'
+			myWidth = document.documentElement.clientWidth;
+		} else if( document.body && document.body.clientWidth ) {
+			//IE 4 compatible
+			myWidth = document.body.clientWidth;
+		}
+	}
+	return myWidth;
+}
+
+NicePayStd.niceLayerHandler = function(){
+	try{
+		var nicelayer = (hasFrame==false) ? document.getElementById("nice_layer") : parent.document.getElementById("nice_layer");
+		if(nicelayer!=null){
+			nicelayer.style.top = (NicePayStd.getWindowHeight() - nicelayer.style.height.replace("px",""))/2 + NicePayStd.getYposition() +"px";
+			nicelayer.style.left = (NicePayStd.getWindowWidth() - nicelayer.style.width.replace("px",""))/2 + NicePayStd.getXposition() +"px";
+		}
+	}catch(e){
+	}
+}
+
+NicePayStd.setListener = function(){
+	if(hasFrame){
+		if (parent.window.addEventListener) {  // all browsers except IE before version 9
+			parent.window.addEventListener("message", NicePayStd.receiveMessageValue, false);
+		} else {
+			if (parent.window.attachEvent) {   // IE before version 9
+				parent.window.attachEvent("onmessage", NicePayStd.receiveMessageValue);     // Internet Explorer from version 8
+			}
+		}
+		if(typeof parent.window.addEventListener != "undefined")	parent.window.addEventListener("resize",NicePayStd.niceLayerHandler, false);
+		if(typeof parent.window.attachEvent != "undefined" )	parent.window.attachEvent("onresize",NicePayStd.niceLayerHandler);
+		
+		if(typeof parent.window.addEventListener != "undefined")	parent.window.addEventListener("scroll",NicePayStd.niceLayerHandler, false);
+		if(typeof parent.window.attachEvent != "undefined" )	parent.window.attachEvent("onscroll",NicePayStd.niceLayerHandler);
+	}else{
+		if (window.addEventListener) {  // all browsers except IE before version 9
+			window.addEventListener("message", NicePayStd.receiveMessageValue, false);
+		} else {
+			if (window.attachEvent) {   // IE before version 9
+				window.attachEvent("onmessage", NicePayStd.receiveMessageValue);     // Internet Explorer from version 8
+			}
+		}
+		if(typeof window.addEventListener != "undefined")	window.addEventListener("resize",NicePayStd.niceLayerHandler, false);
+		if(typeof window.attachEvent != "undefined" )	window.attachEvent("onresize",NicePayStd.niceLayerHandler);
+		
+		if(typeof window.addEventListener != "undefined")	window.addEventListener("scroll",NicePayStd.niceLayerHandler, false);
+		if(typeof window.attachEvent != "undefined" )	window.attachEvent("onscroll",NicePayStd.niceLayerHandler);
+	}
+}
+
+NicePayStd.removeListener = function(){
+	try{
+		if(hasFrame){
+			if (parent.window.addEventListener) {  // all browsers except IE before version 9
+				parent.window.removeEventListener("message", NicePayStd.receiveMessageValue, false);
+			} else {
+				if (parent.window.attachEvent) {   // IE before version 9
+					parent.window.detachEvent("onmessage", NicePayStd.receiveMessageValue);     // Internet Explorer from version 8
+				}
+			}
+			if(typeof parent.window.addEventListener != "undefined")	parent.window.removeEventListener("resize",NicePayStd.niceLayerHandler, false);
+			if(typeof parent.window.attachEvent != "undefined" )	parent.window.detachEvent("onresize",NicePayStd.niceLayerHandler);
+			
+			if(typeof parent.window.addEventListener != "undefined")	parent.window.removeEventListener("scroll",NicePayStd.niceLayerHandler, false);
+			if(typeof parent.window.attachEvent != "undefined" )	parent.window.detachEvent("onscroll",NicePayStd.niceLayerHandler);
+		}else{
+			if (window.addEventListener) {  // all browsers except IE before version 9
+				window.removeEventListener("message", NicePayStd.receiveMessageValue, false);
+			} else {
+				if (window.attachEvent) {   // IE before version 9
+					window.detachEvent("onmessage", NicePayStd.receiveMessageValue);     // Internet Explorer from version 8
+				}
+			}
+			if(typeof window.addEventListener != "undefined")	window.removeEventListener("resize",NicePayStd.niceLayerHandler, false);
+			if(typeof window.attachEvent != "undefined" )	window.detachEvent("onresize",NicePayStd.niceLayerHandler);
+			
+			if(typeof window.addEventListener != "undefined")	window.removeEventListener("scroll",NicePayStd.niceLayerHandler, false);
+			if(typeof window.attachEvent != "undefined" )	window.detachEvent("onscroll",NicePayStd.niceLayerHandler);
+		}
+	}catch(e){}
+}
+
+NicePayStd.uaMatch = function(ua) {
+	// If an UA is not provided, default to the current browser UA.
+	if (ua === undefined) {
+		ua = window.navigator.userAgent;
+	}
+	ua = ua.toLowerCase();
+
+	var match = /(edge)\/([\w.]+)/.exec(ua)
+			|| /(opr)[\/]([\w.]+)/.exec(ua)
+			|| /(chrome)[ \/]([\w.]+)/.exec(ua)
+			|| /(iemobile)[\/]([\w.]+)/.exec(ua)
+			|| /(version)(applewebkit)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(ua)
+			|| /(webkit)[ \/]([\w.]+).*(version)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(ua) 
+			|| /(webkit)[ \/]([\w.]+)/.exec(ua)
+			|| /(opera)(?:.*version|)[ \/]([\w.]+)/.exec(ua)
+			|| /(msie) ([\w.]+)/.exec(ua)
+			|| ua.indexOf("trident") >= 0 && /(rv)(?::| )([\w.]+)/.exec(ua)
+			|| ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec(ua)
+			|| [];
+
+	var platform_match = /(ipad)/.exec(ua) || /(ipod)/.exec(ua)
+			|| /(windows phone)/.exec(ua) || /(iphone)/.exec(ua)
+			|| /(kindle)/.exec(ua) || /(silk)/.exec(ua)
+			|| /(android)/.exec(ua) || /(win)/.exec(ua)
+			|| /(mac)/.exec(ua) || /(linux)/.exec(ua)
+			|| /(cros)/.exec(ua) || /(playbook)/.exec(ua)
+			|| /(bb)/.exec(ua) || /(blackberry)/.exec(ua) 
+			|| [];
+
+	var browser = {}, matched = {
+		browser : match[5] || match[3] || match[1] || "",
+		version : match[2] || match[4] || "0",
+		versionNumber : match[4] || match[2] || "0",
+		platform : platform_match[0] || ""
+	};
+
+	if (matched.browser) {
+		browser[matched.browser] = true;
+		browser.version = matched.version;
+		browser.versionNumber = parseInt(matched.versionNumber, 10);
+	}
+
+	if (matched.platform) {
+		browser[matched.platform] = true;
+	}
+
+	// These are all considered mobile platforms, meaning they run a
+	// mobile browser
+	if (browser.android || browser.bb || browser.blackberry
+			|| browser.ipad || browser.iphone || browser.ipod
+			|| browser.kindle || browser.playbook || browser.silk
+			|| browser["windows phone"]) {
+		browser.mobile = true;
+	}
+
+	// These are all considered desktop platforms, meaning they run
+	// a desktop browser
+	if (browser.cros || browser.mac || browser.linux || browser.win) {
+		browser.desktop = true;
+	}
+
+	// Chrome, Opera 15+ and Safari are webkit based browsers
+	if (browser.chrome || browser.opr || browser.safari) {
+		browser.webkit = true;
+	}
+
+	// IE11 has a new token so we will assign it msie to avoid
+	// breaking changes
+	if (browser.rv || browser.iemobile) {
+		var ie = "msie";
+
+		matched.browser = ie;
+		browser[ie] = true;
+	}
+
+	// Edge is officially known as Microsoft Edge, so rewrite the
+	// key to match
+	if (browser.edge) {
+		delete browser.edge;
+		var msedge = "msedge";
+
+		matched.browser = msedge;
+		browser[msedge] = true;
+	}
+
+	// Blackberry browsers are marked as Safari on BlackBerry
+	if (browser.safari && browser.blackberry) {
+		var blackberry = "blackberry";
+
+		matched.browser = blackberry;
+		browser[blackberry] = true;
+	}
+
+	// Playbook browsers are marked as Safari on Playbook
+	if (browser.safari && browser.playbook) {
+		var playbook = "playbook";
+
+		matched.browser = playbook;
+		browser[playbook] = true;
+	}
+
+	// BB10 is a newer OS version of BlackBerry
+	if (browser.bb) {
+		var bb = "blackberry";
+
+		matched.browser = bb;
+		browser[bb] = true;
+	}
+
+	// Opera 15+ are identified as opr
+	if (browser.opr) {
+		var opera = "opera";
+
+		matched.browser = opera;
+		browser[opera] = true;
+	}
+
+	// Stock Android browsers are marked as Safari on Android.
+	if (browser.safari && browser.android) {
+		var android = "android";
+
+		matched.browser = android;
+		browser[android] = true;
+	}
+
+	// Kindle browsers are marked as Safari on Kindle
+	if (browser.safari && browser.kindle) {
+		var kindle = "kindle";
+
+		matched.browser = kindle;
+		browser[kindle] = true;
+	}
+
+	// Kindle Silk browsers are marked as Safari on Kindle
+	if (browser.safari && browser.silk) {
+		var silk = "silk";
+
+		matched.browser = silk;
+		browser[silk] = true;
+	}
+
+	// Assign the name and platform variable
+	browser.name = matched.browser;
+	browser.platform = matched.platform;
+
+	return browser;
+}
+����
+      g!��g!��G}[Ng"��   d    O^partitionKey=%28https%2Cphswcoding.co.kr%29,:https://web.nicepay.co.kr/v3/webstd/js/nicepay-3.0.js strongly-framed 1 security-info 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 request-method GET response-head HTTP/1.1 200 OK
+Date: Tue, 29 Oct 2024 14:35:30 GMT
+Last-Modified: Wed, 16 Oct 2024 22:59:52 GMT
+ETag: "8bde-624a007198afe"
+Accept-Ranges: bytes
+Content-Length: 35806
+Content-Type: application/javascript
+ original-response-headers Date: Tue, 29 Oct 2024 14:35:30 GMT
+Last-Modified: Wed, 16 Oct 2024 22:59:52 GMT
+ETag: "8bde-624a007198afe"
+Accept-Ranges: bytes
+Content-Length: 35806
+Keep-Alive: timeout=10, max=2000
+Connection: Keep-Alive
+Content-Type: application/javascript
+ ctid 2 uncompressed-len 0   ��

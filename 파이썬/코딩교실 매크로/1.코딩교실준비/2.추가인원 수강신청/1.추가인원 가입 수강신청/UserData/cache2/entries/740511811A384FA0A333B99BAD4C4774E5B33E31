@@ -1,0 +1,1497 @@
+
+/***** 페이지권한설정 *****/
+/*function SetAuth()
+{		
+	if ( top.g_RetAuth == "0")
+	{
+		alert("권한이 없습니다.");
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}*/
+
+/***** Grobal variable *****/
+//var g_divPosTop = 0; //
+//var g_divPosLeft = 0; //
+
+/***** Common Util *****/
+
+//IFRAME페이지 RESIZE
+function initFrame(){
+	document.result.resizeTo(result.document.body.scrollWidth, result.document.body.scrollHeight);
+}
+
+//Enter키 이벤트 막기
+function eventKeyPress()
+{
+	if (event.keyCode==13)
+	{
+		this.focus();
+	}
+}
+
+// Null 체크
+function funcIsNull(obj, str, type)
+{
+	if(obj.value == "")
+	{
+		var strType = "";
+		if(type == "insert")
+		{
+			strType = "입력";
+		} else if(type == "select") {
+			strType = "선택";
+		}
+		alert(str + " "+ strType +"해 주세요.");
+		obj.focus();
+		return false;
+	}
+	else
+	{
+		return true;	
+	}
+}
+
+// 한글입력금지
+function funcNonKr(obj) {
+	onvalue = obj.value;
+	if (onvalue.search(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힝]/) != -1) {
+		alert("영문이나 숫자만 입력 가능합니다.");
+		obj.value = "";
+		obj.focus();
+		return false;
+	}
+}
+
+
+// Add Comma
+/*function addComma(numstr)
+{
+  var numstr = String(numstr);
+  var re0 = /(\d+)(\d{3})($|\..*)/;
+  if (re0.test(numstr))
+    return numstr.replace(
+      re0,
+      function(str,p1,p2,p3) { return addComma(p1) + "," + p2 + p3; }
+    );
+  else
+    return numstr;
+}*/
+
+// Delete Comma
+function DelComma(str)
+{
+	var s = str.split(",").join("");
+	return parseInt(s);
+}
+
+
+// NowDate (return 0000-00-00)
+function NowDate()
+{
+	var now = new Date();
+	var year = now.getYear();
+	var month = (now.getMonth()+1);
+	var date = now.getDate();
+			
+	if(month < 9) month = "0"+month;
+	if(date < 10) date = "0"+date;
+	
+	return year+"-"+month+"-"+date;
+}
+
+// 날짜 유효성 체크 onchange="ChkDate(this)"
+function ChkDate(obj)
+{
+	if((obj.value.length < 8) ||
+	   (obj.value.length > 10))
+	{
+		obj.value = "";
+		return;
+	}
+	
+	var format = /[\.\-\/]/g;
+	var input = obj.value.replace(format,"");
+	var inputYear  = input.substr(0,4);
+	var inputMonth = input.substr(4,2) - 1;
+	var inputDate  = input.substr(6,2);
+	
+	var resultDate = new Date(inputYear, inputMonth, inputDate);
+	if ( resultDate.getFullYear() != inputYear ||
+		 resultDate.getMonth() != inputMonth ||
+         resultDate.getDate() != inputDate) 
+	{
+		obj.value = "";
+	} 
+	else
+	{
+		if( inputDate.length < 2 )
+		{
+			inputDate = "0"+ inputDate;
+		}
+		obj.value = inputYear + "-" + input.substr(4,2) + "-" + inputDate;
+	}
+}
+
+// 2005-01-01 형식으로 받음, 날짜 리턴
+function DateGap(val1, val2)
+{
+	var arr1 = val1;
+	var arr2 = val2;
+	var date1 = new Date(arr1[0], arr1[1], arr1[2]);
+	var date2 = new Date(arr2[0], arr2[1], arr2[2]);
+	
+	var sTime = date1.getTime();
+	var eTime = date2.getTime();
+	
+	var gap = Math.round((eTime - sTime) / (1000*60*60*24));
+	return gap;
+}
+		
+function SetDate(inputDT)
+{
+	var tDate = new Date();
+	tDate.setDate(inputDT);
+	var year = tDate.getYear();
+	var month = (tDate.getMonth()+1);
+	var date = tDate.getDate();
+			
+	if(month < 9) month = "0"+month;
+	if(date < 10) date = "0"+date;
+	
+	return year+"-"+month+"-"+date;
+}
+
+// 문자열 byte 자르기
+function StringByteCut(maxlen, str)
+{
+	var sumlen = 0;
+	var restr = "";
+
+	for(var i=0; i<str.length; i++)
+	{
+		if(escape(str.charAt(i)).length > 3) 
+			len = 2;
+		else if (str.charAt(i) == '<' || str.charAt(i) == '>') 
+			len = 4;
+		else
+			len = 1;
+		if(maxlen < (sumlen+len)) 
+			break;
+		sumlen += len;
+		restr  += str.charAt(i);
+	}
+	return (restr);
+}
+
+// 공백제거
+function StrTrim(val)
+{
+	return val.replace(/\s/g, "");
+}
+
+// 숫자만 입력 onkeyup="IsNum(this)"
+function IsNum(obj) 
+{
+    var re = /^[-]?\d*\.?\d*$/;
+    var str = (obj == "[object]") ? obj.value : obj;
+    str = str.toString();
+    if(!str.match(re)) 
+	{
+		if(obj == "[object]")
+		{
+			obj.value = obj.value.replace(/\D/g,'');
+		}
+		else
+		{
+			alert("숫자만 입력가능합니다.");
+		}
+		return true;
+    }
+}
+
+
+// 한글입력금지
+function nonkr2(str){
+	var ch, chk ;
+	for (i=0; i <= str.length -1 ; i++){
+		ch = str.substring(i,i+1);
+		if ((ch >= "0" & ch <= "9")||(ch >= "a" & ch <= "z") || (ch >= "A" & ch <= "Z")){
+			chk = true;
+		} else {
+			chk = false;
+			return false;
+		}
+	}
+	if (chk) {
+		return true;
+	} else {
+		alert("AAAAAAAA");
+		return false;
+	}
+}
+
+
+function GetOnlyNumEng(ths){
+   var NumEng = /^[A-Za-z0-9]+$/;
+
+   if(NumEng.test(ths.value) || ths.value == ""){}
+   else{
+     alert("숫자와 영문자만 입력하세요.");
+     ths.value = "";
+     ths.focus();
+   }
+
+}
+
+
+
+
+
+//금액콤마표시
+function addComma(obj,fLen) 
+{ 
+	if(event.keyCode == 37 || event.keyCode == 39 )             return;
+	 
+	var fLen = fLen || 2; 
+	var strValue = obj.value.replace(/,|\s+/g,''); 
+	var strBeforeValue = (strValue.indexOf('.') != -1)? strValue.substring(0,strValue.indexOf ('.')) :strValue ; 
+	var strAfterValue = (strValue.indexOf('.') != -1)? strValue.substr(strValue.indexOf ('.'),fLen+1) : '' ; 
+
+	if(isNaN(strValue)) 
+	{ 
+			obj.value = obj.value.replace(/\D/g,'');
+			return false; 
+	}
+
+	var intLast = strBeforeValue.length-1; 
+	var arrValue = new Array; 
+	var strComma = ''; 
+
+	for(var i=intLast,j=0; i >= 0; i--,j++) 
+	{ 
+
+		if( j !=0 && j%3 == 0) // !! 핵심 0%3은 0이므로 j는 0이 아니어야 한다. 
+		{
+				strComma = ','; 
+		}
+		else
+		{ 
+			strComma = ''; 
+		}
+
+		arrValue[arrValue.length] = strBeforeValue.charAt(i) + strComma ; 
+	} 
+
+	obj.value= arrValue.reverse().join('') + strAfterValue; 
+
+}
+
+function addComma2(numstr) {
+	var numstr = String(numstr);
+	var re0 = /(\d+)(\d{3})($|\..*)/;
+	if (re0.test(numstr))
+		return numstr.replace(re0,
+		function (str, p1, p2, p3) {
+			return addComma2(p1) + "," + p2 + p3;
+		});
+	else return numstr;
+} 
+
+//콤마없애기
+function RemoveComma(val)
+{
+	for(var i = 0 ; i < val.length ; i++)	
+	{
+		if(val.indexOf(",") > 0 )
+		{
+			val=val.replace(",","")
+		}
+	}
+	
+	return Number(val)
+}
+
+
+// 한글입력금지
+function nonkr(obj) 
+{
+	//alert( obj );
+	onvalue = obj.value;
+	if (onvalue.search(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힝]/) != -1) 
+	{
+		SetState("영문이나 숫자입력만 가능한 필드입니다.");
+		obj.value = "";
+		obj.focus();
+		return false;
+	}
+	else
+	{
+		SetState("");		
+	}
+}
+
+// 주민등록번호
+function IsValidJumin(val) {
+    var pattern = /^([0-9]{6})-?([0-9]{7})$/; 
+	var num = val;
+    if (!pattern.test(num)) 
+		return false; 
+    num = RegExp.$1 + RegExp.$2;
+
+	var sum = 0;
+	var last = num.charCodeAt(12) - 0x30;
+	var bases = "234567892345";
+	for (i=0; i<12; i++) {
+		if (isNaN(num.substring(i,i+1))) 
+			return false;
+		sum += (num.charCodeAt(i) - 0x30) * (bases.charCodeAt(i) - 0x30);
+	}
+	var mod = sum % 11;
+	return ((11 - mod) % 10 == last) ? true : false;
+}
+
+// 사업자등록번호
+function IsValidBizNum( val )
+{
+	var replaceVal = val.replace("-","");
+					
+	var bizID = replaceVal.replace("-","");
+	// bizID는 숫자만 10자리로 해서 문자열로 넘긴다.
+	var checkID = new Array(1, 3, 7, 1, 3, 7, 1, 3, 5, 1);
+	var tmpBizID, i, chkSum=0, c2, remander;
+
+	for (i=0; i<=7; i++) chkSum += checkID[i] * bizID.charAt(i);
+
+	c2 = "0" + (checkID[8] * bizID.charAt(8));
+	c2 = c2.substring(c2.length - 2, c2.length);
+
+	chkSum += Math.floor(c2.charAt(0)) + Math.floor(c2.charAt(1));
+
+	remander = (10 - (chkSum % 10)) % 10 ;
+
+	if (Math.floor(bizID.charAt(9)) == remander) return true; // OK!
+	return false;
+}
+// 이메일 포멧 체크
+function IsValidFormat(input,format) {
+	if (input.value.search(format) != -1) 
+	{
+		return true; //ok
+	}
+	//input.focus();
+	alert("잘못된 이메일 형식 입니다.");
+	input.value = "";
+	input.focus();
+	return false;
+}
+
+// 이메일 포멧
+function IsValidEmail(input) {
+	//    var format = /^(\S+)@(\S+)\.([A-Za-z]+)$/;
+	var format = /^((\w|[\-\.])+)@((\w|[\-\.])+)\.([A-Za-z]+)$/;
+	return IsValidFormat(input,format);
+}
+
+// 이메일 체크
+function MailCheck(ObjMail)
+{
+	if (ObjMail.search(/(\S+)@(\S+)\.(\S+)/) == -1 ) 
+	{
+		return false;    
+	}
+	return true;
+}
+
+
+// 전화번호 포멧 체크
+function IsValidFormatPhone(input,format) {
+	if (input.value.search(format) != -1) 
+	{
+		return true; //ok
+	}
+	//input.focus();
+	alert("잘못된 전화번호 형식 입니다.");
+	input.value = "";
+	input.focus();
+	return false;
+}
+
+// 전화번호 포멧
+function IsValidPhone(input) {
+	var format = /^(\d+)-(\d+)-(\d+)$/;
+	return IsValidFormatPhone(input,format);
+}
+
+/***** Image Control *****/
+//<img src='' onload='Rsize(this, 200, 200, 1)'>
+function imgRsize(img, rW, rH)
+{
+	var iW = img.width;
+    var iH = img.height;
+    var g = new Array;
+    if(iW < rW && iH < rH) 
+    { 
+		g[0] =  iW; 
+        g[1] =  iH; 
+    } 
+    else 
+    {
+        if(img.width > img.height) 
+        {
+			g[0] = rW;
+            g[1] = Math.ceil(img.height * rW / img.width);
+        } 
+        else if(img.width < img.height) 
+        {
+			g[0] = Math.ceil(img.width * rH / img.height);
+            g[1] = rH;
+        } 
+        else 
+        {
+			g[0] = rW;
+            g[1] = rH;
+        }
+        if(g[0] > rW) 
+        {
+			g[0] = rW;
+            g[1] = Math.ceil(img.height * rW / img.width);
+        }
+        if(g[1] > rH) 
+        {
+			g[0] = Math.ceil(img.width * rH / img.height);
+			g[1] = rH;
+        }
+    }
+    g[2] = img.width;
+    g[3] = img.height;
+    return g;
+}
+
+function Rsize(img, ww, hh, aL)
+{
+    var tt = imgRsize(img, ww, hh);
+    if(img.width > ww || img.height > hh)
+    {
+        img.width = tt[0];
+        img.height = tt[1];
+        img.alt = '클릭하시면 원본이미지를 보실수있습니다.';
+        if(aL)
+        {
+            img.onclick = function()
+            {
+                wT = Math.ceil((screen.width - tt[2])/2.6);
+                wL = Math.ceil((screen.height - tt[3])/2.6);
+                mm = window.open("", 'viewOrig', 'width='+tt[2]+',height='+tt[3]+',top='+wT+',left='+wL);
+                var doc = mm.document;
+                doc.body.style.margin = 0;
+                doc.body.style.cursor = "pointer";
+                var previewimg = doc.createElement("img");
+                previewimg.src = img.src;
+                doc.body.appendChild(previewimg);
+                doc.body.onmousedown = function(){ mm.close();}
+                doc.title = '원본보기';
+            }
+            img.style.cursor = "pointer";
+        }
+    } 
+    else
+    {
+        img.onclick = function(){ alert("현재이미지가 원본 이미지입니다."); }
+    }
+}
+/***** ModalDialog Control *****/
+function PopDialog(_url, _width, _height)
+{
+	var scale = "Dialogwidth:"+_width+"px;Dialogheight:"+_height+"px;";
+	var state = "status:no;resizable:no;help:no;scroll:no;";
+	var pos = "center:yes";
+	var features = scale+state+pos;
+	var returnVal=window.showModalDialog(_url,window,features);
+	return returnVal;
+}
+
+function PopObjDialog(_url, _width, _height, _obj)
+{
+	var scale = "Dialogwidth:"+_width+"px;Dialogheight:"+_height+"px;";
+	var state = "status:no;resizable:no;help:no;scroll:no;";
+	var pos = "center:yes";
+	var features = scale+state+pos;
+	_obj.window = window;
+	window.showModalDialog(_url,_obj,features);
+}
+
+//***** Page Protection *****/
+/*function EnterKey(e)
+{
+	var e = (e) ? e : ((event) ? event : null);
+	var elem = (e.target) ? e.target : ((e.srcElement) ? e.srcElement : null);
+	
+	if( (e.keyCode == 13) && ((elem.type != "textarea")) )
+		return false;
+}
+document.onkeypress = EnterKey;*/
+
+/*
+function Bluring()
+{ 
+	if(event.srcElement.tagName=="A" || 
+	   event.srcElement.tagName=="IMG") 
+	   document.body.focus(); 
+} 
+document.onfocusin=Bluring;*/
+
+/*
+function Deny(){ return false; }
+document.onselectstart = Deny;
+document.ondragstart = Deny;
+document.oncontextmenu = Deny;
+
+function NoError() { return true; }
+window.onerror = NoError;*/
+/***** Control Position *****/
+function GetObjOffSetTop(obj)
+{
+	return obj ? obj.offsetTop + GetObjOffSetTop(obj.offsetParent) : 0;
+}
+
+function GetObjOffSetLeft(obj)
+{
+	return obj ? obj.offsetLeft + GetObjOffSetLeft(obj.offsetParent) : 0;
+}
+
+function DivControlPos(obj)
+{
+	g_divPosTop = GetObjOffSetTop(obj)+20;
+	g_divPosLeft = GetObjOffSetLeft(obj);
+}	
+
+function SetState(val1, val2)
+{
+	var argv = SetState.arguments;
+	var argc = SetState.arguments.length;
+
+	var code = (1 < argc) ? argv[1] : null;
+	top.document.getElementById("txtState").value = argv[0];
+	if(argv[1] != null)
+	{
+		top.document.getElementById("txtCode").value = argv[1];
+	}
+}
+
+/***** 폼 체크 flag 0 : alert 1: SetState var arrObj = [ ["txtId","아이디"],["txtPasswd","비밀번호"]]; ******/
+function FormValidation(arrObj, flag)
+{
+	var obj;
+	for (i = 0; i < arrObj.length; i++)
+	{
+		obj = eval("document.getElementById('"+ arrObj[i][0] +"')");
+		if (StrTrim(obj.value) == "") 
+		{
+			if(flag == 0)
+				alert("※"+ arrObj[i][1] + " 항목을 반드시 입력해 주십시오.");
+			else
+				SetState("※"+ arrObj[i][1] + " 항목을 반드시 입력해 주십시오.");
+			obj.focus();
+			return false;
+		}
+	}
+	return true;
+}
+
+/***** Cookie *****/
+function SetCookie(_name, _value)
+{
+	var argv = SetCookie.arguments;
+	var argc = SetCookie.arguments.length;
+	var expires = (2 < argc) ? argv[2] : null;
+	var path = (3 < argc) ? argv[3] : null;
+	var domain = (4 < argc) ? argv[4] : null;
+	var secure = (5 < argc) ? argv[5] : false;
+	document.cookie = _name + "=" + escape (_value) +
+			          ((expires == null) ? "" : ("; expires=" + expires.toGMTString())) +
+					  ((path == null) ? "" : ("; path=" + path)) +
+                      ((domain == null) ? "" : ("; domain=" + domain)) +
+                      ((secure == true) ? "; secure" : "");
+}
+
+function GetCookie(_name) 
+{
+	var search = _name + "=";
+	if (document.cookie.length > 0)
+	{
+		offset = document.cookie.indexOf(search);
+		if (offset != -1)
+		{ 
+			offset += search.length;
+	
+			end = document.cookie.indexOf(";", offset)
+			if (end == -1)
+				end = document.cookie.length
+			return unescape(document.cookie.substring(offset, end))
+		}
+	}
+	return "";
+}
+
+function Loading()
+{	
+	window.showModalDialog("/Common/Loading.aspx",window,"dialogwidth:300px;dialogHeight:200px;status:no;resizable:yes;help:no;scroll:no;center:yes");
+}
+
+/***** Common Popup *****/
+
+
+
+/************************/
+
+//모달창을 오픈한다.
+function OpenModalWindow(url, arg, winH, winW)
+{
+var winInit = "dialogHeight:" + winH + "px; dialogWidth:" + winW + "px; scroll:no; resizable:no; center: Yes, help:no; edge:raised; status: No;";
+
+return window.showModalDialog(url, arg, winInit)
+}
+  
+
+function funcCheckLength( obj, min, max, str )
+{
+	var iLength = obj.value.length;
+	if( iLength < min || iLength > max ) {
+		alert( str + " " + min + "자 이상 " + max + "자 이내로 입력해 주세요.   " );
+		obj.focus();
+		return false;
+	}
+	else return true;
+}
+
+function funcIsAlphaDigit( obj, str )
+{
+	var strTemp = obj.value.toUpperCase();
+	for(var i = 0; i < strTemp.length; i++){
+		if(strTemp.charAt(i) < '0' || (strTemp.charAt(i) > '9' && strTemp.charAt(i) < 'A') ||  strTemp.charAt(i) > 'Z') {
+			alert( str + " 영문 또는 숫자로 입력해 주세요.  " );
+			obj.value = '';
+			obj.focus();
+			return false;
+		}
+	}
+	return true;
+}
+
+//Popup Window 신규추가..
+function winOpen(url,winname,width,height,scrollbars)
+{
+	var left =(screen.availWidth-width)/2;
+	var top =(screen.availHeight-height)/2;
+	
+	popup = window.open(url,winname, 'width='+width+',height='+height+',left='+left+',top='+top+',toolbar=no,location=no,status=no,menubar=no,scrollbars='+scrollbars+',resizable=no');
+	try
+	{
+		popup.focus();
+	}
+	catch(e)
+	{
+	
+	}
+
+	return false;
+}
+
+
+// Left 펼침 메뉴
+function menuView(curNum, maxNum) {
+
+	var obj;
+	
+	for(i=1; i<=maxNum; i++) {
+		obj = eval("document.all['tblSub"+i+"']");
+		if(i == curNum) {
+			obj.style.display="";
+
+
+		} else {
+			obj.style.display="none";
+		}
+	}
+}  
+
+//리스트 박스에 값을 추가/제거 시 값 체크하는 함수
+//ctr:컨트롤 명, prc:프로세스
+function chkAlert(ctr, prc) {
+	
+	var obj = eval("document.all['"+ctr+"']");
+	var target;
+	
+	if(prc == "ADD") {
+		target = "추가할 ";
+	} else if(prc == "DEL") {
+		target = "제거할 ";
+	} else {
+		target = prc;
+	}
+	
+	if(obj.value == "") {
+		alert(target + "항목이 선택되지 않았습니다.");
+		return false;
+	}else{
+		return true;
+	}
+}
+
+
+//이미지파일인지 검사
+function ChkImgFile(obj,n) {
+	if(obj.value.toLowerCase().match(/(.jpg|.jpeg|.gif|.png|.bmp)/)) {
+		if ( typeof(obj.form.preview) == 'object' ) {
+			if ( n ) {
+				preview_obj = eval("obj.form.preview"+n);
+			    preview_obj.src = obj.value;
+			}
+			else {
+				obj.form.preview.src = obj.value;    
+			}			
+		}
+	} 
+	else {
+		alert('파일 형식이 잘못되었네요.\n\n올바른 이미지 파일을 선택해 주세요^^');
+		obj.click();
+		return false;
+	}
+}
+
+
+// 달력년월변경
+function setNextMonth(objYear,objMonth) 
+{	
+	currDate = new Date(objYear.value,objMonth.value,01);
+	currDate.setMonth(currDate.getMonth()+ 1); 
+	objMonth.value=currDate.getMonth();
+	if(objMonth.value == 0) objMonth.value = 12;
+	if(objMonth.value == 1) setNextYear(objYear);
+	if(objMonth.value.length == 1) objMonth.value = "0"+objMonth.value;
+}
+function setPrevMonth(objYear,objMonth) 
+{	
+	currDate = new Date(objYear.value,objMonth.value,01);
+	currDate.setMonth(currDate.getMonth()- 1); 
+	objMonth.value=currDate.getMonth() ;
+	if(objMonth.value == 0) objMonth.value = 12;
+	if(objMonth.value == 12) setPrevYear(objYear);
+	if(objMonth.value.length == 1) objMonth.value = "0"+objMonth.value;
+}
+function setNextYear(objYear) 
+{ 
+	var currDate = new Date();
+	if(objYear.value=="") objYear.value = currDate.getUTCFullYear();
+	currDate.setFullYear(objYear.value); 
+	objYear.value=currDate.getUTCFullYear() + 1;
+}
+function setPrevYear(objYear) 
+{ 
+	var currDate = new Date();	
+	if(objYear.value=="") objYear.value = currDate.getUTCFullYear();
+	currDate.setFullYear(objYear.value); 
+	objYear.value=currDate.getUTCFullYear() - 1;
+}
+
+
+
+//리스트박스에서 대상추가		
+//obj1 : 전체listbox , obj2 : 선택listbox
+function addToSelectedList(obj1,obj2) 
+{
+		var addList = new Array();
+		var oAllList = document.getElementById(obj1.name);
+		if(oAllList.value == "")
+		{	
+			alert("대상을 선택해 주세요") ;
+			return
+		}
+		
+		var oSelectedList = document.getElementById(obj2.name);
+		
+	
+		for (var i=oAllList.length-1; i >= 0 ; i--)
+		{
+			var bDup = false;
+			
+			if(oAllList.options[i].selected == true)
+			{
+				for(var j = 0 ; j < oSelectedList.length ; j++)
+				{
+					if(oSelectedList.options[j].value == oAllList.options[i].value)
+					{
+					alert("이미 추가된 항목 입니다 : " + oAllList.options[i].text);
+					bDup = true;
+					break;
+					}
+				}
+				
+				if(bDup == true)
+				continue; 
+			
+			var addrTmp = new Option(oAllList.options[i].text, oAllList.options[i].value);
+			//addrTmp.setAttribute("rcvname", oAllList.options[i].rcvname);
+			oSelectedList.add(addrTmp, 0);
+
+		} //if(oAllList.options[i].selected == true)
+		
+	} //for (var i=0; i < oAllList.length; i++)
+}
+
+//리스트박스에서 대상빼기
+//obj : 선택listbox
+function removeFromSelectedList(obj)
+{
+	var oSelectedList = document.getElementById(obj.name);
+	var delRow = new Array();
+	var delArrNum = 0;
+
+	for (var i=0; i < oSelectedList.length; i++)
+	{
+		if(oSelectedList.options[i].selected == true)
+		{
+		delRow[delArrNum] = i;
+		delArrNum++;
+		}
+	}
+
+	//alert(delRow);
+
+	for (var j = delRow.length - 1 ; j >= 0 ; j--)
+		oSelectedList.remove(delRow[j]);
+		
+}
+
+//리스트박스에서 한꺼번에 모든 대상 빼기
+function allRemoveList(obj1)
+{
+	var oAllList = document.getElementById(obj1.name);
+	for (var i=oAllList.length-1; i >=0 ; i--)
+	{
+		oAllList.remove(i);
+	}
+}
+
+//리스트박스에서 한꺼번에 모든 대상 선택하기
+function allSelectList(obj1,obj2)
+{
+	var oAllList = document.getElementById(obj1.name);
+	for(i=0; i<oAllList.length; i++)
+	{
+		oAllList.options[i].selected = true;
+	}
+	
+	addToSelectedList(obj1, obj2);
+	
+	for(i=0; i<oAllList.length; i++)
+	{
+		oAllList.options[i].selected = false;
+	}
+}
+
+//리스트 박스에서 위로 항목 이동하기
+function upSelectedList(obj)
+{
+	var oSelectedList = document.getElementById(obj.name);
+	var selArr = new Array();
+	var selNum=0;
+	var moveNum = -1;
+
+	for (var i=0; i < oSelectedList.length; i++)
+	{
+		if(oSelectedList.options[i].selected == true)
+		{
+			if(i==0)
+			{
+				alert("["+oSelectedList.options[i].text+"]항목은 더이상 위로 이동할 수 없습니다.");
+				break;
+			}
+			else
+			{				
+				var strTxt = oSelectedList.options[i-1].text;
+				var strVal = oSelectedList.options[i-1].value;
+				
+				oSelectedList.options[i-1].text = oSelectedList.options[i].text;
+				oSelectedList.options[i-1].value = oSelectedList.options[i].value;
+				
+				oSelectedList.options[i].text = strTxt;
+				oSelectedList.options[i].value = strVal;
+				
+				selArr[selNum] = i-1;				
+				selNum++;
+			}
+		}
+	}
+	
+	if(selArr.length > 0){		
+		for (var j=0; j < selArr.length; j++)
+		{	
+			oSelectedList.options[selArr[j]].selected = true;
+			oSelectedList.options[selArr[j]+1].selected = false;
+		}
+	}
+		
+}
+
+//리스트 박스에서 위로 항목 이동하기
+function downSelectedList(obj)
+{
+	var oSelectedList = document.getElementById(obj.name);
+	var selArr = new Array();
+	var selNum = 0;
+	var maxNum = oSelectedList.length-1;
+
+	for (var i=maxNum; i >= 0; i--)	
+	{
+		if(oSelectedList.options[i].selected == true)	
+		{
+			if(i==maxNum)
+			{
+				alert("["+oSelectedList.options[i].text+"]항목은 더이상 아래로 이동할 수 없습니다.");
+				break;
+			}
+			else
+			{		
+				var strTxt = oSelectedList.options[i+1].text;
+				var strVal = oSelectedList.options[i+1].value;
+				
+				oSelectedList.options[i+1].text = oSelectedList.options[i].text;
+				oSelectedList.options[i+1].value = oSelectedList.options[i].value;
+				
+				oSelectedList.options[i].text = strTxt;
+				oSelectedList.options[i].value = strVal;
+				
+				selArr[selNum] = i+1;				
+				selNum++;
+			}
+		}
+	}
+	
+	if(selArr.length > 0){		
+		for (var j=0; j < selArr.length; j++)
+		{	
+			oSelectedList.options[selArr[j]].selected = true;
+			oSelectedList.options[selArr[j]-1].selected = false;
+		}
+	}
+}
+			
+//=== 문자길이 체크(제한) ===//
+function updateChar(comp, title, length_limit) {
+	
+	var length = calculate_msglen(comp.value);
+
+	if (length > length_limit) {
+		alert(title+"는 최대 " + length_limit + "byte이므로 초과된 글자수는 자동으로 삭제됩니다.");
+		comp.value = comp.value.replace(/\r\n$/, "");
+		comp.value = assert_msglen(comp.value, length_limit);
+	} 
+	/*
+	else if (length == length_limit) {
+		form.comment.value = form.comment.value.replace(/\r\n$/, "");
+	}
+	*/
+	
+	if(document.all["textlimit"] != undefined)
+	{
+		textlimit.innerText = length;
+	}
+}
+
+function calculate_msglen(message) {
+
+	var nbytes = 0;
+
+	for (i=0; i<message.length; i++) {
+		var ch = message.charAt(i);
+		if(escape(ch).length > 4) {
+			nbytes += 2;
+		} else if (ch == '\n') {
+			if (message.charAt(i-1) != '\r') {
+				nbytes += 1;
+			}
+		} else if (ch == '<' || ch == '>') {
+			nbytes += 4;
+		} else {
+			nbytes += 1;
+		}
+	}
+
+	return nbytes;
+}
+
+function assert_msglen(message, maximum) {
+
+	var inc = 0;
+	var nbytes = 0;
+	var msg = "";
+	var msglen = message.length;
+
+	for (i=0; i<msglen; i++) {
+		var ch = message.charAt(i);
+		if (escape(ch).length > 4) {
+			inc = 2;
+		} else if (ch == '\n') {
+			if (message.charAt(i-1) != '\r') {
+				inc = 1;
+			}
+		} else if (ch == '<' || ch == '>') {
+			inc = 4;
+		} else {
+			inc = 1;
+		}
+		
+		if ((nbytes + inc) > maximum) {
+			break;
+		}
+		
+		nbytes += inc;
+		msg += ch;
+	}
+	
+	//textlimit.innerText = nbytes;
+	return msg;
+}
+//=== 문자길이 체크(제한) ===//
+
+//=== 학생관리: 학사관리에서 사용 Start ===// 
+function stdHaksaHref(url) {
+	
+	var uid = parent.document.all["hddSelID"].value;
+	var uname = parent.document.all["hddSelName"].value;
+
+	document.location.href=url+"?sKeyId="+uid+"&sKeyName="+uname;
+}
+//=== 학생관리: 학사관리에서 사용 End ===//
+
+
+/////
+function bluring(){
+	if(event.srcElement.tagName=="A"||event.srcElement.tagName=="IMG") document.body.focus();
+}
+document.onfocusin=bluring;
+
+///// rollover-->
+function MM_swapImgRestore() { //v3.0
+	var i,x,a=document.MM_sr; for(i=0;a&&i<a.length&&(x=a[i])&&x.oSrc;i++) x.src=x.oSrc;
+}
+
+function MM_preloadImages() { //v3.0
+	var d=document; if(d.images){ if(!d.MM_p) d.MM_p=new Array();
+	var i,j=d.MM_p.length,a=MM_preloadImages.arguments; for(i=0; i<a.length; i++)
+	if (a[i].indexOf("#")!=0){ d.MM_p[j]=new Image; d.MM_p[j++].src=a[i];}}
+}
+
+function MM_findObj(n, d) { //v4.01
+	var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+	d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+	if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+	for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+	if(!x && d.getElementById) x=d.getElementById(n); return x;
+}
+
+function MM_swapImage() { //v3.0
+var i,j=0,x,a=MM_swapImage.arguments; document.MM_sr=new Array; for(i=0;i<(a.length-2);i+=3)
+if ((x=MM_findObj(a[i]))!=null){document.MM_sr[j++]=x; if(!x.oSrc) x.oSrc=x.src; x.src=a[i+2];}
+}
+
+///// Layer-->
+function MM_reloadPage(init) {  //reloads the window if Nav4 resized
+	if (init==true) with (navigator) {if ((appName=="Netscape")&&(parseInt(appVersion)==4)) {
+	document.MM_pgW=innerWidth; document.MM_pgH=innerHeight; onresize=MM_reloadPage; }}
+	else if (innerWidth!=document.MM_pgW || innerHeight!=document.MM_pgH) location.reload();
+}
+MM_reloadPage(true);
+
+/////
+function bluring(){
+	if(event.srcElement.tagName=="A"||event.srcElement.tagName=="IMG") document.body.focus();
+}
+document.onfocusin=bluring;
+
+
+
+//SMS전송시 휴대폰 폼으로 미리보기
+function sms_emotiform(contents) {												//휴대폰 폼으로 미리보기
+	var width = 160;
+	var height = 200;
+	var pos_x = (screen.Width - width) / 2;
+	var pos_y = (screen.Height - height) / 2;
+	smswin = window.open("/Popup/popSmsEmotiForm.aspx?contents="+contents,"sms_emotiform","width=" + width + ", height=" + height + ", left=" + pos_x + ", top=" + pos_y);
+	smswin.focus();
+}
+//SMS전송시 휴대폰 폼으로 미리보기
+
+//SMS전송시 문자열 길이체크 하여 자르기
+function cal_byte2(msg)	//문자열 길이 체크
+{
+	var f = document.smsform2 ; 
+	//alert(msg)
+    var tmpStr;
+    var temp=0;
+    var onechar;
+    var tcount;
+    tcount = 0;
+    
+    tmpStr = new String(msg);
+    temp = tmpStr.length;
+	
+    for (k=0;k<temp;k++)
+    {
+        onechar = tmpStr.charAt(k);
+
+        if (escape(onechar).length > 4) {
+            tcount += 2;
+        }
+        else if (onechar!='\r') {
+            tcount++;
+        }
+    }
+    
+    if(tmpStr.split("%%").length-1 > 0)
+	{
+		tcount += (tmpStr.split("%%").length-1) * 4;
+		
+	}
+
+    msg_byte.innerHTML = tcount
+    
+    if(tcount>80) {
+
+        reserve = tcount-80;
+        alert("메시지 내용은 80바이트 이상 입력하실수 없습니다.\r\n쓰신 메세지는 "+reserve+"바이트가 초과되었습니다."); 
+        cut_Text(msg,80);
+        return;
+    } 
+}
+
+//SMS전송시 문자열 길이체크 하여 자르기
+function cal_byte(msg)	//문자열 길이 체크
+{
+	var f = document.smsform2 ; 
+	//alert(msg)
+    var tmpStr;
+    var temp=0;
+    var onechar;
+    var tcount;
+    tcount = 0;
+    
+    tmpStr = new String(msg);
+    temp = tmpStr.length;
+
+    for (k=0;k<temp;k++)
+    {
+        onechar = tmpStr.charAt(k);
+
+        if (escape(onechar).length > 4) {
+            tcount += 2;
+        }
+        else if (onechar!='\r') {
+            tcount++;
+        }
+    }
+    if(tmpStr.split("%%").length-1 > 0)
+	{
+		tcount += (tmpStr.split("%%").length-1) * 4;
+		
+	} 
+    msg_byte.innerHTML = tcount
+    
+    if(tcount==81 || tcount==82) {
+
+        reserve = tcount-80;
+        alert("메시지 내용이 80Byte 이상인 경우 여러건으로 나누어 전송됩니다."); 
+        //cut_Text(msg,80);
+        return;
+    } 
+    
+}
+
+//
+function CheckStr(val) {
+	chk1 = /^[a-z\d]{6,12}$/i;		//a-z와 0-9이외의 문자가 있는지 확인,6~12자리인지확인
+	chk2 = /[a-z]/i;						//적어도 한개의 a-z 확인
+	chk3 = /\d/;							//적어도 한개의 0-9 확인
+	chk4 = /[a-z]/i;						//첫글자가 영문자로 시작하는지 확인
+	return chk1.test(val) && chk2.test(val) && chk3.test(val) && chk4.test(val.substring(0,1));	
+} 
+
+function cut_Text(aquery,max)	//초과 문자열 자르기
+{
+	var tmpStr;
+    var temp=0;
+    var onechar;
+    var tcount;
+    tcount = 0;
+    
+    tmpStr = new String(aquery);
+    temp = tmpStr.length;
+
+    for(k=0;k<temp;k++)
+    {
+        onechar = tmpStr.charAt(k);
+        
+        if(escape(onechar).length > 4) {
+            tcount += 2;
+        }
+        else if(onechar!='\r') {
+            tcount++;
+        }
+        if(tcount>max) {
+            tmpStr = tmpStr.substring(0,k); 
+            break;
+        }
+    }
+    
+    if (max == 80) {
+        document.getElementById("tbMessage").value = tmpStr;
+        cal_byte(tmpStr);
+    }
+    
+    return tmpStr;
+}
+//SMS전송시 문자열 길이 체크하여 자르기
+
+
+/*
+function click() {
+if ((event.button==2) || (event.button==3)) {
+	alert('마우스 오른쪽 버튼은 사용할수 없습니다.');
+}
+}
+document.onmousedown=click
+
+
+if (navigator.appName == "Netscape") {
+document.captureEvents(Event.MOUSEDOWN)
+document.onmousedown = checkClick
+function checkClick(ev) {
+        if (ev.which != 1) {
+                alert('마우스 오른쪽 버튼은 사용할수 없습니다.')
+                return false
+        }
+}
+}
+*/
+
+/*
+// 특수키 막기
+function keypressed()
+{ 
+	// event.keyCode=="116"  -- F5
+	if(event.keyCode=="17")
+	{
+		alert("특수키는 사용 불가능합니다.");
+		try
+		{
+			event.keyCode = 0;
+		}catch(e)
+		{
+		}
+		return false;
+	}
+} 
+document.onkeydown = keypressed; 
+// 특수키 막기
+*/
+
+
+// 전화번호 입력
+function funcTelNo( obj )
+{
+	var phoneChar = "0123456789-"; 
+	var temp; 
+
+	for( i=0; i<obj.value.length; ++i)
+	{ 
+		temp = obj.value.substring(i, i+1); 
+		if(phoneChar.indexOf(temp) == '-1')
+		{ 
+			alert('전화번호는 숫자와 - 만 사용하실 수 있습니다.'); 
+			obj.value = ''; 
+			obj.focus(); 
+			return false; 
+		} 
+	} 
+}
+
+function filterKey(filter,nFocusID,funcName) { 
+	var evCode = (window.netscape) ? event.which : event.keyCode;
+	if(evCode==13 && nFocusID) {
+		if(nFocusID == 'function') {
+			if(typeof(funcName) == 'function') {
+				funcName();
+			}
+			else {
+				eval(funcName);
+			}
+		}
+		else document.getElementById(nFocusID).focus();
+	}
+	else if(filter) { 
+		var sKey = String.fromCharCode(evCode); 
+		var re = new RegExp(filter); 
+		if(!re.test(sKey)) event.returnValue=false; 
+	} 
+}
+
+// -- 대문자로 변환
+function toUpper(obj) {
+	if(event.keyCode==8 || (event.keyCode>=37 && event.keyCode<=40)) return;
+	if(typeof(obj) == "object") {
+		obj.value=obj.value.toUpperCase()
+	}
+}
+
+
+
+// -- 비밀번호 유효성 체크
+function validPassword(obj) {
+
+	// ### 비밀번호 유효성 체크 #####
+	// 1. 비밀번호는 8자리 이상
+	// 2. 비밀번호가 10자리 미만이라면 영문+숫자+특수문자를 포함하여야만 한다.
+	// 3. 비밀번호가 10자리 이상이라면 영문, 숫자, 특수문자 중 2가지만 사용해도 된다.
+
+	var pwd1 = obj;
+	var inNum = false;
+	var inEng = false;
+	var inSChar = false;
+	var inRange = false;
+
+	if (!pwd1.value) {
+		alert("비밀번호를 입력해주세요.");
+		pwd1.focus();
+		return;
+	} else {
+		//비밀번호 8자 이상인지 확인
+		if (pwd1.value.length < 8) {
+			alert("비밀번호는 8자 이상 입력해주세요.");
+			pwd1.focus();
+			return;
+		}
+		//숫자포함여부 확인
+		for (i = 0; i < pwd1.value.length; i++) {
+			if ((pwd1.value.charCodeAt(i) >= 48) && (pwd1.value.charCodeAt(i) <= 57)) {
+				inNum = true;
+				break;
+			}
+		}
+		//영문자 포함여부 확인
+		for (i = 0; i < pwd1.value.length; i++) {
+			if (((pwd1.value.charCodeAt(i) >= 65) && (pwd1.value.charCodeAt(i) <= 90)) || ((pwd1.value.charCodeAt(i) >= 97) && (pwd1.value.charCodeAt(i) <= 122))) {
+				inEng = true;
+				break;
+			}
+		}
+		//특수문자 포함여부 확인
+		for (i = 0; i < pwd1.value.length; i++) {
+			if (((pwd1.value.charCodeAt(i) >= 33) && (pwd1.value.charCodeAt(i) <= 47)) || ((pwd1.value.charCodeAt(i) >= 58) && (pwd1.value.charCodeAt(i) <= 64)) || ((pwd1.value.charCodeAt(i) >= 91) && (pwd1.value.charCodeAt(i) <= 96))) {
+				inSChar = true;
+				break;
+			}
+		}
+
+		if (pwd1.value.length < 10) {    //비밀번호가 10자리 미만이라면
+			if (!(inNum && inEng && inSChar)) {
+				alert("비밀번호는 영문 대·소문자와 숫자와 특수문자도 함께 사용해 주세요.");
+				return;
+			}
+		} else {
+			if ((inNum && inEng) || (inEng && inSChar) || (inNum && inSChar)) {
+				//return true;
+			} else {
+				alert("비밀번호는 영문 대·소문자, 숫자, 특수문자중 2종을 섞어서 사용해 주세요.");
+				return;
+			}
+		}
+	}
+	// ### 비밀번호 유효성 체크 #####
+
+
+}
+
+
+
+
+
+
+
+// getCookie
+function getCookie(name){
+	var nameOfCookie = name + "=";
+	var x = 0;
+	while ( x <= document.cookie.length ){
+		var y = (x+nameOfCookie.length);
+		if ( document.cookie.substring( x, y ) == nameOfCookie ) {
+			if ( (endOfCookie = document.cookie.indexOf( ";", y )) == -1 ) {
+				endOfCookie = document.cookie.length;
+			}
+			return unescape( document.cookie.substring( y, endOfCookie ) );
+		}
+		x = document.cookie.indexOf( " ", x ) + 1;
+		if ( x == 0 )
+		break;
+	}
+	return "";
+}
+
+
+
+/***********************************************************
+* 자동으로 사이즈가 변하는 select box Ver20070423박규선
+* 사용법: <select style="width=100px" auto></select>
+* 제약조건  onmouseover onclick onmouseout onblur 를 정의하지 말것
+* 구현은   onchange 이벤트에 구현하세요
+************************************************************/
+function autoselectboxsize(){
+ var _obj ;
+ var arr = document.getElementsByTagName('select');
+ var w,h;
+ for(var i=0;i<arr.length;i++){
+   _obj = arr[i];
+   if(_obj.getAttribute("auto")!=null){
+    w=_obj.offsetWidth-1;
+    h=_obj.offsetHeight;
+    _obj.onmouseover="if(this.ow==undefined){this.ow=this.offsetWidth}if(this.n==undefined||this.n==false){this.style.width='';if(this.offsetWidth<=this.ow){this.n=true;this.style.width=this.ow+'px';}}";
+    _obj.onclick="this.b=true;if(this.n==true){return;}if(this.n==undefined||this.n==false){this.style.width='';if(this.offsetWidth<=this.ow){this.n=true;this.style.width=this.ow+'px';this.onclick=null;}}";
+    _obj.onmouseout="if(this.b==true){return;}if(this.n==undefined||this.n==false){this.style.width=this.ow+'px';}";
+    _obj.onblur="this.b=false;if(this.ow!=undefined){this.style.width=this.ow+'px';}";
+    _obj.outerHTML="<div  nowrap style='width:" + w + ";height:" + h + "px;overflow:hidden;text-overflow:ellipsis;padding-top:0px;'>" +_obj.outerHTML+"</div>";
+    _obj.removeAttribute("auto");
+   }
+ }
+}
+/***********************************************************
+* 사이즈 내용이 변경된 경우 호출 select box Ver20070423박규선
+* 사용법: refresh_selectbox(selectbox_objects_instance) 
+
+************************************************************/
+�W)~��      g)�^g)�^G�ҵi
+��   z    O^partitionKey=%28https%2Cbgswcoding.co.kr%29,:https://www.bgswcoding.co.kr/Common/scripts/jscript.js?v=638664166246148869 strongly-framed 1 security-info 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 request-method GET response-head HTTP/2 200 
+cache-control: public,max-age=31536000
+content-type: application/javascript
+last-modified: Sat, 16 Jan 2021 05:52:32 GMT
+accept-ranges: bytes
+etag: "0d0fac7cbebd61:0"
+server: none
+date: Tue, 05 Nov 2024 06:17:04 GMT
+content-length: 36541
+X-Firefox-Spdy: h2
+ original-response-headers cache-control: public,max-age=31536000
+content-type: application/javascript
+last-modified: Sat, 16 Jan 2021 05:52:32 GMT
+accept-ranges: bytes
+etag: "0d0fac7cbebd61:0"
+server: none
+x-powered-by: 
+x-aspnet-version: 
+date: Tue, 05 Nov 2024 06:17:04 GMT
+content-length: 36541
+X-Firefox-Spdy: h2
+ ctid 2 uncompressed-len 0 net-response-time-onstart 58 net-response-time-onstop 82   ��

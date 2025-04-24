@@ -1,0 +1,637 @@
+
+<!DOCTYPE html>
+<html>
+<head><title>
+	온라인 SW 코딩 교실
+</title><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge" /><meta name="language" content="ko" /><meta name="viewport" content="initial-scale=1.0, width=device-width" /><meta name="format-detection" content="telephone=no" /><meta name="robots" content="index,follow" /><meta property="og:type" content="website" /><meta name="twitter:card" content="summary" />
+    <meta name="subject" content="온라인 SW 코딩 교실" /><meta name="description" content="온라인 SW 코딩 교실, 초등학교 코딩, 코딩학습의 시작과 마무리까지 체계적인 구성으로 코딩실력이 한단계 업그레이드" /><meta name="og:title" content="온라인 SW 코딩 교실" /><meta name="og:description" content="온라인 SW 코딩 교실, 초등학교 코딩, 코딩학습의 시작과 마무리까지 체계적인 구성으로 코딩실력이 한단계 업그레이드" /><meta name="og:image" content="https://www.bgswcoding.co.kr/webfs/common/images/common/swcoding/logo_bg.png" /><meta name="og:url" content="https://www.bgswcoding.co.kr" /><meta name="twitter:title" content="https://www.bgswcoding.co.kr" /><meta name="twitter:description" content="온라인 SW 코딩 교실, 초등학교 코딩, 코딩학습의 시작과 마무리까지 체계적인 구성으로 코딩실력이 한단계 업그레이드" /><meta name="twitter:image" content="https://www.bgswcoding.co.kr/webfs/common/images/common/swcoding/logo_bg.png" /><meta name="twitter:domain" content="온라인 SW 코딩 교실" />
+
+    <script src="/Common/scripts/jscript.js?v=638627876228974783"></script>
+    <script src="/Common/scripts/common.js?v=638627876228974783"></script>
+
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="/Common/css/default.css?v=002" /><!-- default.css를 수정시 v++ 하기 -->
+    <link rel="stylesheet" type="text/css" href="/Common/css/font.css" /><link rel="stylesheet" href="//cdn.linearicons.com/free/1.0.0/icon-font.min.css" />
+    <script src="//cdn.linearicons.com/free/1.0.0/svgembedder.min.js"></script>
+    
+    <!-- XEICON CEN -->
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/xeicon@2.3.3/xeicon.min.css" />
+
+    <!-- fontawsome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+
+    <!-- gnb -->
+    <script src="/Common/scripts/js/jquery-1.12.4.min.js"></script>
+    <script src="/Common/scripts/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/Common/scripts/js/common_ui.js"></script>
+
+    <!-- allmenu -->
+    <script src="/Common/scripts/js/allmenu.js"></script>
+
+    <!-- slick  -->
+    <script type="text/javascript" src="/Common/scripts/js/slick/slick.min.js"></script>
+    <link media="all" href="/Common/scripts/js/slick/slick.css" type="text/css" rel="stylesheet" /><link media="all" href="/Common/scripts/js/slick/slick-theme.css" type="text/css" rel="stylesheet" />
+
+    <!-- gotop -->
+    <!--<script type="text/javascript" src="/Common/scripts/js/go-top.js"></script>-->
+
+    <!-- s_gnb -->
+    <script type="text/javascript" src="/Common/scripts/js/front.js"></script>
+
+    <!--aos-->
+    <script type="text/javascript" src="/Common/scripts/js/aos/aos.js"></script>
+    <link media="all" href="/Common/scripts/js/aos/aos.css" type="text/css" rel="stylesheet" />
+
+    <!-- tab -->
+    <script>
+        $(document).ready(function () {
+            //Default Action
+            $(".tab_content").hide(); //Hide all content
+            $("ul.tabs li:first").addClass("active").show(); //Activate first tab
+            $(".tab_content:first").show(); //Show first tab content
+
+            //On Click Event
+            $("ul.tabs li").click(function () {
+                $("ul.tabs li").removeClass("active"); //Remove any "active" class
+                $(this).addClass("active"); //Add "active" class to selected tab
+                $(".tab_content").hide(); //Hide all tab content
+                var activeTab = $(this).find("a").attr("href"); //Find the rel attribute value to identify the active tab + content
+                $(activeTab).fadeIn(); //Fade in the active content
+                return false;
+            });
+
+        });
+
+    </script>
+
+    <script>
+        $(function () {
+            gnb.web();
+        });
+    </script>
+    
+<script type="text/javascript">
+    // 등록 / 수정
+    function funcSave(msg) {
+        var obj = document.frm;
+
+		flag = 0;
+        if (obj.rdIDX != undefined) {
+            if (obj.rdIDX.length == undefined) {	//체크박스가 하나일경우
+                if (obj.rdIDX.checked) {
+                    flag = 1;
+                }
+            } else {
+                for (i = 0; i < obj.rdIDX.length; i++) {
+                    if (obj.rdIDX[i].checked) {
+                        flag = 1;
+                    }
+                }
+            }
+        }
+        if (flag == 0) {
+            alert("수강신청할 강좌를 선택해 주세요.");
+            return false;
+        }
+
+        var yesno = confirm(msg);
+        if (yesno == false) {
+            return;
+        }
+        obj.submit();
+    }
+
+    function funcSearch() {
+        document.frmSearch.submit();
+    }
+
+    $(document).ready(function () {
+        $(".btn_stime").unbind("click").bind("click", function () {
+            $('#stime').val($(this).data('stime'));
+            $('#background').css('display', 'block');
+            funcSearch();
+        });
+	});
+
+	$(document).ready(function () {	
+		//기존 선택한 기수값 유지
+		if ($("#hhdTarget").val() != "") {
+			$("input:radio[name='rdTarget']:radio[value='" + $("#hhdTarget").val() +"']").prop('checked', true); // 기존 선택한 기수 선택하기         
+		}
+
+		$(".btn_week").unbind("click").bind("click", function () {
+
+			if ($('input[name=rdTarget]:checked').val() == undefined) {
+				alert("교육기수를 선택해 주세요.");
+				return;
+			}
+
+			$('#week').val($(this).data('week'));   
+            $("#hhdTarget").val($('input[name=rdTarget]:checked').val());	//선택된 기수값 저장
+            funcSearch();
+		});	
+
+		//기수선택 라디오버튼 변경 시
+        $("input[name='rdTarget']").change(function () {            
+			$("#hhdTarget").val($('input[name=rdTarget]:checked').val());	//선택된 기수값 저장
+			$('#week').val('');	//요일 선택 초기화
+
+            funcSearch();
+        });
+
+        
+    });
+	//2023.10.10.minhwan.add.미래교육실 요청으로 추가.
+	function course_reg_end(){
+		alert("3기 수강신청이 모두 마감되었습니다. 감사합니다");
+		location.replace("/");
+	}
+	//course_reg_end();
+</script>
+
+</head>
+<body>
+
+<div id="wrap">
+    <div class="main">
+		
+
+<!-- 수강신청기간이 아니면 "신청기간" 애니메이션이 보이지않게 -->
+<script>
+	$(document).ready(function () {
+		
+    });
+</script>
+
+<div style="position: fixed; z-index:999; ">
+
+	<!-- #header Start -->
+	<div id="header" class="transit overflowHidden">
+	<!-- 하위메뉴 펼침 .hopen 추가 /scroll height:453px / 1280이하일때 .hmob -->
+
+		<h1 class="logo"><a href="/" class="transit">온라인 SW 코딩 교실</a></h1>
+
+		<a href="javascript:void(0);" class="ico-menu"></a>
+		<div class="mobile-wrap">
+			<div id="gnb" class=""><!--gng 오버했을때 class open 추가 -->
+				 <ul>
+	<li><a href="/Introduce/System" class="menu1 transit">화상코딩소개</a><!-- tablet에서 부터 선택됐을때 li에 class on 넣어줌 -->
+		<ul>
+			<!--<li><a href="/Introduce/Greeting">인사말</a></li>-->
+			<li><a href="/Introduce/System">교육시스템</a></li>
+			<li><a href="/Introduce/Management">수업운영방안</a></li>			
+			<!-- <li><a href="/Introduce/Teachers">강사소개</a></li> -->
+		</ul>
+	</li>
+	<li><a href="/Course/CourseIndex" class="menu1 transit">수강신청</a>
+		<ul>
+			<li><a href="/Course/CourseIndex">수강절차 안내</a></li>
+			<li class="active"><a href="/Course/CourseList">수강신청</a></li>						
+		</ul>
+	</li>
+	<li><a href="/Lecture/Step" class="menu1 transit">학습안내</a>
+		<ul>
+			<li><a href="/Lecture/Step">학습진행절차</a></li>
+			<li><a href="/Lecture/Process2">학습과정</a></li>
+			<li><a href="/Lecture/Books">교구재안내</a></li>
+		</ul>
+	</li>
+	<li><a href="/Center/BoardList?sDiv=Notice" class="menu1 transit">학습지원센터</a>
+		<ul>
+			<li><a href="/Center/BoardList?sDiv=Notice">공지사항</a></li>
+			<li><a href="/Center/FAQ">자주하는질문</a></li>			
+			<li><a href="/Center/UseGuide01">이용가이드</a></li>		
+			<li><a href="/Center/BoardList?sDiv=Data&cate=video">학습자료실</a></li>
+		</ul>
+	</li>
+	<li><a href="/Account/MemConfirm" class="menu1 transit">마이페이지</a>
+		<ul>
+			<li><a href="/MyPage/Mypage">교육신청 정보</a></li>
+			<li><a href="/MyPage/MemConfirm">회원정보 수정</a></li>
+			<li><a href="/MyPage/OrderList">수강신청 현황</a></li>			
+			<li><a href="/MyPage/Study">학습현황</a></li>
+			<li><a href="/MyPage/Certificate">수료증출력</a></li>
+			<li><a href="/MyPage/Counsel">1:1질문방</a></li>	
+		</ul>
+	</li>
+
+</ul>
+			</div>
+
+			<div id="login">
+		
+				<!-- 로그인후 -->
+				<ul style="">
+					<li class="status">
+						<a href="/MyPage/Mypage"><strong>고하임 님</strong></a>
+						<span class="sep">|</span>
+						<a href="/Account/LoginProc">LOGOUT</a>
+					</li>
+					<li class="status_btn1"><a href="/MyPage/ClassRoom"><span>내 강의실</span></a></li>
+					<li class="status_btn1_img"><a href="/MyPage/ClassRoom"><img src="/webfs/Common//images/common/ico_down.png" alt="내 강의실"></a></li>
+					<!--<li class="status_btn2"><a href="/webfs/common/program/ENOZ57_5767(Kor).exe"><span>화상설치</span></a></li>-->
+					<!--<li class="status_btn2_img"><a href="/webfs/common/program/ENOZ57_5767(Kor).exe"><img src="/images/common/ico_edu.png" alt="화상설치"></a></li>-->
+					<!--<li class="status_btn3"><a href="/MyPage/Mypage"><span>마이페이지</span></a></li>-->
+				</ul>
+				
+			</div>
+
+			<div id="allmenuWrap">
+				<div id="allmenu">
+					<a href="javascript:void(0);" id="navtoggler">menu</a>
+				</div>
+				<nav id="fullscreenmenu">
+					<ul>
+	<li><a href="/Introduce/System" class="menu1 transit">화상코딩소개</a><!-- tablet에서 부터 선택됐을때 li에 class on 넣어줌 -->
+		<ul>
+			<!--<li><a href="/Introduce/Greeting">인사말</a></li>-->
+			<li><a href="/Introduce/System">교육시스템</a></li>
+			<li><a href="/Introduce/Management">수업운영방안</a></li>			
+			<!-- <li><a href="/Introduce/Teachers">강사소개</a></li> -->
+		</ul>
+	</li>
+	<li><a href="/Course/CourseIndex" class="menu1 transit">수강신청</a>
+		<ul>
+			<li><a href="/Course/CourseIndex">수강절차 안내</a></li>
+			<li class="active"><a href="/Course/CourseList">수강신청</a></li>						
+		</ul>
+	</li>
+	<li><a href="/Lecture/Step" class="menu1 transit">학습안내</a>
+		<ul>
+			<li><a href="/Lecture/Step">학습진행절차</a></li>
+			<li><a href="/Lecture/Process2">학습과정</a></li>
+			<li><a href="/Lecture/Books">교구재안내</a></li>
+		</ul>
+	</li>
+	<li><a href="/Center/BoardList?sDiv=Notice" class="menu1 transit">학습지원센터</a>
+		<ul>
+			<li><a href="/Center/BoardList?sDiv=Notice">공지사항</a></li>
+			<li><a href="/Center/FAQ">자주하는질문</a></li>			
+			<li><a href="/Center/UseGuide01">이용가이드</a></li>		
+			<li><a href="/Center/BoardList?sDiv=Data&cate=video">학습자료실</a></li>
+		</ul>
+	</li>
+	<li><a href="/Account/MemConfirm" class="menu1 transit">마이페이지</a>
+		<ul>
+			<li><a href="/MyPage/Mypage">교육신청 정보</a></li>
+			<li><a href="/MyPage/MemConfirm">회원정보 수정</a></li>
+			<li><a href="/MyPage/OrderList">수강신청 현황</a></li>			
+			<li><a href="/MyPage/Study">학습현황</a></li>
+			<li><a href="/MyPage/Certificate">수료증출력</a></li>
+			<li><a href="/MyPage/Counsel">1:1질문방</a></li>	
+		</ul>
+	</li>
+
+</ul>
+				</nav>
+			</div>
+
+		</div>
+		<a href="javascript:void(0);" class="close"></a>
+	</div>
+
+	<div class="dim">
+	</div>
+	<!-- #header End -->
+
+</div>
+	</div>
+
+    
+
+
+
+<script type="text/javascript">
+	$(function(){
+		gnb.web(0);
+        subFunc.snb('3', '2');
+	});
+</script>
+
+<div id="sVisu" class="sVisu3">
+	<div class="txt_box" data-aos="fade-up" data-aos-delay="200">
+		<h2>수강신청</h2>
+		<p class="t1">SOFTWARE CODING EDUCATION</p>
+	</div>
+</div>
+
+<div id="page02">
+	<div id="s_navi">
+		<ul class="smenu">
+			<li class="submenu1"><a href="/Course/CourseIndex" class="menu1">수강절차 안내</a></li>			
+			<li class="submenu2"><a href="/Course/CourseList" class="menu2">수강신청</a></li>
+		</ul>
+	</div>
+</div><!-- .page -->
+<!-- 서브메뉴 End -->
+
+<!-- sub_top -->
+<div class="sub_top">
+	<div class="sub_top_in">
+		<div class="snb">
+			<div class="home">
+				<a href="/">Home</a>
+			</div>
+			<div class="depth1_area">
+				<a href="javascript:;" class="open_depth"></a>
+				<ul class="smenu">
+					<li class="submenu1"><a href="/Introduce/System" class="menu1">화상코딩소개</a></li>					
+					<li class="submenu2"><a href="/Course/CourseIndex" class="menu2">수강신청</a></li>
+					<li class="submenu3"><a href="/Lecture/Step" class="menu3">학습안내</a></li>
+					<li class="submenu4"><a href="/Center/FAQ" class="menu4">학습지원센터</a></li>
+					<li class="submenu5"><a href="/Board/BoardList" class="menu5">커뮤니티</a></li>
+				</ul>
+			</div>
+
+			<div class="depth2_area">
+				<a href="javascript:;" class="open_depth"></a>
+				<ul class="smenu">
+					<li class="submenu1"><a href="/Course/CourseIndex" class="menu1">수강절차 안내</a></li>			
+					<li class="submenu2"><a href="/Course/CourseList" class="menu2">수강신청</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- //sub_top -->
+
+<div id="subContent">
+<!-- ### 레벨(인터뷰) 결과 조회 ##### -->
+
+
+	<div id="subTitle">
+		<h2>(재)수강신청</h2>
+		<p>수강신청을 하고 회원님의 코딩학습수준을 높여보세요.</p>
+	</div>
+
+	<div id="pageCont" class="s-inner">
+
+		<div class="h-grid4 sub3-3">
+				<ul class="stepBox2">
+					<li class="step1 selected">
+					    <dl>
+							<dt>STEP 1</dt>
+							<dd>교육선택</dd>
+						</dl>
+					</li>
+					<li class="step2">
+					    <dl>
+							<dt>STEP 2</dt>
+							<dd>교구 배송 주소 입력</dd>
+						</dl>
+					</li>
+					<li class="step3">
+					    <dl>
+							<dt>STEP 3</dt>
+							<dd>수강 신청 완료</dd>
+						</dl>
+					</li>
+				</ul>
+
+				<div class="title-1">수강신청과정</div>
+
+				
+
+				<!-- 수강신청과정box -->
+				<div class="class_registration clearfix">
+					<div class="cr_index"><strong>교육과정</strong><span> <!--2기--> </span></div>
+					<div class="cr_left">
+						<strong class="tit"><!-- STARTER 1기 - --> 화성탐사, 새로운 세계를 향한 첫걸음</strong>
+						<span class="txt">코듀에서 화성 탐사 로버를 프로그래밍하고 마이크로비트로 제어하며 화성 탐사와 관련된 다양한 문제를 해결하는 과정에서 문제 해결 능력과 컴퓨팅 능력 학습</span>
+						<ul class="lst">
+							<li><strong class="target">수업대상</strong><span>초등학생 4~6학년</span></li>
+							<li><strong class="time">수업시간</strong><span>40분 / 차시 (1일 2차시 수업)</span></li>
+							<li><strong class="num">반별인원</strong><span>6~7명</span></li>
+						</ul>
+					</div>
+					<div class="cr_right">
+						<div class="thumb">							
+							<img src="/webfs/Common//images/CourseBook/swcoding/bg_coding1.png?031342" />
+						</div>
+					</div>
+				</div>					
+			
+				 
+
+
+            <div class="table_t4 nanum_g">
+				<!-- 검색필터box -->
+				<form name="frmSearch" id="frmSearch" method="post" action="/Course/CourseList#frmSearch">
+
+				<div class="title-1">교육기수선택</div>
+				<table role="table" class="tbl_hover">
+					<thead role="rowgroup">
+				   <tr role="row">
+					  <th role="columnheader" style="width:4%"></th>
+					  <th role="columnheader" style="width:10%">상태</th>
+					  <th role="columnheader" style="width:12%">기수</th>
+					  <th role="columnheader" style="width:60%">일정</th>                          								  
+					</tr>
+					</thead>
+    
+					<tbody role="rowgroup">
+						<tr id="T" role="row" class="yes"><td class="sc_radio"><div class="cc-selector"><input id="1" type="radio" name="rdTarget" value="1_202409" /><label class="cc-cc check target" for="1"></label></div></td><td role="cell"><span class="button btn1">접수가능</span></td><td role="cell" class="c1">1기</td><td role="cell">2024-09-30(월) ~ 2024-10-31(목)</td></td></tr><tr id="T" role="row" class="yes"><td class="sc_radio"><div class="cc-selector"><input id="2" type="radio" name="rdTarget" value="2_202411" /><label class="cc-cc check target" for="2"></label></div></td><td role="cell"><span class="button btn1">접수가능</span></td><td role="cell" class="c1">2기</td><td role="cell">2024-11-04(월) ~ 2024-11-28(목)</td></td></tr>
+					</tbody>
+				</table>
+				<div class="" style="color:red">※ 1기와 2기가 동일한 교육 내용이므로 1기와 2기 중 한 개의 기수만 신청하실 수 있습니다.</div>	
+
+				<div class="title-1">교육일정선택</div>				
+				
+				<div class="filter_box">
+					
+					<div class="row">
+						<label>요일 선택</label>
+						<ul class="tag_lst">
+							<li class=""><button type="button" class="btn_week" data-week="2,4">월수</button></li>
+							<li class=""><button type="button" class="btn_week" data-week="3,5">화목</button></li>							
+						</ul>
+					</div>
+					
+					
+				</div>				
+					<input type="hidden" name="ddlKeySTime" id="stime" value=""/>
+					<input type="hidden" name="ddlKeyWeek" id="week" value=""/>	
+					<input type="hidden" name="hhdTarget" id="hhdTarget" value="1_202409"/>
+				</form>
+
+
+				<form name="frm" method="post" action="/Course/CourseApplicationProc">
+				<input type="hidden" name="hhdLevelIdx" value="1" />
+				<input type="hidden" name="hhdProcTarget" value="1_202409" />
+				    <table role="table" class="tbl_hover">
+                        <thead role="rowgroup">
+                       <tr role="row">
+                          <th role="columnheader" style="width:4%"></th>
+                          <th role="columnheader" style="width:10%">상태</th>
+                          <th role="columnheader" style="width:12%">수업시간</th>
+						   <th role="columnheader" style="width:8%">요일</th>
+						   <th role="columnheader" style="width:12%">교육과정</th>                          
+						  <th role="columnheader" style="width:8%">강좌구분</th>
+                          <th role="columnheader" style="width:5%">개월</th>
+                          <th role="columnheader" style="width:12%">주 (총횟수)</th>
+                          <th role="columnheader" style="width:12%">시간</th>                          
+						  <!-- 
+							<th role="columnheader" style="width:9%">강사</th>
+							<th role="columnheader" style="width:5%">정원</th>
+							<th role="columnheader" style="width:10%">총금액(교재포함) 
+							-->
+                            
+                          <!-- </th> -->
+                        </tr>
+                        </thead>
+                        
+                        <tbody role="rowgroup">
+                            
+                        </tbody>
+                    </table>
+				</form>
+				<div class="clear" style="padding: 24px 0;text-align: center;font-size: 1em;color: #757a81;">수업 시작 시간을 선택해주세요.</div>
+
+			</div>
+			<div class="btn_apply">
+				<a href="javascript:void(0);" onclick="funcSave('수강신청 하시겠습니까?')" class="btn_type5 mb30"><span>수강신청</span></a>
+			</div>
+			<!--
+				
+					<div align="center" style="padding:10px">
+						수강료 지원 대상자 접수가 마감되었습니다.<br><br>
+
+						<b><font color="red">정상 가격으로의 수강접수는 2020-06-30까지 계속 진행됩니다.</font>
+					</div>
+				
+			-->
+			
+		</div>
+	</div>
+
+	
+</div>
+<div id="background"><div>Loading ...</div></div>
+<style>
+    #background {
+		width: 100%;
+		height: 100%;
+		background-color: #555;
+		opacity: 0.7;
+		z-index: 999;
+		position: fixed;
+		top: 0;
+		left: 0;
+		display:none;
+		text-align:center;
+    }
+    #background > div {width:20%;color: #fff;top: 50%;left:40%;position: fixed;font-size: 1.5em;}
+</style>
+
+<!-- 퀵메뉴  -->
+
+
+
+
+    <!-- ### Bottom ### -->
+    <!--
+    <div id="fLink">
+      <div class="f-inner">
+      <ul>
+	    <li class="first"><a href="//www.moe.go.kr" target="_blank"><img src="/webfs/Common//images/common/m_related1.png" alt="교육부"></a></li>
+	    <li><a href="//www.moi.go.kr/" target="_blank"><img src="/webfs/Common//images/common/m_related2.png" alt="행정자치부"></a></li>
+	    <li><a href="//www.edunet4u.net" target="_blank"><img src="/webfs/Common//images/common/m_related3.png" alt="에듀넷"></a></li>
+	    <li><a href="//www.scienceall.com" target="_blank"><img src="/webfs/Common//images/common/m_related4.png" alt="사이언스아트"></a></li>
+	    <li class="last"><a href="//www.pohang.go.kr" target="_blank"><img src="/webfs/Common/images/common/swcoding/m_related5_ph.png" alt="북구청"></a></li>
+     </ul>
+      <div class="naver">
+		    <a onclick="window.open('//endic.naver.com/popManager.nhn?m=miniPopMain','endic','width=405, height=513, left=300,top=100,scrollbars=yes')"><img src="/webfs/Common//images/common/m_dic.png" alt="네이버 영어사전"></a>
+	    </div>
+      </div>
+    </div> -->
+
+    <!-- footer -->
+    <div id="footer">
+      <div class="f-inner">
+
+        <!-- 
+        <ul class="f-sns">
+	      <li><a href="javascript:void(0)"><img src="/webfs/Common//images/common/f-blog.png" alt="블로그"></a></li>
+	      <li><a href="javascript:void(0)"><img src="/webfs/Common//images/common/f-instagram.png" alt="인스타그램"></a></li>
+	      <li><a href="javascript:void(0)"><img src="/webfs/Common//images/common/f-facebook.png" alt="페이스북"></a></li>
+	    </ul> -->
+
+    
+	    <!-- <ul class="f-info">
+	        <li>온라인 SW 코딩 교실</li>
+		    <li>주소 : [08591] 서울특별시 금천구 가산디지털1로 2 (가산동) 우림라이온스밸리2차 1209호</li>
+		    <li>대표번호 : 010-5300-6552 </li>
+		    <li>㈜이앤오즈 대표이사 조민옥</li>
+		    <li>사업자등록번호 : 119-86-09328</li>
+		    <li>온라인 SW 화상코딩 사업은 북구과 (주)이앤오즈가 협약으로 위탁 운영되는 사업입니다.</li>
+		    <li class="copy">Copyright All rights Reserved 2023 by POHANG-CITY</li>
+		    <li class="copy"><a href="/Account/Terms">이용약관</a></li>
+		    <li class="copy"><a href="/Account/Privacy">개인정보취급방침</a></li>
+	    </ul> -->
+
+        <ul class="f-info">
+            <li>온라인 SW 화상 코딩 교실</li>
+            <li>운영사무국 : 070-8250-7873</li>
+        </ul>	
+       </div>
+
+    </div>
+    <!-- //footer -->
+
+    <!-- gotop -->
+    <!--<a href="#" id="go_top" class="go_top">TOP</a>-->
+
+</div><!-- //wrap -->
+    
+<script>
+    AOS.init({
+        duration: 600,
+        offset: 100,
+        delay: 100,
+        easing: 'ease-out-quad',
+    });
+</script>
+
+<!-- pop -->
+<script>
+    $('.popClick').click(function () {
+        $(this).children("div.popWrap").addClass('on')
+        $('.popBG').show();
+    })
+    $('.close-btn').click(function () {
+        $('.popWrap').removeClass('on');
+        $('.popBG').hide();
+    })
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('.book-roll').slick({
+            dots: false,
+            arrows: true,
+            infinite: true,
+            speed: 500,
+            fade: true,
+            cssEase: 'linear'
+        });
+    });
+</script>
+
+</body>
+</html>
+���a��      f�X�f�X�G[p�f�X�   i    O^partitionKey=%28https%2Cbgswcoding.co.kr%29,~1727158407,:https://www.bgswcoding.co.kr/Course/CourseList strongly-framed 1 security-info FnhllAKWRHGAlo+ESXykKAAAAAAAAAAAwAAAAAAAAEaphjojH6pBabDSgSnsfLHeAAAAAgAAAAAAAAAAAAAAAAAAAAEAOQFmCjImkVxP+7sgiYWmMt8FvcOXmlQiTNWFiWlrbpbqgwAAAAAAAAZxMIIGbTCCBVWgAwIBAgIMF91j3gHCRQzIVVcWMA0GCSqGSIb3DQEBCwUAMFUxCzAJBgNVBAYTAkJFMRkwFwYDVQQKExBHbG9iYWxTaWduIG52LXNhMSswKQYDVQQDEyJHbG9iYWxTaWduIEdDQyBSNiBBbHBoYVNTTCBDQSAyMDIzMB4XDTI0MDQyOTAyMTY0OFoXDTI1MDUzMTAyMTY0N1owHzEdMBsGA1UEAxMUd3d3LmJnc3djb2RpbmcuY28ua3IwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCwvur7J+qP02MhJRpID5pWagVTpvrHu+kuoR9u6g1drJs2AWQ1f8lW6QhER3dAIgWzaVTvGQM79uEs/rGjz5Vl4bDkc+0WLXIRjA2cs8buFvNBO3ki1or/MzqiExrkdqWhKS1CO/AAieBwCwx5vIzeHFwpYImot7DkVRTlMWJiNt8waawTemCo3wJhGtkhSM7P16jtjhZK/4S6fI15DHHQIFwAQMAxOh2EXrjJJvSh98r9N/g8F8JWndgVLViSBiHqBbPnqNOsGU9UZ9BbXUcA02gvm9TQREaAZRg83/MgsA5+pIM32i6S81UBAseq8mE07DGvroVJ2kpPCplQNtH9AgMBAAGjggNxMIIDbTAOBgNVHQ8BAf8EBAMCBaAwDAYDVR0TAQH/BAIwADCBmQYIKwYBBQUHAQEEgYwwgYkwSQYIKwYBBQUHMAKGPWh0dHA6Ly9zZWN1cmUuZ2xvYmFsc2lnbi5jb20vY2FjZXJ0L2dzZ2NjcjZhbHBoYXNzbGNhMjAyMy5jcnQwPAYIKwYBBQUHMAGGMGh0dHA6Ly9vY3NwLmdsb2JhbHNpZ24uY29tL2dzZ2NjcjZhbHBoYXNzbGNhMjAyMzBXBgNVHSAEUDBOMAgGBmeBDAECATBCBgorBgEEAaAyCgEDMDQwMgYIKwYBBQUHAgEWJmh0dHBzOi8vd3d3Lmdsb2JhbHNpZ24uY29tL3JlcG9zaXRvcnkvMEQGA1UdHwQ9MDswOaA3oDWGM2h0dHA6Ly9jcmwuZ2xvYmFsc2lnbi5jb20vZ3NnY2NyNmFscGhhc3NsY2EyMDIzLmNybDAxBgNVHREEKjAoghR3d3cuYmdzd2NvZGluZy5jby5rcoIQYmdzd2NvZGluZy5jby5rcjAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwHwYDVR0jBBgwFoAUvQW384qTPHPLefoPhRKhd5YYkXQwHQYDVR0OBBYEFOk9A3jwxaynGFC4W8GViqVFQsiyMIIBfgYKKwYBBAHWeQIEAgSCAW4EggFqAWgAdgDm0jFjQHeMwRBBBtdxuc7B0kD2loSG+7qHMh39HjeOUAAAAY8npAiYAAAEAwBHMEUCIQD3MqQWDb/SileGOjG4V7UbjXtxZBUQ8+1Li0Mem3oHTwIgUkjHxkU4+8Ni0ujaWeNM/b4t+LFkQWob3djwCN+nG6YAdgB9WR4S4XgqexxhZ3xe/fjQh1wUoE6VnrkDL9kOjC55uAAAAY8npAg8AAAEAwBHMEUCIQCfSdfisJpzq0Kbl3LXOiq9ZBDdxKQdxmllCxkwnUNpMQIgAxqvibJVc68F/OrKy8FBZEehRhwyFt7yn21CkQjnOT8AdgBOdaMnXJoQwzhbbNTfP1LrHfDgjhuNacCx+mSxYpo53wAAAY8npAdIAAAEAwBHMEUCIQCwaAwIgLIZnaTfVzvpit5PaX+7kJpzvJhDjV8xb/PfAgIgEMnjRdY9HXoHjEBxn7IDRCxESqKMbkeVJBlx0ehjxB4wDQYJKoZIhvcNAQELBQADggEBAFZjjqYW9YRfx1hxuuAn3/Ojhv1SBTxRtswCK/WADJlQLmw49TwaW1R1TP5bYsZ8+z/mIwcqQOo6k3r0a3jPS8RrrVkW2On/ChtsnMRTiyK2h/gkUcd+wa4BnULIIazsIr8umORnoC0no+oDgHicKmogvN/xhp48XD2OMeSSRdl8c8S19gzepDh3cl2AjAKf6qULEAo+KMXKmbGqM0svvlw1MY63cIS18CNoUblSnU0Rl16dVGVnalFUSt9NcUnyaN0LiD6iEAzwJXDniHbGXFjyYcN/gABHNQc4vrxbF5NCxsPcr4CqbX8FMbdQOTdpEqmVgRNK8KzzMfwUXjILthnAMAADAAAAAAABAQAAAAAAAAZ4MjU1MTkAAAAQUlNBLVBLQ1MxLVNIQTI1NgADZgoyJpFcT/u7IImFpjLfBb3Dl5pUIkzVhYlpa26W6oMAAAAAAAAGcTCCBm0wggVVoAMCAQICDBfdY94BwkUMyFVXFjANBgkqhkiG9w0BAQsFADBVMQswCQYDVQQGEwJCRTEZMBcGA1UEChMQR2xvYmFsU2lnbiBudi1zYTErMCkGA1UEAxMiR2xvYmFsU2lnbiBHQ0MgUjYgQWxwaGFTU0wgQ0EgMjAyMzAeFw0yNDA0MjkwMjE2NDhaFw0yNTA1MzEwMjE2NDdaMB8xHTAbBgNVBAMTFHd3dy5iZ3N3Y29kaW5nLmNvLmtyMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsL7q+yfqj9NjISUaSA+aVmoFU6b6x7vpLqEfbuoNXaybNgFkNX/JVukIREd3QCIFs2lU7xkDO/bhLP6xo8+VZeGw5HPtFi1yEYwNnLPG7hbzQTt5ItaK/zM6ohMa5HaloSktQjvwAIngcAsMebyM3hxcKWCJqLew5FUU5TFiYjbfMGmsE3pgqN8CYRrZIUjOz9eo7Y4WSv+EunyNeQxx0CBcAEDAMTodhF64ySb0offK/Tf4PBfCVp3YFS1YkgYh6gWz56jTrBlPVGfQW11HANNoL5vU0ERGgGUYPN/zILAOfqSDN9oukvNVAQLHqvJhNOwxr66FSdpKTwqZUDbR/QIDAQABo4IDcTCCA20wDgYDVR0PAQH/BAQDAgWgMAwGA1UdEwEB/wQCMAAwgZkGCCsGAQUFBwEBBIGMMIGJMEkGCCsGAQUFBzAChj1odHRwOi8vc2VjdXJlLmdsb2JhbHNpZ24uY29tL2NhY2VydC9nc2djY3I2YWxwaGFzc2xjYTIwMjMuY3J0MDwGCCsGAQUFBzABhjBodHRwOi8vb2NzcC5nbG9iYWxzaWduLmNvbS9nc2djY3I2YWxwaGFzc2xjYTIwMjMwVwYDVR0gBFAwTjAIBgZngQwBAgEwQgYKKwYBBAGgMgoBAzA0MDIGCCsGAQUFBwIBFiZodHRwczovL3d3dy5nbG9iYWxzaWduLmNvbS9yZXBvc2l0b3J5LzBEBgNVHR8EPTA7MDmgN6A1hjNodHRwOi8vY3JsLmdsb2JhbHNpZ24uY29tL2dzZ2NjcjZhbHBoYXNzbGNhMjAyMy5jcmwwMQYDVR0RBCowKIIUd3d3LmJnc3djb2RpbmcuY28ua3KCEGJnc3djb2RpbmcuY28ua3IwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMB8GA1UdIwQYMBaAFL0Ft/OKkzxzy3n6D4USoXeWGJF0MB0GA1UdDgQWBBTpPQN48MWspxhQuFvBlYqlRULIsjCCAX4GCisGAQQB1nkCBAIEggFuBIIBagFoAHYA5tIxY0B3jMEQQQbXcbnOwdJA9paEhvu6hzId/R43jlAAAAGPJ6QImAAABAMARzBFAiEA9zKkFg2/0opXhjoxuFe1G417cWQVEPPtS4tDHpt6B08CIFJIx8ZFOPvDYtLo2lnjTP2+LfixZEFqG93Y8AjfpxumAHYAfVkeEuF4KnscYWd8Xv340IdcFKBOlZ65Ay/ZDowuebgAAAGPJ6QIPAAABAMARzBFAiEAn0nX4rCac6tCm5dy1zoqvWQQ3cSkHcZpZQsZMJ1DaTECIAMar4myVXOvBfzqysvBQWRHoUYcMhbe8p9tQpEI5zk/AHYATnWjJ1yaEMM4W2zU3z9S6x3w4I4bjWnAsfpksWKaOd8AAAGPJ6QHSAAABAMARzBFAiEAsGgMCICyGZ2k31c76YreT2l/u5Cac7yYQ41fMW/z3wICIBDJ40XWPR16B4xAcZ+yA0QsREqijG5HlSQZcdHoY8QeMA0GCSqGSIb3DQEBCwUAA4IBAQBWY46mFvWEX8dYcbrgJ9/zo4b9UgU8UbbMAiv1gAyZUC5sOPU8GltUdUz+W2LGfPs/5iMHKkDqOpN69Gt4z0vEa61ZFtjp/wobbJzEU4sitof4JFHHfsGuAZ1CyCGs7CK/LpjkZ6AtJ6PqA4B4nCpqILzf8YaePFw9jjHkkkXZfHPEtfYM3qQ4d3JdgIwCn+qlCxAKPijFypmxqjNLL75cNTGOt3CEtfAjaFG5Up1NEZdenVRlZ2pRVErfTXFJ8mjdC4g+ohAM8CVw54h2xlxY8mHDf4AARzUHOL68WxeTQsbD3K+Aqm1/BTG3UDk3aRKplYETSvCs8zH8FF4yC7YZZgoyJpFcT/u7IImFpjLfBb3Dl5pUIkzVhYlpa26W6oMAAAAAAAAFkDCCBYwwggN0oAMCAQICEH8fLJAug9Djtvs77keLXoAwDQYJKoZIhvcNAQELBQAwTDEgMB4GA1UECxMXR2xvYmFsU2lnbiBSb290IENBIC0gUjYxEzARBgNVBAoTCkdsb2JhbFNpZ24xEzARBgNVBAMTCkdsb2JhbFNpZ24wHhcNMjMwNzE5MDM0MzI1WhcNMjYwNzE5MDAwMDAwWjBVMQswCQYDVQQGEwJCRTEZMBcGA1UEChMQR2xvYmFsU2lnbiBudi1zYTErMCkGA1UEAxMiR2xvYmFsU2lnbiBHQ0MgUjYgQWxwaGFTU0wgQ0EgMjAyMzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANNCb5OQA6aTtK4A549TNeFyG9N9gGrONPSSRQG/HFI4qRTrYe8ki3Wli3t7Ot6ErOcd3lsM06V+ARZM2W8U9XqCUh309jNMGeUDj3AiI7K/mAfEwL1dsiUsqvnpkazfxbYAkk2ll0ieY4qVvEif1QLlzzM7gD9smKbj3I40ORsq7LA14LvhYbWMashT+wUr8fY0IYeUFec4S8nLmp/J/idFMNPVkUCuiRkOR8w2UIp5DXpfn2WTURtYBPUHofrRwaZa5GpQdYPOaiZDzie0qBLyrJg5Go4IJP7EquzT8sxWmv1QRmYkURvhZMQgZ4hg+etfD0OLa3MB8jKI0hTmzh0CAwEAAaOCAV8wggFbMA4GA1UdDwEB/wQEAwIBhjAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHQ4EFgQUvQW384qTPHPLefoPhRKhd5YYkXQwHwYDVR0jBBgwFoAUrmwFo5MT4qLn4tcc1sfwf8hnU6AwewYIKwYBBQUHAQEEbzBtMC4GCCsGAQUFBzABhiJodHRwOi8vb2NzcDIuZ2xvYmFsc2lnbi5jb20vcm9vdHI2MDsGCCsGAQUFBzAChi9odHRwOi8vc2VjdXJlLmdsb2JhbHNpZ24uY29tL2NhY2VydC9yb290LXI2LmNydDA2BgNVHR8ELzAtMCugKaAnhiVodHRwOi8vY3JsLmdsb2JhbHNpZ24uY29tL3Jvb3QtcjYuY3JsMCEGA1UdIAQaMBgwCAYGZ4EMAQIBMAwGCisGAQQBoDIKAQMwDQYJKoZIhvcNAQELBQADggIBAHzJJDKOYOJp9X7eHeMUdpB82KQ7pIQtV2D8H0mTdwPZxAWnY3SmTB+4rktbxfLknINuv99A0T3p9nxUbK+uthAslAkeDn3oohjXaEL3HrDPV6XsNxy0D+Kh4PrO++ITS7xkQ+GikisBaizK3KgsOrRAH1/fbRVrA+I82wupPLY0i8xJdH01JX5CWlqby1ZKYPXrfLQ/HedW8pgoOSeiesHF6ZrEhp5LAaG2nNfp15oAe40AvXnVPGeNRRaPOwVd5Ara1lrHZEGrzmzLF1D5fwDvMv4zrgFs9MMrz5yqJvqOluLyg2Ov+lz8qTXXmziepo8miC6dKrqEL4Y8fOwcxDYebOewCDsiBqUtLAxAoVQz8yxH0bB9hSfP1ucKBdJ77AU6n2Egqm5UGx3gw7Qo+zJX/CX6mjLqnGxOKzEsn3h8gnWUMJ3P6/bo57YevdQCYccmHgjNOJnrSSHu3AeneHRZvj3eXq72OMd9q9LkNUNLKctVYzalCY7rLGLlzcjJhR0ri0EOj63j5h+ZXEjEKWCsz6A/0YjVQ/zytDt77jub4d6O6Cm9RX86Gpw7BRU68NGiznUVv7Ziz1lTVZQG/GnfgfNGCbC+B12J0BvMGABW/C4cEg8k/b/gtQtZXCBxO5xNAAKfSUh8Q2LJmvaYuIND4YNwYDptnrk0c8O0dEs1ZgoyJpFcT/u7IImFpjLfBb3Dl5pUIkzVhYlpa26W6oMAAAAAAAAFhzCCBYMwggNroAMCAQICDkXmuwODM8OFZUjm/0VRMA0GCSqGSIb3DQEBDAUAMEwxIDAeBgNVBAsTF0dsb2JhbFNpZ24gUm9vdCBDQSAtIFI2MRMwEQYDVQQKEwpHbG9iYWxTaWduMRMwEQYDVQQDEwpHbG9iYWxTaWduMB4XDTE0MTIxMDAwMDAwMFoXDTM0MTIxMDAwMDAwMFowTDEgMB4GA1UECxMXR2xvYmFsU2lnbiBSb290IENBIC0gUjYxEzARBgNVBAoTCkdsb2JhbFNpZ24xEzARBgNVBAMTCkdsb2JhbFNpZ24wggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQCVB+hzymb57BTKezz3DQjxtEULLIK0SMbrWzyug7hBkjMUpG9/6SrMxrCIa8W2idHGsv8UzlEUIexK3RtaxtaH7k06FQbtZGYLkoDKRN5zlE7zp4l/T3hjCMgSUG1CZi9NuXkoTVIaihqAtxmBDn7EirxkTCEcQ2jXPTyKxbJm1ZCatzEGxb7ibTIGph75ueuqo7i/voJjUNDwGInf5A959eqiHyrScC5757yTu21T4kh8jBAHOP9msndhfuDqjDyqtKT285VKEgdt/Yyyic/QoGF3yFh0sNQjOvddOsqi250J3l1ELZDxgc1Xkvp+vFAEYzTfa5MYvms2sjnkrCQ2t/DvthwTV5O23rL44oW3c6K4NapF8uCdNqFvVIrxclZuLojFUUJEFZTuo8U4lptOTloLR/MGNkl3MLxxN+Wm7CEIdfzmYRY/d9XZkZeECmzUAk10wBTt/Tn7g/JeFKEEsAvp/u6P4W4LsgizYWYJarEGOmWWWcDwNf3J2iiNGhGHcIEKqJp1HZ46hgUAntuA1iX53AWeJ1lMdjlb6vmlodiDD9H/3zAR+YXPM0j1ym1kFCx6WE/TSwhJxZVkGmMOeT31s4zKWK2cQkV5bg6HGVxUsWW2v4yb3BPpDW+4LtxnbsmLEbWEFIoAGXCDeZGXkdQaJ783HjIH2BRjPChMrwIDAQABo2MwYTAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUrmwFo5MT4qLn4tcc1sfwf8hnU6AwHwYDVR0jBBgwFoAUrmwFo5MT4qLn4tcc1sfwf8hnU6AwDQYJKoZIhvcNAQEMBQADggIBAIMl7ejR/ZVSzZ7ABKCRaeZc0ITe3K2iT+hHeNZlmKlbqDyHfAKK0W63FnPmX8BUmNV0vsHN4hGRrSMYPd3hckSWtJVewHuOmXgWQxNWV7Oiszu1d9xAcqyj65s1PrEIIaHnxEM3eTK+teecLEy8QymZjjDTrCHg4x362AczdlQAIiq5TSAucGja5VP8g1zTnfL/RAxEZvLS471GABptArolXY2hMVHdVEYcTduZlu8aHARcphXveOB5/l3bPqpMVf2aFalv4ab733Aw6cPuQkbtwpMFifp9Y3s/0HGBfADomK4OeDTDJfuvCp8ga907E48SjOJBGkh6c6B3ace2XH+CyB7+WBsoK6hsrV5twAXSe7frgP4lN/4Cm2isQl3D7vXM3PBQddI2aZzmewTfbgZptt4KCUhZh+t7FGB6ZKppQ++Rx0zsGN1s71MtjJnhXvJyPs9UyL1n7KQPTEX/07kwIwdMjxC/hpbZmVq0mVccpMy7FYlTuiwFD+TEnhmxGDTVTJ267fcfrySVBHioA7vugeXaX3yLSqGQdCWnsz5LyCxWvcfI7zjiXJLwefechLp0LWEBIH5+0fJPB1lfiy1DUutGDJTh9WZHeXfVVFsfrSQ3y0VaTqBESMjYsJnFFYQJ9tZJScBluOYacW6gqPGC6EU+bNYC1wpngwVayaQQAAAAAQAAAAJoMgABAAAAAFd0bHNmbGFnczB4MDAwMDAwMDA6d3d3LmJnc3djb2RpbmcuY28ua3I6NDQzXnBhcnRpdGlvbktleT0lMjhodHRwcyUyQ2Jnc3djb2RpbmcuY28ua3IlMjkBAA== request-method POST response-head HTTP/2 200 
+cache-control: private
+content-type: text/html; charset=utf-8
+server: none
+date: Tue, 24 Sep 2024 06:13:42 GMT
+content-length: 24611
+X-Firefox-Spdy: h2
+ original-response-headers cache-control: private
+content-type: text/html; charset=utf-8
+server: none
+x-aspnet-version: 
+x-powered-by: 
+date: Tue, 24 Sep 2024 06:13:42 GMT
+content-length: 24611
+X-Firefox-Spdy: h2
+ ctid 1 uncompressed-len 0 net-response-time-onstart 110 net-response-time-onstop 114   `#

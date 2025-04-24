@@ -1,0 +1,213 @@
+﻿
+//다음 우편번호 API 팝업방식
+function sample6_execDaumPostcode() {
+    new daum.Postcode({
+        oncomplete: function(data) {
+            // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+            // 각 주소의 노출 규칙에 따라 주소를 조합한다.
+            // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+            var fullAddr = ''; // 최종 주소 변수
+            var extraAddr = ''; // 조합형 주소 변수
+
+			// 어떤주소를 클릭해도 도로명 주소가 선택되게 한다.
+            fullAddr = data.roadAddress;
+
+            if(data.bname !== ''){
+                extraAddr += data.bname;
+            }
+            // 건물명이 있을 경우 추가한다.
+            if(data.buildingName !== ''){
+                extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+            }
+            // 조합형주소의 유무에 따라 양쪽에 괄호를 추가하여 최종 주소를 만든다.
+            fullAddr += (extraAddr !== '' ? ' ('+ extraAddr +')' : '');
+
+			var postcode = "";
+			postcode = data.zonecode;
+
+            // 우편번호와 주소 정보를 해당 필드에 넣는다.
+            document.getElementById("tbZipCode1").value = postcode;
+            document.getElementById("tbAddr1").value = fullAddr.replace(/\'/g, ''); //홑따옴표 제거
+
+            // 커서를 상세주소 필드로 이동한다.
+            document.getElementById("tbAddr2").focus();
+        }
+    }).open();
+}
+
+//다음 우편번호 API iflame방식
+function foldDaumPostcode() {
+    // iframe을 넣은 element를 안보이게 한다.
+    document.getElementById('wrap_daum').style.display = 'none';
+}
+
+function sample3_execDaumPostcode(id_Postcode, id_Adrr1, id_Adrr2, id_BdMgtSn) {
+    // 현재 scroll 위치를 저장해놓는다.
+    var currentScroll = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
+    new daum.Postcode({
+        oncomplete: function(data) {
+            // 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+            // 각 주소의 노출 규칙에 따라 주소를 조합한다.
+            // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+            var fullAddr = ''; // 최종 주소 변수
+            var extraAddr = ''; // 조합형 주소 변수
+
+			// 어떤주소를 클릭해도 도로명 주소가 선택되게 한다.
+            fullAddr = data.roadAddress;
+
+            if(data.bname !== ''){
+                extraAddr += data.bname;
+            }
+            // 건물명이 있을 경우 추가한다.
+            if(data.buildingName !== ''){
+                extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+            }
+            // 조합형주소의 유무에 따라 양쪽에 괄호를 추가하여 최종 주소를 만든다.
+            fullAddr += (extraAddr !== '' ? ' ('+ extraAddr +')' : '');
+
+            var postcode = "";
+            postcode = data.zonecode;
+
+            var buildingCode = "";
+            buildingCode = data.buildingCode;
+
+            $.ajax({
+                type: "post",
+                url: "/Services/AccountScript.asmx/GetAllowAddress",
+                data: "{ addr:\"" + fullAddr + "\"}",
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                error: function (request, status, error) {
+                    console.log("code:" + request.status + ", message: " + request.responseText + ", error:" + error);
+                    alert("주소 조회에 문제가 발생했습니다. 관리자에게 문의 바랍니다.");
+                },
+                success: function (data) {
+                    if (data.d == "Y") {
+                        // 건물번호
+                        document.getElementById(id_BdMgtSn).value = buildingCode
+
+                        // 우편번호와 주소 정보를 해당 필드에 넣는다.
+                        document.getElementById(id_Postcode).value = postcode;
+                        document.getElementById(id_Adrr1).value = fullAddr.replace(/\'/g, ''); //홑따옴표 제거
+
+                        // 커서를 상세주소 필드로 이동한다.
+                        document.getElementById(id_Adrr2).focus();
+                    } else {
+                        alert('주소가 해당 지자체가 아닙니다');
+                    }
+                }
+            });
+
+            // iframe을 넣은 element를 안보이게 한다.
+            // (autoClose:false 기능을 이용한다면, 아래 코드를 제거해야 화면에서 사라지지 않는다.)
+            document.getElementById('wrap_daum').style.display = 'none';
+
+            // 우편번호 찾기 화면이 보이기 이전으로 scroll 위치를 되돌린다.
+            document.body.scrollTop = currentScroll;
+        },
+        // 우편번호 찾기 화면 크기가 조정되었을때 실행할 코드를 작성하는 부분. iframe을 넣은 element의 높이값을 조정한다.
+        onresize: function (size) {
+            var filter = "win16|win32|win64|mac";
+            if (navigator.platform) {
+                if (0 > filter.indexOf(navigator.platform.toLowerCase())) {
+                    //alert("Mobile");
+                    document.getElementById('wrap_daum').style.width = '100%';
+                } else {
+                    //alert("PC");
+                    document.getElementById('wrap_daum').style.height = size.height + 'px';
+                }
+            }
+        },
+        width : '100%',
+        height : '100%'
+    }).embed(document.getElementById('wrap_daum'));
+
+    // iframe을 넣은 element를 보이게 한다.
+    document.getElementById('wrap_daum').style.display = 'block';
+}
+//배송지 수정 - GetAllowAddress 제외
+function sample4_execDaumPostcode(id_Postcode, id_Adrr1, id_Adrr2) {
+    // 현재 scroll 위치를 저장해놓는다.
+    var currentScroll = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
+    new daum.Postcode({
+        oncomplete: function (data) {
+            // 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+            // 각 주소의 노출 규칙에 따라 주소를 조합한다.
+            // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+            var fullAddr = ''; // 최종 주소 변수
+            var extraAddr = ''; // 조합형 주소 변수
+
+            // 어떤주소를 클릭해도 도로명 주소가 선택되게 한다.
+            fullAddr = data.roadAddress;
+
+            if (data.bname !== '') {
+                extraAddr += data.bname;
+            }
+            // 건물명이 있을 경우 추가한다.
+            if (data.buildingName !== '') {
+                extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+            }
+            // 조합형주소의 유무에 따라 양쪽에 괄호를 추가하여 최종 주소를 만든다.
+            fullAddr += (extraAddr !== '' ? ' (' + extraAddr + ')' : '');
+
+            var postcode = "";
+            postcode = data.zonecode;
+
+            // 우편번호와 주소 정보를 해당 필드에 넣는다.
+            document.getElementById(id_Postcode).value = postcode;
+            document.getElementById(id_Adrr1).value = fullAddr.replace(/\'/g, ''); //홑따옴표 제거
+
+            // 커서를 상세주소 필드로 이동한다.
+            document.getElementById(id_Adrr2).focus();
+
+            // iframe을 넣은 element를 안보이게 한다.
+            // (autoClose:false 기능을 이용한다면, 아래 코드를 제거해야 화면에서 사라지지 않는다.)
+            document.getElementById('wrap_daum').style.display = 'none';
+
+            // 우편번호 찾기 화면이 보이기 이전으로 scroll 위치를 되돌린다.
+            document.body.scrollTop = currentScroll;
+        },
+        // 우편번호 찾기 화면 크기가 조정되었을때 실행할 코드를 작성하는 부분. iframe을 넣은 element의 높이값을 조정한다.
+        onresize: function (size) {
+            var filter = "win16|win32|win64|mac";
+            if (navigator.platform) {
+                if (0 > filter.indexOf(navigator.platform.toLowerCase())) {
+                    //alert("Mobile");
+                    document.getElementById('wrap_daum').style.width = '100%';
+                } else {
+                    //alert("PC");
+                    document.getElementById('wrap_daum').style.height = size.height + 'px';
+                }
+            }
+        },
+        width: '100%',
+        height: '100%'
+    }).embed(document.getElementById('wrap_daum'));
+
+    // iframe을 넣은 element를 보이게 한다.
+    document.getElementById('wrap_daum').style.display = 'block';
+}��P/E      g!�[g!�[G|I�i��   y    O^partitionKey=%28https%2Cphswcoding.co.kr%29,:https://www.phswcoding.co.kr/Common/scripts/common.js?v=638658933554216286 strongly-framed 1 security-info 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 request-method GET response-head HTTP/2 200 
+cache-control: public,max-age=31536000
+content-type: application/javascript
+last-modified: Thu, 17 Feb 2022 02:11:15 GMT
+accept-ranges: bytes
+etag: "802344a4a323d81:0"
+server: none
+date: Wed, 30 Oct 2024 04:55:55 GMT
+content-length: 9279
+X-Firefox-Spdy: h2
+ original-response-headers cache-control: public,max-age=31536000
+content-type: application/javascript
+last-modified: Thu, 17 Feb 2022 02:11:15 GMT
+accept-ranges: bytes
+etag: "802344a4a323d81:0"
+server: none
+x-powered-by: 
+x-aspnet-version: 
+date: Wed, 30 Oct 2024 04:55:55 GMT
+content-length: 9279
+X-Firefox-Spdy: h2
+ ctid 2 uncompressed-len 0 net-response-time-onstart 64 net-response-time-onstop 65   $?

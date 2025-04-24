@@ -1,0 +1,184 @@
+<!doctype html>
+<!--[if lte IE 6]><html lang="ko" class="ie_low ie_hate"><![endif]-->
+<!--[if IE 7]><html lang="ko" class="ie_low"><![endif]-->
+<!--[if IE 8]><html lang="ko" class="ie_medium"><![endif]-->
+<!--[if gte IE 9]><!--><html lang="ko"><!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width">
+        <link href="//t1.daumcdn.net/postcode/resource/images/favicon.ico" rel="shortcut icon">
+          
+    <title>Daum Postcode Service</title>
+                <link rel="stylesheet" href="//t1.daumcdn.net/postcode/cssjs/service/1695281975846/service.v2.min.css"/>
+
+        </head>
+<body>
+
+
+
+
+
+
+         
+
+
+
+         
+    
+
+        
+
+<div style="" class="daum_popup focus_input focus_content mapping_auto_road mapping_auto_jibun use_suggest" data-mode="transmit" data-intsh="false" data-ctx="" data-plrgno="" data-plrgtimer="" data-msi="10" data-whas="500" data-submitmode="on">
+        <div class="popup_post_type1">         <div class="popup_head">
+            <h1 class="screen_out">우편번호 검색</h1>
+            <form action="" id="searchForm" class="form_search" target="_self" method="GET">
+    <fieldset class="fld_inside">
+        <legend class="screen_out">우편번호 검색 입력폼</legend>
+        <div class="post_search">
+            <label for="region_name" class="screen_out">검색할 도로명/지번주소를 입력, 예시) 판교역로 166, 분당 주공, 백현동 532</label>
+            <div class="wrap_tf_keyword">
+                <input type="text" id="region_name" class="tf_keyword" name="region_name" value="경북 포항시 북구 우창로 20" autocomplete="off" clearable="false">
+            </div>
+            <input type="hidden" name="cq" id="cQuery" value="경북 포항시 북구 우창로 20"/>
+            <input type="hidden" name="cpage" id="cPage" value="1"/>
+            <input type="hidden" name="origin" value="https://www.phswcoding.co.kr"/>
+            <input type="hidden" name="isp" id="isP" value="N"/>             <input type="hidden" name="isgr" id="isGR" value="N"/>             <input type="hidden" name="isgj" id="isGJ" value="N"/>             <input type="hidden" name="ongr" id="onGR" value="N"/>             <input type="hidden" name="ongj" id="onGJ" value="N"/>             <input type="hidden" name="regionid" id="regionId" value=""/>
+            <input type="hidden" name="regionname" id="regionName" value=""/>
+            <input type="hidden" name="roadcode" id="roadCode" value=""/>
+            <input type="hidden" name="roadname" id="roadName" value=""/>
+            <input type="hidden" name="banner" value="on"/>             <input type="hidden" name="ubl" value="on"/>             <input type="hidden" name="indaum" value="off"/>             <input type="hidden" name="vt" value="layer"/>             <input type="hidden" name="amr" value="on"/>             <input type="hidden" name="amj" value="on"/>             <input type="hidden" name="ani" value="off"/>             <input type="hidden" name="mode" value="transmit"/>             <input type="hidden" name="sd" value="on"/>             <input type="hidden" name="fi" value="on"/>             <input type="hidden" name="fc" value="on"/>             <input type="hidden" name="hmb" value="off"/>             <input type="hidden" name="heb" value="off"/>             <input type="hidden" name="asea" value="off"/>             <input type="hidden" name="smh" value="off"/>             <input type="hidden" name="zo" value="on"/>             <input type="hidden" name="theme" value=""/>
+            <input type="hidden" name="bit" value=""/>
+            <input type="hidden" name="sit" value=""/>
+            <input type="hidden" name="sgit" value=""/>
+            <input type="hidden" name="sbit" value=""/>
+            <input type="hidden" name="pit" value=""/>
+            <input type="hidden" name="mit" value=""/>
+            <input type="hidden" name="lcit" value=""/>
+            <input type="hidden" name="plrg" value=""/>             <input type="hidden" name="plrgt" value="1.5"/>             <input type="hidden" name="us" value="on"/>             <input type="hidden" name="msi" value="10"/>             <input type="hidden" name="ahs" value="off"/>             <input type="hidden" name="whas" value="500"/>             <input type="hidden" name="zn" value="Y"/>
+            <input type="hidden" name="sm" value="on"/>             <input type="hidden" name="CWinWidth" id="constWindowWidth" value="518"/>
+            <input type="hidden" name="sptype" id="spType" value=""/>             <input type="hidden" name="sporgq" id="spOrgQuery" value=""/>             <input type="hidden" name="fullpath" id="fullPath" value="&#47;Account&#47;Register"/>
+            <input type="hidden" name="a51" id="a51" value="off" />             <button type="button" class="btn_clear"><span class="img_post">취소</span></button>
+            <button type="button" class="btn_search"><span class="img_post">검색</span></button>
+            <span class="placeholder"></span>         </div>
+    </fieldset>
+</form>
+<div id="postCodeSuggestLayer" class="suggest_search"></div>
+            <label for="focusContent" class="screen_out">경북 포항시 북구 우창로 20의 검색 결과 입니다. 아래쪽으로 스크롤하세요.</label>
+<input type="button" class="focus_content_style" id="focusContent"/>
+
+
+        </div>
+        <div class="popup_body">
+                                    
+
+
+
+
+            <h2 class="screen_out">검색 결과 보기</h2>
+<ul class="list_post" data-totalcount="1" data-listsize="1">
+    
+                                         
+                
+        
+                        
+                                                                                
+                
+         
+                                    
+            
+                        
+                                                                     
+        
+                 
+                                                  
+    <li class="list_post_item "        data-index="1"         data-addr_type="R"         data-postcode=""         data-postcode_seq=""         data-zonecode="37639"         data-addr="경북 포항시 북구 우창로 20"         data-addr_eng="20, Uchang-ro, Buk-gu, Pohang-si, Gyeongsangbuk-do, Korea"         data-sido="경북"         data-sido_eng="Gyeongsangbuk-do"         data-sigungu="포항시 북구"         data-sigungu_eng="Buk-gu Pohang-si"         data-sigungu_code="47113"         data-roadname_code="3304030"         data-roadname="우창로"         data-roadname_eng="Uchang-ro"         data-bcode="4711311800"         data-bname="우현동"         data-bname_eng="Uhyeon-dong"
+        data-bname1=""         data-bname1_eng=""
+        data-bname2="우현동"         data-bname2_eng="Uhyeon-dong" 
+        data-hname=""         data-building_name="신동아베르디1차"         data-building_code="4711311800105400000110524"         data-house_type="Y"         data-is_multi_building="false"> 
+        <div class="bundle_view" data-addr="경북 포항시 북구 우창로 20" data-addr_type="R" data-click_type="main">
+                             <button class="link_post link_english"><span class="screen_out">주소 </span><span class="txt_eng">영문보기</span><span class="txt_kor">한글보기</span></button>
+                <span class="txt_bar"></span>
+                <button class="link_post link_btn_map" title="새창열림"><span class="screen_out">도로명 주소(경북 포항시 북구 우창로 20)를 </span>지도<span class="screen_out">에서 확인하기</span></button>
+                    </div>
+                     <em class="screen_out">기초구역번호(새 우편번호)</em>
+            <span class="txt_postcode">37639</span>
+                                                                            <em class="screen_out">아래에서 주소 선택</em>
+        <dl class="list_address fold_1">                         <dt class="tit_address">도로명</dt>
+            <dd class="info_address info_fst main_address main_road" data-is_main_more="false" data-mainsize="1">                                  <span class="txt_address txt_s fst" data-click_type="main" data-main_index="1" data-addr="경북 포항시 북구 우창로 20" data-addr_eng="20, Uchang-ro, Buk-gu, Pohang-si, Gyeongsangbuk-do, Korea" data-addr_type="R" data-building_name="신동아베르디1차" data-building_code="4711311800105400000110524">
+                    <button class="link_post"><span class="txt_addr">경북 포항시 북구 우창로 20 (신동아베르디1차)</span><span class="txt_addr_eng">20, Uchang-ro, Buk-gu, Pohang-si, Gyeongsangbuk-do, Korea</span></button>
+                                    </span>
+                            </dd>
+                                                            <dt class="tit_address">지 번</dt>
+            <dd class="info_address related_address info_fst rel_jibun" data-is_more="false" data-relsize="1">
+                                                                                                                                     
+                    
+                                        
+                                                                                                    
+
+                    
+                                        
+                                                                                                              
+                                        
+                                                                <span class="txt_address txt_sel fst" data-rel_index="1" data-diff_postcode="" data-diff_postcode_seq="" data-diff_zonecode="" data-addr_type="J" data-click_type="rel" data-addr="경북 포항시 북구 우현동 540" data-addr_eng="540, Uhyeon-dong, Buk-gu, Pohang-si, Gyeongsangbuk-do, Korea" data-building_name="" data-building_code="" data-house_type="" data-hname="" data-roadname="" data-roadname_eng="" data-roadname_code="">
+                        <button class="link_post"><span class="txt_addr">경북 포항시 북구 우현동 540</span><span class="txt_addr_eng">540, Uhyeon-dong, Buk-gu, Pohang-si, Gyeongsangbuk-do, Korea</span></button>
+                                                <button class="link_viewmap" title="새창열림">지도<span class="screen_out">에서 확인하기</span></button>
+                                            </span>
+                                                </dd>
+                                    </dl>
+    </li>
+    </ul>
+             
+        
+<div class="paging_post">
+    <div class="inner_paging" data-page="1">
+                <span class="link_page link_prev"><span class="guide_wa screen_out">이전 페이지 없음</span></span>
+                <span class="screen_out">현재페이지</span><span class="num_page" data-pagetotal="1">1</span> / 1
+                <span class="link_page link_next"><span class="guide_wa screen_out">다음 페이지 없음</span></span>
+            </div>
+</div>
+                            <div class="post_layer detail_layer hide" style="top:600px;left:164px">     <div class="layer_head">
+        <strong class="screen_out">상세주소 정보</strong>
+    </div>
+    <div class="layer_body"></div>     <div class="layer_foot">
+        <button type="button" class="btn_close"><span class="img_post">닫기</span></button>
+    </div>
+</div>
+        </div>
+    </div>
+</div>
+<div class="popup_foot">     <span class="inner_footer">
+    <span class="txt_by">Powered by </span><strong class="img_post tit_kakao">kakao</strong>
+    <span class="txt_bar"></span>
+        <a href="//postcode.map.daum.net/guide" class="link_infomation" target="_blank">우편번호 서비스 안내</a>
+    </span></div>
+<script type="text/javascript" src="//t1.daumcdn.net/postcode/cssjs/lib/jquery-1.11.0.js"></script>
+
+        <script type="text/javascript" src="//t1.daumcdn.net/postcode/cssjs/service/1695281975846/service.v2.min.js"></script>
+    
+
+ <script type="text/javascript">
+            $(function(){
+        var url = '//postcode.map.daum.net/guide';
+        postcodeV2.setEnvironmentVariables('false', 'PROD');
+        postcodeV2.viewInit(url);
+    });
+</script>
+</body>
+</html>
+
+
+
+
+�,�      g!��g!��G|.zg!��  �    O^partitionKey=%28https%2Cphswcoding.co.kr%29,:https://postcode.map.daum.net/search?region_name=%EA%B2%BD%EB%B6%81+%ED%8F%AC%ED%95%AD%EC%8B%9C+%EB%B6%81%EA%B5%AC+%EC%9A%B0%EC%B0%BD%EB%A1%9C+20&cq=%EA%B2%BD%EB%B6%81+%ED%8F%AC%ED%95%AD%EC%8B%9C+%EB%B6%81%EA%B5%AC+%EC%9A%B0%EC%B0%BD%EB%A1%9C+20&cpage=1&origin=https%3A%2F%2Fwww.phswcoding.co.kr&isp=N&isgr=N&isgj=N&ongr=&ongj=&regionid=&regionname=&roadcode=&roadname=&banner=on&ubl=on&indaum=off&vt=layer&amr=on&amj=on&ani=off&mode=transmit&sd=on&fi=on&fc=on&hmb=off&heb=off&asea=off&smh=off&zo=on&theme=&bit=&sit=&sgit=&sbit=&pit=&mit=&lcit=&plrg=&plrgt=1.5&us=on&msi=10&ahs=off&whas=500&zn=Y&sm=on&CWinWidth=518&sptype=&sporgq=&fullpath=%2FAccount%2FRegister&a51=off strongly-framed 1 security-info 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 request-method GET response-head HTTP/2 200 
+date: Wed, 30 Oct 2024 02:07:03 GMT
+content-type: text/html;charset=UTF-8
+content-language: en-US
+strict-transport-security: max-age=15724800; includeSubDomains
+X-Firefox-Spdy: h2
+ original-response-headers date: Wed, 30 Oct 2024 02:07:03 GMT
+content-type: text/html;charset=UTF-8
+content-language: en-US
+strict-transport-security: max-age=15724800; includeSubDomains
+X-Firefox-Spdy: h2
+ ctid 1 uncompressed-len 0 net-response-time-onstart 112 net-response-time-onstop 114   0�

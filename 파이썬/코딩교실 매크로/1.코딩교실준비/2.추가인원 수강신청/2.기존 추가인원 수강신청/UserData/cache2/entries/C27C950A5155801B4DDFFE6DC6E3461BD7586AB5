@@ -1,0 +1,2298 @@
+ï»¿ï»¿ï»¿ï»¿ï»¿var NicePayCommon = {};
+var NicePayStd = {};
+
+var merchantForm;
+var existSubmitUrl;
+var existTarget;
+var hasFrame = false;
+var documentBody;
+
+var payMethod = "";
+var nAgt= navigator.userAgent;
+var disableScrollYN = "N";
+var jsVer = "nicepay-3.0";
+var jsDeployedVer = "1.1.3";
+var jsDeployedDate = "191128";
+
+var nicepayDomain = "https://web.nicepay.co.kr";
+
+// direct call option
+var POPUP = "POPUP";
+/************************************
+ * nicepay-3.0.jsë¥¼                  *
+ * ë‹¤ìš´ë¡œë“œ ë˜ëŠ” ë¬´ë‹¨ ìˆ˜ì •í•˜ì—¬              *
+ * ì—°ë™ ì‹œ                            *
+ * ì•ˆì •ì ì¸ ê²°ì œ ì„œë¹„ìŠ¤ë¥¼ ë³´ì¥í• ìˆ˜ ì—†ìŠµë‹ˆë‹¤.    * 
+ ************************************/
+function goPay(payForm){
+	
+	merchantForm = payForm;
+	existSubmitUrl = payForm.action;
+	
+	// scroll prevention
+	if(payForm.NPDisableScroll){
+		disableScrollYN = payForm.NPDisableScroll.value;
+	}
+
+	if(payForm.ConnWithIframe && payForm.ConnWithIframe.value=="Y"){
+		if(top!=self && self.name!="") {
+			hasFrame = true;
+			//NicePayCommon.errorReport("IN01", "THIS MERCHANT HAS FRAME", "LOG");
+		}
+	}
+	
+	if(hasFrame){
+		documentBody = parent.document.body || parent.document.documentElement;
+	}else{
+		documentBody = document.body || document.documentElement;
+	}
+	
+	try{
+		if(!document.body){
+			alert("ì •ìƒì ì´ì§€ ì•Šì€ í˜•íƒœë¡œ ê²°ì œì°½ì´ ìš”ì²­ë˜ì—ˆìŠµë‹ˆë‹¤. ê°€ë§¹ì ìœ¼ë¡œ ë¬¸ì˜ í•´ì£¼ì‹œê¸° ë°”ëë‹ˆë‹¤.");
+			NicePayCommon.errorReport("MJ04", "[MerchantJS]Merchant access fail document body");
+			return false;
+		}
+		
+		if(payForm.encoding.indexOf("multipart") > -1){
+			alert("ì§€ì›í•˜ì§€ ì•ŠëŠ” ë°©ì‹ìœ¼ë¡œ ê²°ì œì°½ì´ ìš”ì²­ë˜ì—ˆìŠµë‹ˆë‹¤. ê°€ë§¹ì ìœ¼ë¡œ ë¬¸ì˜ í•´ì£¼ì‹œê¸° ë°”ëë‹ˆë‹¤.");
+		    NicePayCommon.errorReport("MJ01", "[MerchantJS]Form encoding requested in multipart");
+			return false;
+		}
+		
+		var browser = NicePayStd.uaMatch(nAgt);
+		if(browser.msie && browser.version < 9){
+			alert("ì‚¬ìš©í•˜ì‹œëŠ” ë¸Œë¼ìš°ì €ëŠ” MicroSoftì‚¬ì˜ ë³´ì•ˆì§€ì›ì´ ì¢…ë£Œëœ ë²„ì „ì…ë‹ˆë‹¤. \n ì•ˆì „í•œ ê²°ì œë¥¼ ìœ„í•´ Internet Explorer 9.0 ì´ìƒ ë˜ëŠ” í¬ë¡¬ ë“±ì˜ ë‹¤ë¥¸ ë¸Œë¼ìš°ì € ì‚¬ìš© ìš”ì²­ ë“œë¦½ë‹ˆë‹¤.");
+		    NicePayCommon.errorReport("MJ02", "[MerchantJS]Payment requested on IE9 or lower");
+			return false;
+		}
+		
+		if(browser.msedge){
+			// edge confirm check
+			if(payForm.DisableEdgeChk && payForm.DisableEdgeChk.value == "Y"){
+				// do nothing ~
+			}else{
+				if(browser.version < 17){
+					var str_comfirm = "Win10 Edge í™˜ê²½ ê²°ì œ ì•ˆë‚´ \n\n Win10 Edge í™˜ê²½ì—ì„œëŠ” ê²°ì œê°€ ì›í•  í•˜ì§€ ì•Šì„ ìˆ˜ ìˆìŠµë‹ˆë‹¤. \n\n"
+						+ "ê²°ì œë¥¼ ì´ìš©í•˜ì‹œë ¤ë©´ about:flags ì°½ì„ ë„ìš´ í›„ \n"
+						+ "ê°œë°œì ì„¤ì • > Microsoft í˜¸í™˜ì„± ëª©ë¡ ì‚¬ìš© í•­ëª©ì„ ì²´í¬ í•´ì œë¡œ \n"
+						+ "ì„¤ì •í•˜ì‹œë©´ ê²°ì œë¥¼ ì§„í–‰í•˜ì‹¤ ìˆ˜ ìˆìŠµë‹ˆë‹¤. \n\n"
+						+ "í•´ì œë¥¼ ì„¤ì •í•˜ëŸ¬ ê°€ì‹œë ¤ë©´ 'í™•ì¸'ì„ \n"
+						+ "ê²°ì œë¥¼ ì§„í–‰í•˜ì‹œë ¤ë©´ 'ì·¨ì†Œ'ë¥¼ ëˆŒëŸ¬ì£¼ì‹œê¸° ë°”ëë‹ˆë‹¤. \n\n";
+					
+					if(confirm(str_comfirm)){
+						window.open("about:flags","optionWindow","width=500 , height=750");
+						return;
+					}
+				}
+			}
+		}
+		
+		NicePayStd.setListener();
+		
+		if(payForm.TransType) {
+			if(payForm.TransType.value == "1"){
+				var tempPayMethod = payForm.PayMethod.value.split(",");
+				var isEscrow = true;
+				var possible = "CARD,BANK,VBANK,";
+					
+				for(var i=0; i<tempPayMethod.length; i++){
+					if(tempPayMethod[i] == ""){
+						isEscrow = false;
+						break;
+					}
+					if(possible.indexOf(tempPayMethod[i]+",") < 0){
+						isEscrow = false;
+						break;
+					}
+				}
+				if(!isEscrow){
+					alert("ì—ìŠ¤í¬ë¡œ ì„œë¹„ìŠ¤ëŠ” ì‹ ìš©ì¹´ë“œ,ê³„ì¢Œì´ì²´,ê°€ìƒê³„ì¢Œì´ì²´ë§Œ ê°€ëŠ¥í•©ë‹ˆë‹¤.");
+					return false;
+				}
+			}
+		}
+		
+		var niceForm = payForm;
+		NicePayCommon.setFormData(niceForm, "VerifySType","S");
+		
+		var NpDirectCard = [
+			["02","459","456",""],
+			["03","590","430",""],
+			["04","400","400",""],
+			["06","400","400",""],
+			["07","400","400",""],
+			["08","644","489",""],
+			["11","644","480",""],
+			["12","400","400",""],
+			["15","644","510",""],
+			["16","590","430",""],
+			["17","644","510",""],
+			["37","500","456",""],
+			["44","644","480",""],
+			["SSG","640","685",""],
+			["SSG_MONEY","640","685",""],
+			["SSGPAY_MONEY","640","685",""],
+			["SamsungPay","440","630",""],
+			["SAMSUNGPAYV2","400","750",""],
+			["Payco","720","645",""],
+			["KakaoPay","426","550",""],
+			["SKPay","0","0","POPUP"],
+			["SSGV2","640","685",""],
+			["LPAY","450","470",""],
+			["NaverPay","0","0","POPUP"],
+			["APPLEPAY","0","0","POPUP"],
+			["PINPAY","540","700",""]
+		];
+		
+		var NpDirectBank = [
+			["LIIV","700","665",""],
+			["KBANK","0","0","POPUP"],
+		    ["BANK","0","0","POPUP"]
+		];
+		
+		var NpDirectCellPhone = [
+		    ["CELLPHONE","0","0","POPUP"],
+		    ["SAMSUNGPAYV2","400","750",""]
+		];
+		
+		var NpDirectSsgBank = [
+ 		    ["SSG_BANK","0","0","POPUP"]
+ 		];
+		
+		var NpDirectCmsBank = [
+		    ["CMS_BANK","450","670",""]
+		];
+		
+		var NpDirectTmoney = [
+		    ["GIFT_TMNY","0","0","POPUP"]
+		];
+		
+		var DirectShowOpt	= payForm.DirectShowOpt;
+		var TransType		= payForm.TransType;
+		var SelectCardCode	= payForm.SelectCardCode;
+		var PayMethod		= payForm.PayMethod;
+		var NicepayReserved = payForm.NicepayReserved;
+		var DirectEasyPay 	= payForm.DirectEasyPay;
+		var NpDirectEasyBank 	= payForm.DirectEasyBank;
+		var DirectEasyHpp 	= payForm.DirectEasyHpp;
+		var PayMethodValue	= "";
+		
+		var WindowWidth		= "660";
+		var WindowHeight	= "505";
+		var CallType		= "";
+		
+		var ReqSubPath		= "/v3/v3Payment.jsp";
+		var EscrowFlag		= false;
+		var DirectFlag		= false;
+		var DriectCardCd    = "";
+		var NpDriectBankCd 	= "";
+		var DirectCellPhoneCd	= "";
+		
+		// ì—ìŠ¤í¬ë¡œ ì²´í¬
+		if(TransType) {
+			if(TransType.value == "1") {
+				EscrowFlag = true;
+			}
+		}
+
+		// PayMethod ë¹ˆ ê°’ ì²´í¬
+		if(PayMethod) {
+			PayMethodValue = PayMethod.value;
+			PayMethodArray = PayMethodValue.split(",");
+			// ê²°ì œìˆ˜ë‹¨ì´ ì—¬ëŸ¬ê°œì¼ ê²½ìš° í™•ì¸
+			if(PayMethodArray.length > 1 || PayMethodValue == "") {
+				PayMethodValue = "";
+			}
+		} else {
+			PayMethodValue = "";
+		}
+		
+		// DirectShowOpt ê²€ì¦
+		if(DirectShowOpt && !EscrowFlag && PayMethodValue != "") {
+			var DirectShowArray = DirectShowOpt.value.split("|");
+			// ìµœëŒ€ 9ê°œê¹Œì§€ ì²˜ë¦¬í•˜ë„ë¡
+			if(DirectShowArray.length > 0 && DirectShowArray.length < 10) {
+				for(var i = 0; i < DirectShowArray.length; i++) {
+					if(DirectShowArray[i] == PayMethodValue) {//CARD, BANK, CELLPHONE, SSG_BANK, CMS_BANK
+						if(PayMethodValue == "CARD" && SelectCardCode){
+							DriectCardCd = SelectCardCode.value;
+						}
+						if(PayMethodValue == "BANK"){
+							NpDriectBankCd = "BANK";
+						}
+						if(PayMethodValue == "CELLPHONE"){
+							DirectCellPhoneCd = "CELLPHONE";
+						}
+						DirectFlag = true;
+						break;
+					}else{//GIFT_SSG
+						if(DirectShowArray[i] == "GIFT_SSG" && PayMethodValue == "CARD" && SelectCardCode.value=="SSG_MONEY"){
+							DirectFlag = true;
+							DriectCardCd = SelectCardCode.value;
+							break;
+						}
+					}
+				}
+			} 
+		}//end of if
+
+		//NicepayReserved : easypay Direct Show vertify
+		if(NicepayReserved){
+			var NiceReservedArr = NicepayReserved.value.split("|");
+			if(NiceReservedArr.length >0){
+				for(var i=0;i<NiceReservedArr.length; i++){
+					var ReservedParamArr = NiceReservedArr[i].split("=");
+					if(ReservedParamArr[0] == "DirectSamsungPay" && ReservedParamArr[1] == "Y"){
+						DriectCardCd = "SamsungPay";
+						break;
+					}
+					if(ReservedParamArr[0] == "DirectPayco" && ReservedParamArr[1] == "Y"){
+						DriectCardCd = "Payco";
+						break;
+					}
+					if(ReservedParamArr[0] == "DirectKakao" && ReservedParamArr[1] == "Y"){
+						DriectCardCd = "KakaoPay";
+						break;
+					}
+					if(ReservedParamArr[0] == "DirectPay11" && ReservedParamArr[1] == "Y"){
+						DriectCardCd = "SKPay";
+						break;
+					}
+				}
+			}
+		}
+
+		//DirectEasyPay : easypay Direct Show verify
+		if(DirectEasyPay){
+			if(DirectEasyPay.value == "E007"){
+				DriectCardCd = "SSGV2";
+			}else if(DirectEasyPay.value == "E018"){
+				DriectCardCd = "LPAY";
+			}else if(DirectEasyPay.value == "E020"){
+				DriectCardCd = "NaverPay";
+			}else if(DirectEasyPay.value == "E021"){
+				DriectCardCd = "SAMSUNGPAYV2";
+			}else if(DirectEasyPay.value == "E022"){
+				DriectCardCd = "APPLEPAY";
+			}
+		}
+		
+		if(DirectFlag) {
+			if(PayMethodValue == "CARD") {
+				if(DriectCardCd != ""){
+					WindowWidth		= "440";
+					WindowHeight	= "456";
+					CallType		= "";
+					for(var i=0;i < NpDirectCard.length;i++){
+						if(NpDirectCard[i][0] == DriectCardCd){
+							WindowWidth		= NpDirectCard[i][1];
+							WindowHeight	= NpDirectCard[i][2];
+							CallType		= NpDirectCard[i][3];
+							break;
+						}
+					}
+					if ((DriectCardCd == "02" || DriectCardCd == "37") && DirectShowOpt && (payForm.OnlyISP && payForm.OnlyISP.value == "Y")) {
+						// KBì¹´ë“œ/ì¹´ì¹´ì˜¤ë±…í¬ ë‹¤ì´ë ‰íŠ¸ í˜¸ì¶œì‹œ OnlyISP íŒŒë¼ë¯¸í„°ê°€ "Y"ì¼ ê²½ìš° ISP í˜¸ì¶œ
+						WindowWidth	= "440";
+						WindowHeight = "456";
+					}
+				}else{
+					DirectFlag = false;
+					DirectShowOpt.value = "";
+				}
+			} else if(PayMethodValue == "BANK") {
+				//NpDirectEasyBank : easybank Direct Show verify
+				if(NpDirectEasyBank && NpDirectEasyBank.value != ""){
+					if(NpDirectEasyBank.value == "E019"){
+						NpDriectBankCd = "LIIV";
+					}else if(NpDirectEasyBank.value == "E023"){
+						NpDriectBankCd = "KBANK";
+					}else{
+						NpDriectBankCd = "";
+					}
+				}
+				
+				if(NpDriectBankCd != ""){
+					for(var i=0;i < NpDirectBank.length;i++){
+						if(NpDirectBank[i][0] == NpDriectBankCd){
+							WindowWidth		= NpDirectBank[i][1];
+							WindowHeight	= NpDirectBank[i][2];
+							CallType		= NpDirectBank[i][3];
+							break;
+						}
+					}
+				}else{
+					DirectFlag = false;
+					DirectShowOpt.value = "";
+				}
+			} else if(PayMethodValue == "CELLPHONE") {
+				if(DirectEasyHpp && DirectEasyHpp.value != "") {
+					if(DirectEasyHpp.value == "E021") {
+						DirectCellPhoneCd = "SAMSUNGPAYV2";
+					} else {
+						DirectCellPhoneCd = "";
+					}
+				}
+				
+				if(DirectCellPhoneCd != ""){
+					for(var i=0;i < NpDirectCellPhone.length;i++){
+						if(NpDirectCellPhone[i][0] == DirectCellPhoneCd){
+							WindowWidth		= NpDirectCellPhone[i][1];
+							WindowHeight	= NpDirectCellPhone[i][2];
+							CallType		= NpDirectCellPhone[i][3];
+							break;
+						}
+					}
+				}else{
+					DirectFlag = false;
+					DirectShowOpt.value = "";
+				}
+			} else if(PayMethodValue == "SSG_BANK") {
+				for(var i=0;i < NpDirectSsgBank.length;i++){
+					if(NpDirectSsgBank[i][0] == "SSG_BANK"){
+						WindowWidth		= NpDirectSsgBank[i][1];
+						WindowHeight	= NpDirectSsgBank[i][2];
+						CallType		= NpDirectSsgBank[i][3];
+						break;
+					}
+				}
+			} else if(PayMethodValue == "CMS_BANK") {
+				for(var i=0;i < NpDirectCmsBank.length;i++){
+					if(NpDirectCmsBank[i][0] == "CMS_BANK"){
+						WindowWidth		= NpDirectCmsBank[i][1];
+						WindowHeight	= NpDirectCmsBank[i][2];
+						CallType		= NpDirectCmsBank[i][3];
+						break;
+					}
+				}
+			} else if(PayMethodValue == "GIFT_TMNY") {
+				for(var i=0;i < NpDirectTmoney.length;i++){
+					if(NpDirectTmoney[i][0] == "GIFT_TMNY"){
+						WindowWidth		= NpDirectTmoney[i][1];
+						WindowHeight	= NpDirectTmoney[i][2];
+						CallType		= NpDirectTmoney[i][3];
+						break;
+					}
+				}
+			} else {// ì¹´ë“œ, ê³„ì¢Œì´ì²´, íœ´ëŒ€í°ì„ ì œì™¸í•œ ê²°ì œìˆ˜ë‹¨ì€ ì¼ë°˜ ê²°ì œì°½ í˜¸ì¶œ
+				WindowWidth		= "660";
+				WindowHeight	= "505";
+				CallType		= "";
+				DirectFlag = false;
+			}
+		} else {
+			if(DirectShowOpt) {// ë°”ë¡œí˜¸ì¶œì´ ì•„ë‹ ê²½ìš° ì´ˆê¸°í™”
+				DirectShowOpt.value = "";
+			}
+		}
+
+		NicePayStd.creatLayer(WindowWidth, WindowHeight, CallType);
+		niceForm.action = nicepayDomain+ReqSubPath;
+		NicePayCommon.disableScroll();
+		//í˜ì´ì§€ ë ˆì´ì–´ ì„¤ì •
+		existTarget = payForm.target;
+		niceForm.target = 'nice_frame';
+		NicePayCommon.setFormData(niceForm, "EncGoodsName", escape(niceForm.GoodsName.value));
+		NicePayCommon.setFormData(niceForm, "EncBuyerName", (niceForm.BuyerName)? escape(niceForm.BuyerName.value):"");
+		NicePayCommon.setFormData(niceForm, "NpDirectYn", (DirectFlag==true)? "Y" : "N");
+		NicePayCommon.setFormData(niceForm, "NpDirectLayer", "Y");
+		NicePayCommon.setFormData(niceForm, "NpForwardNew", "Y");
+		NicePayCommon.setFormData(niceForm, "JsVer", jsVer);
+		NicePayCommon.setFormData(niceForm, "NpSvcType", "WEBSTD");
+		NicePayCommon.setFormData(niceForm, "DeployedVer", jsDeployedVer);
+		NicePayCommon.setFormData(niceForm, "DeployedDate", jsDeployedDate);
+		NicePayCommon.setFormData(niceForm, "DeployedFileName", jsVer);
+		NicePayCommon.setFormData(niceForm, "EncVbankAccountName", (niceForm.VbankAccountName)? escape(niceForm.VbankAccountName.value):"");
+		
+		niceForm.submit();	
+	}catch(e){
+		alert("ê²°ì œ ìš”ì²­ ì¤‘ ì—ëŸ¬ê°€ ë°œìƒí•˜ì˜€ìŠµë‹ˆë‹¤. ë‹¤ì‹œ ì‹œë„í•´ ì£¼ì‹­ì‹œì˜¤.");
+		NicePayCommon.errorReport("MJ03", "[MerchantJS]Exception : "+e.message);
+		return false;
+	}
+}
+
+function deleteLayer(){
+	NicePayStd.deleteLayer();
+}
+/////////////////////////////////////////////////////////////////////
+// NicePay Common Function
+/////////////////////////////////////////////////////////////////////
+NicePayCommon.createDivElement = function(frameID, zindex){
+	if(document.getElementById(frameID)==null){
+		var newDiv = (hasFrame==false) ? document.createElement('div') : parent.document.createElement('div');
+		
+		newDiv.id = frameID;
+		newDiv.style.position = "absolute";
+		newDiv.style.zIndex = zindex;
+		newDiv.style.clear = "both";
+		newDiv.style.top = 0;
+		newDiv.style.left = 0;
+		documentBody.appendChild(newDiv);
+	}
+}
+NicePayCommon.disableScroll = function(){
+	if(disableScrollYN == "Y"){
+		if( document.body  && document.body.scrollTop) {
+		 	document.body.style.overflowX = ""; 
+		} else if( document.documentElement ) {
+			document.documentElement.style.overflowX  = ""; 
+		}
+		documentBody.style.overflow = "hidden"; 
+	}else{
+		if( document.body  && document.body.scrollTop) {
+		 	document.body.style.overflowX = "hidden"; 
+		} else if( document.documentElement ) {
+			document.documentElement.style.overflowX  = "hidden"; 
+		}
+	} 
+}
+NicePayCommon.enableScroll = function(){
+	if(disableScrollYN == "Y"){
+		if( document.body && document.body.style.overflow) {
+			document.body.style.overflowX  = ""; 
+		} else if( document.documentElement && document.documentElement.style.overflow ) {
+			document.documentElement.style.overflowX  = ""; 
+		}
+		documentBody.style.overflow  = "auto";
+	}else{
+		if( document.body && document.body.style.overflow) {
+			document.body.style.overflowX  = "auto"; 
+		} else if( document.documentElement && document.documentElement.style.overflow ) {
+			document.documentElement.style.overflowX  = "auto"; 
+		}
+	}
+}
+NicePayCommon.setFormData = function(f, key, value){
+	if(f[key]){
+		f[key].value = value;
+	}else{
+		var input = document.createElement("input");
+		input.type = "hidden";
+		input.name = key;
+		input.value =  value;
+		f.appendChild(input);
+	}
+}
+NicePayCommon.errorReport = function(errorCd, errorMsg){
+	try{
+		var newForm = document.createElement('form');
+		newForm.id = "error_report";
+		newForm.name = "error_report";
+		newForm.method = "post";
+		newForm.target = "error_frame";
+		newForm.action = nicepayDomain + "/v3/api/errorReport.jsp";
+		documentBody.appendChild(newForm);
+		
+		var newIframe = document.createElement('iframe');
+		newIframe.id = "error_frame";
+		newIframe.name = "error_frame";
+		newIframe.width = "0px";
+		newIframe.height = "0px";
+		documentBody.appendChild(newIframe);
+		
+		var errorMsg = {
+			"MID" : merchantForm.MID.value,
+			"URL" : window.location.href,
+			"ERR_CD" : errorCd,
+			"ERR_MSG" : escape(errorMsg),
+			"PayMethod" : merchantForm.PayMethod.value,
+			"Worker" : "WEBSTD",
+			"SvcType" : "01",
+			"Moid" : merchantForm.Moid.value,
+			"JsVersion" : jsVer+"|"+jsDeployedVer+"|"+jsDeployedDate
+		};
+
+		for(var key in errorMsg){
+			var newInput = document.createElement('input');
+			newInput.name = key;
+			newInput.id = key;
+			newInput.value = errorMsg[key];
+			newInput.type = "hidden";
+			newForm.appendChild(newInput);
+		}
+		newForm.submit();
+		
+		setTimeout(function() {
+			documentBody.removeChild(document.getElementById("error_report"));
+			documentBody.removeChild(document.getElementById("error_frame"));
+		}, 1000);
+	}catch(e){
+	}
+}
+/////////////////////////////////////////////////////////////////////
+// WEB STD Function
+/////////////////////////////////////////////////////////////////////
+NicePayStd.receiveMessageValue = function(e) {
+	merchantForm.action = existSubmitUrl;
+	merchantForm.target = existTarget;
+	if (window.postMessage) {
+		//var obj = JSON.parse(e.data);
+		var obj = e.data;
+		if (obj.code) {
+			// obj.success is defined. We received the response via postMessage
+			// as an object, and we are using a browser that supports
+			// postMessage objects (not IE8/9).
+			NicePayStd.resultMessage(obj);
+		} else {
+			// We received the response via postMessage as a string. This works
+			// for all browsers that support postMessage, including IE8/9.
+			var str = eval("(" + obj + ")");
+			NicePayStd.resultMessage(str);
+		}
+	} else {
+		//alert('postMessage not supported');
+		NicePayStd.resultMessage({"code" : "1", "message" : "postMessage not supported"});
+	}
+}
+NicePayStd.resultMessage = function(obj){
+	switch(obj.code){
+		case "0" :
+			//success
+			if(obj.result){
+				NicePayCommon.setFormData(merchantForm, "AuthResultCode", "0000");
+				NicePayCommon.setFormData(merchantForm, "AuthResultMsg", "ì¸ì¦ ì„±ê³µ");
+				NicePayCommon.setFormData(merchantForm, "AuthToken", obj.result.AuthToken);
+				NicePayCommon.setFormData(merchantForm, "TxTid", obj.result.TxTid);
+				if(obj.result.BillAuthYN == "Y") {
+					NicePayCommon.setFormData(merchantForm, "BillAuthYN", "Y");
+					if(obj.result.BillingNextAppURL != "") {
+						NicePayCommon.setFormData(merchantForm, "NextAppURL", obj.result.BillingNextAppURL);
+					}
+				} else {
+					NicePayCommon.setFormData(merchantForm, "NextAppURL", obj.result.NextAppURL);
+					NicePayCommon.setFormData(merchantForm, "NetCancelURL", obj.result.NetCancelURL);
+				}
+				NicePayCommon.setFormData(merchantForm, "Signature", obj.result.Signature);
+				
+				if(obj.result.NpCardBin){
+					NicePayCommon.setFormData(merchantForm, "NpCardBin", obj.result.NpCardBin);
+				}
+				
+				NicePayCommon.setFormData(merchantForm, "EncGoodsName", "");
+				NicePayCommon.setFormData(merchantForm, "EncBuyerName", "");
+
+				nicepaySubmit();
+				if(merchantForm.RmAuthLayer && merchantForm.RmAuthLayer.value=="Y"){
+					NicePayStd.deleteLayer();
+				}else{
+					NicePayStd.deletePayment();
+				}
+			}else{
+				resultMessage({"code" : "1", "message" : "not result value"});
+			}
+			break;
+		case "1" :
+			if(obj.result){
+				NicePayCommon.setFormData(merchantForm, "AuthResultCode", obj.result.AuthResultCode);
+				NicePayCommon.setFormData(merchantForm, "AuthResultMsg", obj.result.AuthResultMsg);
+				NicePayCommon.setFormData(merchantForm, "AuthToken", obj.result.AuthToken);
+				NicePayCommon.setFormData(merchantForm, "Signature", obj.result.Signature);
+			}else{
+				NicePayCommon.setFormData(merchantForm, "AuthResultCode", "9999");
+				NicePayCommon.setFormData(merchantForm, "AuthResultMsg", obj.message);
+			}
+			//iframe ì‚­ì œ
+			NicePayStd.deleteLayer();
+			//cancel
+			try{
+				nicepayClose();
+			}catch(e){
+			}
+			break;
+		case "2" :
+			if(obj.result){
+				NicePayCommon.setFormData(merchantForm, "AuthResultCode", obj.result.AuthResultCode);
+				NicePayCommon.setFormData(merchantForm, "AuthResultMsg", obj.result.AuthResultMsg);
+				NicePayCommon.setFormData(merchantForm, "AuthToken", obj.result.AuthToken);
+				NicePayCommon.setFormData(merchantForm, "Signature", obj.result.Signature);
+			}else{
+				NicePayCommon.setFormData(merchantForm, "AuthResultCode", "9999");
+				NicePayCommon.setFormData(merchantForm, "AuthResultMsg", obj.message);
+			}
+			//iframe ì‚­ì œ
+			NicePayStd.deleteLayer();
+			try{
+				nicepayClose();
+			}catch(e){
+			}
+			break;
+		case "10" :
+			var payLayer = (hasFrame == false) ? document.getElementById("nice_layer") : parent.document.getElementById("nice_layer");
+			payLayer.style.width = obj.width + "px";
+			break;
+		case "11" :
+			var payLayer = (hasFrame == false) ? document.getElementById("nice_layer") : parent.document.getElementById("nice_layer");
+			var niceFrame = (hasFrame == false) ? document.getElementById("nice_frame") : parent.document.getElementById("nice_frame");
+			payLayer.style.width = obj.width + "px";
+			payLayer.style.height = obj.height + "px";
+			niceFrame.style.width = obj.width + "px";
+			niceFrame.style.height = obj.height + "px";
+			niceFrame.style.borderRadius = "15px";
+			NicePayStd.niceLayerHandler();
+			break;
+		default :
+			//ì½”ë“œë³„ ì—ëŸ¬ ì²˜ë¦¬
+			//obj.code
+			//obj.message
+			break;
+	}
+}
+//ë ˆì´ì–´ìƒì„±
+NicePayStd.creatLayer = function(w, h, opt){
+	//************** ë ˆì´ì–´ ë™ì ìƒì„± *********************//
+	NicePayCommon.createDivElement("nice_layer", 9999);
+	NicePayCommon.createDivElement("bg_layer", 9998);
+	//iframe ë™ì  ìƒì„±
+	var html = "";
+	html += "<div style=\"width:100%;text-align:center;padding:95px 0 0 0;\">";
+	
+	if(opt != POPUP) {
+		html += "	<div><span style=\"color:#FFF;font-size:15px;\">Please, wait...</span></div>";
+		html += "	<div style=\"position: relative;top: -180px;\"><img src=\""+nicepayDomain+"/webstd/images/loading.gif\" style=\"width: 344px;\"></div>";
+	} else {
+		html += "	<div style=\"position: relative;top: -400px;left:-200px;\"><img src=\""+nicepayDomain+"/webstd/images/loading.gif\" style=\"width: 344px;\"></div>";
+	}
+	html += "</div>";
+	
+	html += "<div id=\"payment_layer\" style=\"position: absolute; width: 100%; top: 0;\">";
+	html += "	<iframe title=\"NICE PAYMENT WINDOW\" name=\"nice_frame\" id=\"nice_frame\" src=\"\" width=\"100%\" height=\""+h+"px\" scrolling=\"no\" frameborder=\"no\"></iframe>";
+	html += "</div>";
+	
+	var payLayer = (hasFrame == false) ? document.getElementById("nice_layer") : parent.document.getElementById("nice_layer");
+	var bgLayer = (hasFrame == false) ? document.getElementById("bg_layer") : parent.document.getElementById("bg_layer");
+	
+	payLayer.innerHTML = html;
+	if(payLayer!=null){
+		payLayer.style.top = (NicePayStd.getWindowHeight() - h) / 2 + NicePayStd.getYposition() + "px";
+		payLayer.style.left = (NicePayStd.getWindowWidth() - w) / 2 + NicePayStd.getXposition() + "px";
+	}
+	
+	payLayer.style.width = w + "px";
+	payLayer.style.height = h + "px";
+	bgLayer.style.width = "100%";
+	bgLayer.style.height = documentBody.scrollHeight +"px";
+	bgLayer.style.background = "#4c4c4c";
+
+	var opacity = 65;
+	if(merchantForm.Opacity && merchantForm.Opacity.value != ""){
+		opacity = merchantForm.Opacity.value;
+	}
+	bgLayer.style.filter="alpha(opacity="+opacity+")";
+	bgLayer.style.opacity = opacity/100;
+	try{
+		if(merchantForm.OptionList!=null && merchantForm.OptionList!="undefined"){
+		var optionVal = merchantForm.OptionList.value;
+			if(optionVal.indexOf("hidden")!=-1){
+				nice_layer.style.filter="alpha(opacity=0)";
+				bgLayer.style.filter="alpha(opacity=0)";
+			}
+		}
+	}catch(e){
+	}
+}
+
+//ë ˆì´ì–´ ë™ì ìƒì„±ì‚­ì œ
+NicePayStd.deleteLayer = function(){
+	NicePayCommon.enableScroll();
+	
+	if(hasFrame){
+		documentBody.removeChild(parent.document.getElementById("nice_layer"));
+		documentBody.removeChild(parent.document.getElementById("bg_layer"));
+	}else{
+		documentBody.removeChild(document.getElementById("nice_layer"));
+		documentBody.removeChild(document.getElementById("bg_layer"));
+	}
+	NicePayStd.removeListener();
+}
+
+NicePayStd.deletePayment = function(){
+	var nicelayer = (hasFrame==false) ? document.getElementById("nice_layer") : parent.document.getElementById("nice_layer");
+	if(hasFrame){
+		nicelayer.removeChild(parent.document.getElementById("payment_layer"));
+	}else{
+		nicelayer.removeChild(document.getElementById("payment_layer"));
+	}
+	NicePayStd.removeListener();
+}
+
+NicePayStd.getYposition = function(){
+	  var scrollY = 0;
+	  if(hasFrame){
+		  if( typeof( parent.window.pageYOffset ) == 'number' ) {
+			  scrollY = parent.window.pageYOffset;
+		  } else if( parent.document.body && ( parent.document.body.scrollTop ) ) {
+			  scrollY =  parent.document.body.scrollTop;
+		  } else if( parent.document.documentElement && ( parent.document.documentElement.scrollTop ) ) {
+			  scrollY =  parent.document.documentElement.scrollTop;
+		  }
+	  }else{
+		  if( typeof( window.pageYOffset ) == 'number' ) {
+			  scrollY = window.pageYOffset;
+		  } else if( document.body && ( document.body.scrollTop ) ) {
+			  scrollY = (hasFrame==false) ?  document.body.scrollTop : parent.document.body.scrollTop;
+		  } else if( document.documentElement && ( document.documentElement.scrollTop ) ) {
+			  scrollY = (hasFrame==false) ? document.documentElement.scrollTop : parent.document.documentElement.scrollTop;
+		  }
+	  }
+  
+	  return scrollY ;
+}
+
+NicePayStd.getXposition = function(){
+	var scrollX = 0;
+	if(hasFrame){
+		if( typeof( parent.window.pageXOffset ) == 'number' ) {
+			scrollX = parent.window.pageXOffset;
+		} else if( parent.document.body && ( parent.document.body.scrollLeft ) ) {
+			scrollX =  parent.document.body.scrollLeft;
+		} else if( parent.document.documentElement && ( parent.document.documentElement.scrollLeft ) ) {
+			scrollX =  parent.document.documentElement.scrollLeft;
+		}
+	}else{
+		if( typeof( window.pageXOffset ) == 'number' ) {
+			scrollX = window.pageXOffset;
+		} else if( document.body && ( document.body.scrollLeft ) ) {
+			scrollX = (hasFrame==false) ?  document.body.scrollLeft : parent.document.body.scrollLeft;
+		} else if( document.documentElement && ( document.documentElement.scrollLeft ) ) {
+			scrollX = (hasFrame==false) ? document.documentElement.scrollLeft : parent.document.documentElement.scrollLeft;
+		}
+	}
+	return scrollX ;
+}
+
+NicePayStd.getWindowHeight = function() {
+	  var myHeight = 0;
+	  if(hasFrame){
+		  if( typeof( parent.window.innerWidth ) == 'number' ) {
+			  //Non-IE
+			  myHeight = parent.window.innerHeight;
+		  } else if( parent.document.documentElement && parent.document.documentElement.clientHeight ) {
+			  //IE 6+ in 'standards compliant mode'
+			  myHeight = parent.document.documentElement.clientHeight;
+		  } else if( parent.document.body && parent.document.body.clientHeight ) {
+			  //IE 4 compatible
+			  myHeight = parent.document.body.clientHeight;
+		  }
+	  }else{
+		  if( typeof( window.innerWidth ) == 'number' ) {
+			  //Non-IE
+			  myHeight = window.innerHeight;
+		  } else if( document.documentElement && document.documentElement.clientHeight ) {
+			  //IE 6+ in 'standards compliant mode'
+			  myHeight = document.documentElement.clientHeight;
+		  } else if( document.body && document.body.clientHeight ) {
+			  //IE 4 compatible
+			  myHeight = document.body.clientHeight;
+		  }
+	  }
+	  return myHeight;
+}
+
+NicePayStd.getWindowWidth = function() {
+	var myWidth = 0;
+	if(hasFrame){
+		if( typeof( parent.window.innerWidth ) == 'number' ) {
+			//Non-IE
+			myWidth = parent.window.innerWidth;
+		} else if( parent.document.documentElement && parent.document.documentElement.clientWidth ) {
+			//IE 6+ in 'standards compliant mode'
+			myWidth = parent.document.documentElement.clientWidth;
+		} else if( parent.document.body && parent.document.body.clientWidth ) {
+			//IE 4 compatible
+			myWidth = parent.document.body.clientWidth;
+		}
+	}else{
+		if( typeof( window.innerWidth ) == 'number' ) {
+			//Non-IE
+			myWidth = window.innerWidth;
+		} else if( document.documentElement && document.documentElement.clientWidth ) {
+			//IE 6+ in 'standards compliant mode'
+			myWidth = document.documentElement.clientWidth;
+		} else if( document.body && document.body.clientWidth ) {
+			//IE 4 compatible
+			myWidth = document.body.clientWidth;
+		}
+	}
+	return myWidth;
+}
+
+NicePayStd.niceLayerHandler = function(){
+	try{
+		var nicelayer = (hasFrame==false) ? document.getElementById("nice_layer") : parent.document.getElementById("nice_layer");
+		if(nicelayer!=null){
+			nicelayer.style.top = (NicePayStd.getWindowHeight() - nicelayer.style.height.replace("px",""))/2 + NicePayStd.getYposition() +"px";
+			nicelayer.style.left = (NicePayStd.getWindowWidth() - nicelayer.style.width.replace("px",""))/2 + NicePayStd.getXposition() +"px";
+		}
+	}catch(e){
+	}
+}
+
+NicePayStd.setListener = function(){
+	if(hasFrame){
+		if (parent.window.addEventListener) {  // all browsers except IE before version 9
+			parent.window.addEventListener("message", NicePayStd.receiveMessageValue, false);
+		} else {
+			if (parent.window.attachEvent) {   // IE before version 9
+				parent.window.attachEvent("onmessage", NicePayStd.receiveMessageValue);     // Internet Explorer from version 8
+			}
+		}
+		if(typeof parent.window.addEventListener != "undefined")	parent.window.addEventListener("resize",NicePayStd.niceLayerHandler, false);
+		if(typeof parent.window.attachEvent != "undefined" )	parent.window.attachEvent("onresize",NicePayStd.niceLayerHandler);
+		
+		if(typeof parent.window.addEventListener != "undefined")	parent.window.addEventListener("scroll",NicePayStd.niceLayerHandler, false);
+		if(typeof parent.window.attachEvent != "undefined" )	parent.window.attachEvent("onscroll",NicePayStd.niceLayerHandler);
+	}else{
+		if (window.addEventListener) {  // all browsers except IE before version 9
+			window.addEventListener("message", NicePayStd.receiveMessageValue, false);
+		} else {
+			if (window.attachEvent) {   // IE before version 9
+				window.attachEvent("onmessage", NicePayStd.receiveMessageValue);     // Internet Explorer from version 8
+			}
+		}
+		if(typeof window.addEventListener != "undefined")	window.addEventListener("resize",NicePayStd.niceLayerHandler, false);
+		if(typeof window.attachEvent != "undefined" )	window.attachEvent("onresize",NicePayStd.niceLayerHandler);
+		
+		if(typeof window.addEventListener != "undefined")	window.addEventListener("scroll",NicePayStd.niceLayerHandler, false);
+		if(typeof window.attachEvent != "undefined" )	window.attachEvent("onscroll",NicePayStd.niceLayerHandler);
+	}
+}
+
+NicePayStd.removeListener = function(){
+	try{
+		if(hasFrame){
+			if (parent.window.addEventListener) {  // all browsers except IE before version 9
+				parent.window.removeEventListener("message", NicePayStd.receiveMessageValue, false);
+			} else {
+				if (parent.window.attachEvent) {   // IE before version 9
+					parent.window.detachEvent("onmessage", NicePayStd.receiveMessageValue);     // Internet Explorer from version 8
+				}
+			}
+			if(typeof parent.window.addEventListener != "undefined")	parent.window.removeEventListener("resize",NicePayStd.niceLayerHandler, false);
+			if(typeof parent.window.attachEvent != "undefined" )	parent.window.detachEvent("onresize",NicePayStd.niceLayerHandler);
+			
+			if(typeof parent.window.addEventListener != "undefined")	parent.window.removeEventListener("scroll",NicePayStd.niceLayerHandler, false);
+			if(typeof parent.window.attachEvent != "undefined" )	parent.window.detachEvent("onscroll",NicePayStd.niceLayerHandler);
+		}else{
+			if (window.addEventListener) {  // all browsers except IE before version 9
+				window.removeEventListener("message", NicePayStd.receiveMessageValue, false);
+			} else {
+				if (window.attachEvent) {   // IE before version 9
+					window.detachEvent("onmessage", NicePayStd.receiveMessageValue);     // Internet Explorer from version 8
+				}
+			}
+			if(typeof window.addEventListener != "undefined")	window.removeEventListener("resize",NicePayStd.niceLayerHandler, false);
+			if(typeof window.attachEvent != "undefined" )	window.detachEvent("onresize",NicePayStd.niceLayerHandler);
+			
+			if(typeof window.addEventListener != "undefined")	window.removeEventListener("scroll",NicePayStd.niceLayerHandler, false);
+			if(typeof window.attachEvent != "undefined" )	window.detachEvent("onscroll",NicePayStd.niceLayerHandler);
+		}
+	}catch(e){}
+}
+
+NicePayStd.uaMatch = function(ua) {
+	// If an UA is not provided, default to the current browser UA.
+	if (ua === undefined) {
+		ua = window.navigator.userAgent;
+	}
+	ua = ua.toLowerCase();
+
+	var match = /(edge)\/([\w.]+)/.exec(ua)
+			|| /(opr)[\/]([\w.]+)/.exec(ua)
+			|| /(chrome)[ \/]([\w.]+)/.exec(ua)
+			|| /(iemobile)[\/]([\w.]+)/.exec(ua)
+			|| /(version)(applewebkit)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(ua)
+			|| /(webkit)[ \/]([\w.]+).*(version)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(ua) 
+			|| /(webkit)[ \/]([\w.]+)/.exec(ua)
+			|| /(opera)(?:.*version|)[ \/]([\w.]+)/.exec(ua)
+			|| /(msie) ([\w.]+)/.exec(ua)
+			|| ua.indexOf("trident") >= 0 && /(rv)(?::| )([\w.]+)/.exec(ua)
+			|| ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec(ua)
+			|| [];
+
+	var platform_match = /(ipad)/.exec(ua) || /(ipod)/.exec(ua)
+			|| /(windows phone)/.exec(ua) || /(iphone)/.exec(ua)
+			|| /(kindle)/.exec(ua) || /(silk)/.exec(ua)
+			|| /(android)/.exec(ua) || /(win)/.exec(ua)
+			|| /(mac)/.exec(ua) || /(linux)/.exec(ua)
+			|| /(cros)/.exec(ua) || /(playbook)/.exec(ua)
+			|| /(bb)/.exec(ua) || /(blackberry)/.exec(ua) 
+			|| [];
+
+	var browser = {}, matched = {
+		browser : match[5] || match[3] || match[1] || "",
+		version : match[2] || match[4] || "0",
+		versionNumber : match[4] || match[2] || "0",
+		platform : platform_match[0] || ""
+	};
+
+	if (matched.browser) {
+		browser[matched.browser] = true;
+		browser.version = matched.version;
+		browser.versionNumber = parseInt(matched.versionNumber, 10);
+	}
+
+	if (matched.platform) {
+		browser[matched.platform] = true;
+	}
+
+	// These are all considered mobile platforms, meaning they run a
+	// mobile browser
+	if (browser.android || browser.bb || browser.blackberry
+			|| browser.ipad || browser.iphone || browser.ipod
+			|| browser.kindle || browser.playbook || browser.silk
+			|| browser["windows phone"]) {
+		browser.mobile = true;
+	}
+
+	// These are all considered desktop platforms, meaning they run
+	// a desktop browser
+	if (browser.cros || browser.mac || browser.linux || browser.win) {
+		browser.desktop = true;
+	}
+
+	// Chrome, Opera 15+ and Safari are webkit based browsers
+	if (browser.chrome || browser.opr || browser.safari) {
+		browser.webkit = true;
+	}
+
+	// IE11 has a new token so we will assign it msie to avoid
+	// breaking changes
+	if (browser.rv || browser.iemobile) {
+		var ie = "msie";
+
+		matched.browser = ie;
+		browser[ie] = true;
+	}
+
+	// Edge is officially known as Microsoft Edge, so rewrite the
+	// key to match
+	if (browser.edge) {
+		delete browser.edge;
+		var msedge = "msedge";
+
+		matched.browser = msedge;
+		browser[msedge] = true;
+	}
+
+	// Blackberry browsers are marked as Safari on BlackBerry
+	if (browser.safari && browser.blackberry) {
+		var blackberry = "blackberry";
+
+		matched.browser = blackberry;
+		browser[blackberry] = true;
+	}
+
+	// Playbook browsers are marked as Safari on Playbook
+	if (browser.safari && browser.playbook) {
+		var playbook = "playbook";
+
+		matched.browser = playbook;
+		browser[playbook] = true;
+	}
+
+	// BB10 is a newer OS version of BlackBerry
+	if (browser.bb) {
+		var bb = "blackberry";
+
+		matched.browser = bb;
+		browser[bb] = true;
+	}
+
+	// Opera 15+ are identified as opr
+	if (browser.opr) {
+		var opera = "opera";
+
+		matched.browser = opera;
+		browser[opera] = true;
+	}
+
+	// Stock Android browsers are marked as Safari on Android.
+	if (browser.safari && browser.android) {
+		var android = "android";
+
+		matched.browser = android;
+		browser[android] = true;
+	}
+
+	// Kindle browsers are marked as Safari on Kindle
+	if (browser.safari && browser.kindle) {
+		var kindle = "kindle";
+
+		matched.browser = kindle;
+		browser[kindle] = true;
+	}
+
+	// Kindle Silk browsers are marked as Safari on Kindle
+	if (browser.safari && browser.silk) {
+		var silk = "silk";
+
+		matched.browser = silk;
+		browser[silk] = true;
+	}
+
+	// Assign the name and platform variable
+	browser.name = matched.browser;
+	browser.platform = matched.platform;
+
+	return browser;
+}
+        è2 x ÿÿ     20241002215545-8lË2 ƒ9T	5   https://web.nicepay.co.kr/v3/webstd/js/nicepay-3.0.js      Û‹  ï»¿ï»¿ï»¿ï»¿var NicePayCommon = {};
+var NicePayStd = {};
+
+var merchantForm;
+var existSubmitUrl;
+var existTarget;
+var hasFrame = false;
+var documentBody;
+
+var payMethod = "";
+var nAgt= navigator.userAgent;
+var disableScrollYN = "N";
+var jsVer = "nicepay-3.0";
+var jsDeployedVer = "1.1.3";
+var jsDeployedDate = "191128";
+
+var nicepayDomain = "https://web.nicepay.co.kr";
+
+// direct call option
+var POPUP = "POPUP";
+/************************************
+ * nicepay-3.0.jsë¥¼                  *
+ * ë‹¤ìš´ë¡œë“œ ë˜ëŠ” ë¬´ë‹¨ ìˆ˜ì •í•˜ì—¬              *
+ * ì—°ë™ ì‹œ                            *
+ * ì•ˆì •ì ì¸ ê²°ì œ ì„œë¹„ìŠ¤ë¥¼ ë³´ì¥í• ìˆ˜ ì—†ìŠµë‹ˆë‹¤.    * 
+ ************************************/
+function goPay(payForm){
+	
+	merchantForm = payForm;
+	existSubmitUrl = payForm.action;
+	
+	// scroll prevention
+	if(payForm.NPDisableScroll){
+		disableScrollYN = payForm.NPDisableScroll.value;
+	}
+
+	if(payForm.ConnWithIframe && payForm.ConnWithIframe.value=="Y"){
+		if(top!=self && self.name!="") {
+			hasFrame = true;
+			//NicePayCommon.errorReport("IN01", "THIS MERCHANT HAS FRAME", "LOG");
+		}
+	}
+	
+	if(hasFrame){
+		documentBody = parent.document.body || parent.document.documentElement;
+	}else{
+		documentBody = document.body || document.documentElement;
+	}
+	
+	try{
+		if(!document.body){
+			alert("ì •ìƒì ì´ì§€ ì•Šì€ í˜•íƒœë¡œ ê²°ì œì°½ì´ ìš”ì²­ë˜ì—ˆìŠµë‹ˆë‹¤. ê°€ë§¹ì ìœ¼ë¡œ ë¬¸ì˜ í•´ì£¼ì‹œê¸° ë°”ëë‹ˆë‹¤.");
+			NicePayCommon.errorReport("MJ04", "[MerchantJS]Merchant access fail document body");
+			return false;
+		}
+		
+		if(payForm.encoding.indexOf("multipart") > -1){
+			alert("ì§€ì›í•˜ì§€ ì•ŠëŠ” ë°©ì‹ìœ¼ë¡œ ê²°ì œì°½ì´ ìš”ì²­ë˜ì—ˆìŠµë‹ˆë‹¤. ê°€ë§¹ì ìœ¼ë¡œ ë¬¸ì˜ í•´ì£¼ì‹œê¸° ë°”ëë‹ˆë‹¤.");
+		    NicePayCommon.errorReport("MJ01", "[MerchantJS]Form encoding requested in multipart");
+			return false;
+		}
+		
+		var browser = NicePayStd.uaMatch(nAgt);
+		if(browser.msie && browser.version < 9){
+			alert("ì‚¬ìš©í•˜ì‹œëŠ” ë¸Œë¼ìš°ì €ëŠ” MicroSoftì‚¬ì˜ ë³´ì•ˆì§€ì›ì´ ì¢…ë£Œëœ ë²„ì „ì…ë‹ˆë‹¤. \n ì•ˆì „í•œ ê²°ì œë¥¼ ìœ„í•´ Internet Explorer 9.0 ì´ìƒ ë˜ëŠ” í¬ë¡¬ ë“±ì˜ ë‹¤ë¥¸ ë¸Œë¼ìš°ì € ì‚¬ìš© ìš”ì²­ ë“œë¦½ë‹ˆë‹¤.");
+		    NicePayCommon.errorReport("MJ02", "[MerchantJS]Payment requested on IE9 or lower");
+			return false;
+		}
+		
+		if(browser.msedge){
+			// edge confirm check
+			if(payForm.DisableEdgeChk && payForm.DisableEdgeChk.value == "Y"){
+				// do nothing ~
+			}else{
+				if(browser.version < 17){
+					var str_comfirm = "Win10 Edge í™˜ê²½ ê²°ì œ ì•ˆë‚´ \n\n Win10 Edge í™˜ê²½ì—ì„œëŠ” ê²°ì œê°€ ì›í•  í•˜ì§€ ì•Šì„ ìˆ˜ ìˆìŠµë‹ˆë‹¤. \n\n"
+						+ "ê²°ì œë¥¼ ì´ìš©í•˜ì‹œë ¤ë©´ about:flags ì°½ì„ ë„ìš´ í›„ \n"
+						+ "ê°œë°œì ì„¤ì • > Microsoft í˜¸í™˜ì„± ëª©ë¡ ì‚¬ìš© í•­ëª©ì„ ì²´í¬ í•´ì œë¡œ \n"
+						+ "ì„¤ì •í•˜ì‹œë©´ ê²°ì œë¥¼ ì§„í–‰í•˜ì‹¤ ìˆ˜ ìˆìŠµë‹ˆë‹¤. \n\n"
+						+ "í•´ì œë¥¼ ì„¤ì •í•˜ëŸ¬ ê°€ì‹œë ¤ë©´ 'í™•ì¸'ì„ \n"
+						+ "ê²°ì œë¥¼ ì§„í–‰í•˜ì‹œë ¤ë©´ 'ì·¨ì†Œ'ë¥¼ ëˆŒëŸ¬ì£¼ì‹œê¸° ë°”ëë‹ˆë‹¤. \n\n";
+					
+					if(confirm(str_comfirm)){
+						window.open("about:flags","optionWindow","width=500 , height=750");
+						return;
+					}
+				}
+			}
+		}
+		
+		NicePayStd.setListener();
+		
+		if(payForm.TransType) {
+			if(payForm.TransType.value == "1"){
+				var tempPayMethod = payForm.PayMethod.value.split(",");
+				var isEscrow = true;
+				var possible = "CARD,BANK,VBANK,";
+					
+				for(var i=0; i<tempPayMethod.length; i++){
+					if(tempPayMethod[i] == ""){
+						isEscrow = false;
+						break;
+					}
+					if(possible.indexOf(tempPayMethod[i]+",") < 0){
+						isEscrow = false;
+						break;
+					}
+				}
+				if(!isEscrow){
+					alert("ì—ìŠ¤í¬ë¡œ ì„œë¹„ìŠ¤ëŠ” ì‹ ìš©ì¹´ë“œ,ê³„ì¢Œì´ì²´,ê°€ìƒê³„ì¢Œì´ì²´ë§Œ ê°€ëŠ¥í•©ë‹ˆë‹¤.");
+					return false;
+				}
+			}
+		}
+		
+		var niceForm = payForm;
+		NicePayCommon.setFormData(niceForm, "VerifySType","S");
+		
+		var NpDirectCard = [
+			["02","459","456",""],
+			["03","590","430",""],
+			["04","400","400",""],
+			["06","400","400",""],
+			["07","400","400",""],
+			["08","644","489",""],
+			["11","644","480",""],
+			["12","400","400",""],
+			["15","644","510",""],
+			["16","590","430",""],
+			["17","644","510",""],
+			["37","500","456",""],
+			["44","644","480",""],
+			["SSG","640","685",""],
+			["SSG_MONEY","640","685",""],
+			["SSGPAY_MONEY","640","685",""],
+			["SamsungPay","440","630",""],
+			["SAMSUNGPAYV2","400","750",""],
+			["Payco","720","645",""],
+			["KakaoPay","426","550",""],
+			["SKPay","0","0","POPUP"],
+			["SSGV2","640","685",""],
+			["LPAY","450","470",""],
+			["NaverPay","0","0","POPUP"],
+			["APPLEPAY","0","0","POPUP"],
+			["PINPAY","540","700",""]
+		];
+		
+		var NpDirectBank = [
+			["LIIV","700","665",""],
+			["KBANK","0","0","POPUP"],
+		    ["BANK","0","0","POPUP"]
+		];
+		
+		var NpDirectCellPhone = [
+		    ["CELLPHONE","0","0","POPUP"],
+		    ["SAMSUNGPAYV2","400","750",""]
+		];
+		
+		var NpDirectSsgBank = [
+ 		    ["SSG_BANK","0","0","POPUP"]
+ 		];
+		
+		var NpDirectCmsBank = [
+		    ["CMS_BANK","450","670",""]
+		];
+		
+		var NpDirectTmoney = [
+		    ["GIFT_TMNY","0","0","POPUP"]
+		];
+		
+		var DirectShowOpt	= payForm.DirectShowOpt;
+		var TransType		= payForm.TransType;
+		var SelectCardCode	= payForm.SelectCardCode;
+		var PayMethod		= payForm.PayMethod;
+		var NicepayReserved = payForm.NicepayReserved;
+		var DirectEasyPay 	= payForm.DirectEasyPay;
+		var NpDirectEasyBank 	= payForm.DirectEasyBank;
+		var DirectEasyHpp 	= payForm.DirectEasyHpp;
+		var PayMethodValue	= "";
+		
+		var WindowWidth		= "660";
+		var WindowHeight	= "505";
+		var CallType		= "";
+		
+		var ReqSubPath		= "/v3/v3Payment.jsp";
+		var EscrowFlag		= false;
+		var DirectFlag		= false;
+		var DriectCardCd    = "";
+		var NpDriectBankCd 	= "";
+		var DirectCellPhoneCd	= "";
+		
+		// ì—ìŠ¤í¬ë¡œ ì²´í¬
+		if(TransType) {
+			if(TransType.value == "1") {
+				EscrowFlag = true;
+			}
+		}
+
+		// PayMethod ë¹ˆ ê°’ ì²´í¬
+		if(PayMethod) {
+			PayMethodValue = PayMethod.value;
+			PayMethodArray = PayMethodValue.split(",");
+			// ê²°ì œìˆ˜ë‹¨ì´ ì—¬ëŸ¬ê°œì¼ ê²½ìš° í™•ì¸
+			if(PayMethodArray.length > 1 || PayMethodValue == "") {
+				PayMethodValue = "";
+			}
+		} else {
+			PayMethodValue = "";
+		}
+		
+		// DirectShowOpt ê²€ì¦
+		if(DirectShowOpt && !EscrowFlag && PayMethodValue != "") {
+			var DirectShowArray = DirectShowOpt.value.split("|");
+			// ìµœëŒ€ 9ê°œê¹Œì§€ ì²˜ë¦¬í•˜ë„ë¡
+			if(DirectShowArray.length > 0 && DirectShowArray.length < 10) {
+				for(var i = 0; i < DirectShowArray.length; i++) {
+					if(DirectShowArray[i] == PayMethodValue) {//CARD, BANK, CELLPHONE, SSG_BANK, CMS_BANK
+						if(PayMethodValue == "CARD" && SelectCardCode){
+							DriectCardCd = SelectCardCode.value;
+						}
+						if(PayMethodValue == "BANK"){
+							NpDriectBankCd = "BANK";
+						}
+						if(PayMethodValue == "CELLPHONE"){
+							DirectCellPhoneCd = "CELLPHONE";
+						}
+						DirectFlag = true;
+						break;
+					}else{//GIFT_SSG
+						if(DirectShowArray[i] == "GIFT_SSG" && PayMethodValue == "CARD" && SelectCardCode.value=="SSG_MONEY"){
+							DirectFlag = true;
+							DriectCardCd = SelectCardCode.value;
+							break;
+						}
+					}
+				}
+			} 
+		}//end of if
+
+		//NicepayReserved : easypay Direct Show vertify
+		if(NicepayReserved){
+			var NiceReservedArr = NicepayReserved.value.split("|");
+			if(NiceReservedArr.length >0){
+				for(var i=0;i<NiceReservedArr.length; i++){
+					var ReservedParamArr = NiceReservedArr[i].split("=");
+					if(ReservedParamArr[0] == "DirectSamsungPay" && ReservedParamArr[1] == "Y"){
+						DriectCardCd = "SamsungPay";
+						break;
+					}
+					if(ReservedParamArr[0] == "DirectPayco" && ReservedParamArr[1] == "Y"){
+						DriectCardCd = "Payco";
+						break;
+					}
+					if(ReservedParamArr[0] == "DirectKakao" && ReservedParamArr[1] == "Y"){
+						DriectCardCd = "KakaoPay";
+						break;
+					}
+					if(ReservedParamArr[0] == "DirectPay11" && ReservedParamArr[1] == "Y"){
+						DriectCardCd = "SKPay";
+						break;
+					}
+				}
+			}
+		}
+
+		//DirectEasyPay : easypay Direct Show verify
+		if(DirectEasyPay){
+			if(DirectEasyPay.value == "E007"){
+				DriectCardCd = "SSGV2";
+			}else if(DirectEasyPay.value == "E018"){
+				DriectCardCd = "LPAY";
+			}else if(DirectEasyPay.value == "E020"){
+				DriectCardCd = "NaverPay";
+			}else if(DirectEasyPay.value == "E021"){
+				DriectCardCd = "SAMSUNGPAYV2";
+			}else if(DirectEasyPay.value == "E022"){
+				DriectCardCd = "APPLEPAY";
+			}
+		}
+		
+		if(DirectFlag) {
+			if(PayMethodValue == "CARD") {
+				if(DriectCardCd != ""){
+					WindowWidth		= "440";
+					WindowHeight	= "456";
+					CallType		= "";
+					for(var i=0;i < NpDirectCard.length;i++){
+						if(NpDirectCard[i][0] == DriectCardCd){
+							WindowWidth		= NpDirectCard[i][1];
+							WindowHeight	= NpDirectCard[i][2];
+							CallType		= NpDirectCard[i][3];
+							break;
+						}
+					}
+					if ((DriectCardCd == "02" || DriectCardCd == "37") && DirectShowOpt && (payForm.OnlyISP && payForm.OnlyISP.value == "Y")) {
+						// KBì¹´ë“œ/ì¹´ì¹´ì˜¤ë±…í¬ ë‹¤ì´ë ‰íŠ¸ í˜¸ì¶œì‹œ OnlyISP íŒŒë¼ë¯¸í„°ê°€ "Y"ì¼ ê²½ìš° ISP í˜¸ì¶œ
+						WindowWidth	= "440";
+						WindowHeight = "456";
+					}
+				}else{
+					DirectFlag = false;
+					DirectShowOpt.value = "";
+				}
+			} else if(PayMethodValue == "BANK") {
+				//NpDirectEasyBank : easybank Direct Show verify
+				if(NpDirectEasyBank && NpDirectEasyBank.value != ""){
+					if(NpDirectEasyBank.value == "E019"){
+						NpDriectBankCd = "LIIV";
+					}else if(NpDirectEasyBank.value == "E023"){
+						NpDriectBankCd = "KBANK";
+					}else{
+						NpDriectBankCd = "";
+					}
+				}
+				
+				if(NpDriectBankCd != ""){
+					for(var i=0;i < NpDirectBank.length;i++){
+						if(NpDirectBank[i][0] == NpDriectBankCd){
+							WindowWidth		= NpDirectBank[i][1];
+							WindowHeight	= NpDirectBank[i][2];
+							CallType		= NpDirectBank[i][3];
+							break;
+						}
+					}
+				}else{
+					DirectFlag = false;
+					DirectShowOpt.value = "";
+				}
+			} else if(PayMethodValue == "CELLPHONE") {
+				if(DirectEasyHpp && DirectEasyHpp.value != "") {
+					if(DirectEasyHpp.value == "E021") {
+						DirectCellPhoneCd = "SAMSUNGPAYV2";
+					} else {
+						DirectCellPhoneCd = "";
+					}
+				}
+				
+				if(DirectCellPhoneCd != ""){
+					for(var i=0;i < NpDirectCellPhone.length;i++){
+						if(NpDirectCellPhone[i][0] == DirectCellPhoneCd){
+							WindowWidth		= NpDirectCellPhone[i][1];
+							WindowHeight	= NpDirectCellPhone[i][2];
+							CallType		= NpDirectCellPhone[i][3];
+							break;
+						}
+					}
+				}else{
+					DirectFlag = false;
+					DirectShowOpt.value = "";
+				}
+			} else if(PayMethodValue == "SSG_BANK") {
+				for(var i=0;i < NpDirectSsgBank.length;i++){
+					if(NpDirectSsgBank[i][0] == "SSG_BANK"){
+						WindowWidth		= NpDirectSsgBank[i][1];
+						WindowHeight	= NpDirectSsgBank[i][2];
+						CallType		= NpDirectSsgBank[i][3];
+						break;
+					}
+				}
+			} else if(PayMethodValue == "CMS_BANK") {
+				for(var i=0;i < NpDirectCmsBank.length;i++){
+					if(NpDirectCmsBank[i][0] == "CMS_BANK"){
+						WindowWidth		= NpDirectCmsBank[i][1];
+						WindowHeight	= NpDirectCmsBank[i][2];
+						CallType		= NpDirectCmsBank[i][3];
+						break;
+					}
+				}
+			} else if(PayMethodValue == "GIFT_TMNY") {
+				for(var i=0;i < NpDirectTmoney.length;i++){
+					if(NpDirectTmoney[i][0] == "GIFT_TMNY"){
+						WindowWidth		= NpDirectTmoney[i][1];
+						WindowHeight	= NpDirectTmoney[i][2];
+						CallType		= NpDirectTmoney[i][3];
+						break;
+					}
+				}
+			} else {// ì¹´ë“œ, ê³„ì¢Œì´ì²´, íœ´ëŒ€í°ì„ ì œì™¸í•œ ê²°ì œìˆ˜ë‹¨ì€ ì¼ë°˜ ê²°ì œì°½ í˜¸ì¶œ
+				WindowWidth		= "660";
+				WindowHeight	= "505";
+				CallType		= "";
+				DirectFlag = false;
+			}
+		} else {
+			if(DirectShowOpt) {// ë°”ë¡œí˜¸ì¶œì´ ì•„ë‹ ê²½ìš° ì´ˆê¸°í™”
+				DirectShowOpt.value = "";
+			}
+		}
+
+		NicePayStd.creatLayer(WindowWidth, WindowHeight, CallType);
+		niceForm.action = nicepayDomain+ReqSubPath;
+		NicePayCommon.disableScroll();
+		//í˜ì´ì§€ ë ˆì´ì–´ ì„¤ì •
+		existTarget = payForm.target;
+		niceForm.target = 'nice_frame';
+		NicePayCommon.setFormData(niceForm, "EncGoodsName", escape(niceForm.GoodsName.value));
+		NicePayCommon.setFormData(niceForm, "EncBuyerName", (niceForm.BuyerName)? escape(niceForm.BuyerName.value):"");
+		NicePayCommon.setFormData(niceForm, "NpDirectYn", (DirectFlag==true)? "Y" : "N");
+		NicePayCommon.setFormData(niceForm, "NpDirectLayer", "Y");
+		NicePayCommon.setFormData(niceForm, "NpForwardNew", "Y");
+		NicePayCommon.setFormData(niceForm, "JsVer", jsVer);
+		NicePayCommon.setFormData(niceForm, "NpSvcType", "WEBSTD");
+		NicePayCommon.setFormData(niceForm, "DeployedVer", jsDeployedVer);
+		NicePayCommon.setFormData(niceForm, "DeployedDate", jsDeployedDate);
+		NicePayCommon.setFormData(niceForm, "DeployedFileName", jsVer);
+		NicePayCommon.setFormData(niceForm, "EncVbankAccountName", (niceForm.VbankAccountName)? escape(niceForm.VbankAccountName.value):"");
+		
+		niceForm.submit();	
+	}catch(e){
+		alert("ê²°ì œ ìš”ì²­ ì¤‘ ì—ëŸ¬ê°€ ë°œìƒí•˜ì˜€ìŠµë‹ˆë‹¤. ë‹¤ì‹œ ì‹œë„í•´ ì£¼ì‹­ì‹œì˜¤.");
+		NicePayCommon.errorReport("MJ03", "[MerchantJS]Exception : "+e.message);
+		return false;
+	}
+}
+
+function deleteLayer(){
+	NicePayStd.deleteLayer();
+}
+/////////////////////////////////////////////////////////////////////
+// NicePay Common Function
+/////////////////////////////////////////////////////////////////////
+NicePayCommon.createDivElement = function(frameID, zindex){
+	if(document.getElementById(frameID)==null){
+		var newDiv = (hasFrame==false) ? document.createElement('div') : parent.document.createElement('div');
+		
+		newDiv.id = frameID;
+		newDiv.style.position = "absolute";
+		newDiv.style.zIndex = zindex;
+		newDiv.style.clear = "both";
+		newDiv.style.top = 0;
+		newDiv.style.left = 0;
+		documentBody.appendChild(newDiv);
+	}
+}
+NicePayCommon.disableScroll = function(){
+	if(disableScrollYN == "Y"){
+		if( document.body  && document.body.scrollTop) {
+		 	document.body.style.overflowX = ""; 
+		} else if( document.documentElement ) {
+			document.documentElement.style.overflowX  = ""; 
+		}
+		documentBody.style.overflow = "hidden"; 
+	}else{
+		if( document.body  && document.body.scrollTop) {
+		 	document.body.style.overflowX = "hidden"; 
+		} else if( document.documentElement ) {
+			document.documentElement.style.overflowX  = "hidden"; 
+		}
+	} 
+}
+NicePayCommon.enableScroll = function(){
+	if(disableScrollYN == "Y"){
+		if( document.body && document.body.style.overflow) {
+			document.body.style.overflowX  = ""; 
+		} else if( document.documentElement && document.documentElement.style.overflow ) {
+			document.documentElement.style.overflowX  = ""; 
+		}
+		documentBody.style.overflow  = "auto";
+	}else{
+		if( document.body && document.body.style.overflow) {
+			document.body.style.overflowX  = "auto"; 
+		} else if( document.documentElement && document.documentElement.style.overflow ) {
+			document.documentElement.style.overflowX  = "auto"; 
+		}
+	}
+}
+NicePayCommon.setFormData = function(f, key, value){
+	if(f[key]){
+		f[key].value = value;
+	}else{
+		var input = document.createElement("input");
+		input.type = "hidden";
+		input.name = key;
+		input.value =  value;
+		f.appendChild(input);
+	}
+}
+NicePayCommon.errorReport = function(errorCd, errorMsg){
+	try{
+		var newForm = document.createElement('form');
+		newForm.id = "error_report";
+		newForm.name = "error_report";
+		newForm.method = "post";
+		newForm.target = "error_frame";
+		newForm.action = nicepayDomain + "/v3/api/errorReport.jsp";
+		documentBody.appendChild(newForm);
+		
+		var newIframe = document.createElement('iframe');
+		newIframe.id = "error_frame";
+		newIframe.name = "error_frame";
+		newIframe.width = "0px";
+		newIframe.height = "0px";
+		documentBody.appendChild(newIframe);
+		
+		var errorMsg = {
+			"MID" : merchantForm.MID.value,
+			"URL" : window.location.href,
+			"ERR_CD" : errorCd,
+			"ERR_MSG" : escape(errorMsg),
+			"PayMethod" : merchantForm.PayMethod.value,
+			"Worker" : "WEBSTD",
+			"SvcType" : "01",
+			"Moid" : merchantForm.Moid.value,
+			"JsVersion" : jsVer+"|"+jsDeployedVer+"|"+jsDeployedDate
+		};
+
+		for(var key in errorMsg){
+			var newInput = document.createElement('input');
+			newInput.name = key;
+			newInput.id = key;
+			newInput.value = errorMsg[key];
+			newInput.type = "hidden";
+			newForm.appendChild(newInput);
+		}
+		newForm.submit();
+		
+		setTimeout(function() {
+			documentBody.removeChild(document.getElementById("error_report"));
+			documentBody.removeChild(document.getElementById("error_frame"));
+		}, 1000);
+	}catch(e){
+	}
+}
+/////////////////////////////////////////////////////////////////////
+// WEB STD Function
+/////////////////////////////////////////////////////////////////////
+NicePayStd.receiveMessageValue = function(e) {
+	merchantForm.action = existSubmitUrl;
+	merchantForm.target = existTarget;
+	if (window.postMessage) {
+		//var obj = JSON.parse(e.data);
+		var obj = e.data;
+		if (obj.code) {
+			// obj.success is defined. We received the response via postMessage
+			// as an object, and we are using a browser that supports
+			// postMessage objects (not IE8/9).
+			NicePayStd.resultMessage(obj);
+		} else {
+			// We received the response via postMessage as a string. This works
+			// for all browsers that support postMessage, including IE8/9.
+			var str = eval("(" + obj + ")");
+			NicePayStd.resultMessage(str);
+		}
+	} else {
+		//alert('postMessage not supported');
+		NicePayStd.resultMessage({"code" : "1", "message" : "postMessage not supported"});
+	}
+}
+NicePayStd.resultMessage = function(obj){
+	switch(obj.code){
+		case "0" :
+			//success
+			if(obj.result){
+				NicePayCommon.setFormData(merchantForm, "AuthResultCode", "0000");
+				NicePayCommon.setFormData(merchantForm, "AuthResultMsg", "ì¸ì¦ ì„±ê³µ");
+				NicePayCommon.setFormData(merchantForm, "AuthToken", obj.result.AuthToken);
+				NicePayCommon.setFormData(merchantForm, "TxTid", obj.result.TxTid);
+				if(obj.result.BillAuthYN == "Y") {
+					NicePayCommon.setFormData(merchantForm, "BillAuthYN", "Y");
+					if(obj.result.BillingNextAppURL != "") {
+						NicePayCommon.setFormData(merchantForm, "NextAppURL", obj.result.BillingNextAppURL);
+					}
+				} else {
+					NicePayCommon.setFormData(merchantForm, "NextAppURL", obj.result.NextAppURL);
+					NicePayCommon.setFormData(merchantForm, "NetCancelURL", obj.result.NetCancelURL);
+				}
+				NicePayCommon.setFormData(merchantForm, "Signature", obj.result.Signature);
+				
+				if(obj.result.NpCardBin){
+					NicePayCommon.setFormData(merchantForm, "NpCardBin", obj.result.NpCardBin);
+				}
+				
+				NicePayCommon.setFormData(merchantForm, "EncGoodsName", "");
+				NicePayCommon.setFormData(merchantForm, "EncBuyerName", "");
+
+				nicepaySubmit();
+				if(merchantForm.RmAuthLayer && merchantForm.RmAuthLayer.value=="Y"){
+					NicePayStd.deleteLayer();
+				}else{
+					NicePayStd.deletePayment();
+				}
+			}else{
+				resultMessage({"code" : "1", "message" : "not result value"});
+			}
+			break;
+		case "1" :
+			if(obj.result){
+				NicePayCommon.setFormData(merchantForm, "AuthResultCode", obj.result.AuthResultCode);
+				NicePayCommon.setFormData(merchantForm, "AuthResultMsg", obj.result.AuthResultMsg);
+				NicePayCommon.setFormData(merchantForm, "AuthToken", obj.result.AuthToken);
+				NicePayCommon.setFormData(merchantForm, "Signature", obj.result.Signature);
+			}else{
+				NicePayCommon.setFormData(merchantForm, "AuthResultCode", "9999");
+				NicePayCommon.setFormData(merchantForm, "AuthResultMsg", obj.message);
+			}
+			//iframe ì‚­ì œ
+			NicePayStd.deleteLayer();
+			//cancel
+			try{
+				nicepayClose();
+			}catch(e){
+			}
+			break;
+		case "2" :
+			if(obj.result){
+				NicePayCommon.setFormData(merchantForm, "AuthResultCode", obj.result.AuthResultCode);
+				NicePayCommon.setFormData(merchantForm, "AuthResultMsg", obj.result.AuthResultMsg);
+				NicePayCommon.setFormData(merchantForm, "AuthToken", obj.result.AuthToken);
+				NicePayCommon.setFormData(merchantForm, "Signature", obj.result.Signature);
+			}else{
+				NicePayCommon.setFormData(merchantForm, "AuthResultCode", "9999");
+				NicePayCommon.setFormData(merchantForm, "AuthResultMsg", obj.message);
+			}
+			//iframe ì‚­ì œ
+			NicePayStd.deleteLayer();
+			try{
+				nicepayClose();
+			}catch(e){
+			}
+			break;
+		case "10" :
+			var payLayer = (hasFrame == false) ? document.getElementById("nice_layer") : parent.document.getElementById("nice_layer");
+			payLayer.style.width = obj.width + "px";
+			break;
+		case "11" :
+			var payLayer = (hasFrame == false) ? document.getElementById("nice_layer") : parent.document.getElementById("nice_layer");
+			var niceFrame = (hasFrame == false) ? document.getElementById("nice_frame") : parent.document.getElementById("nice_frame");
+			payLayer.style.width = obj.width + "px";
+			payLayer.style.height = obj.height + "px";
+			niceFrame.style.width = obj.width + "px";
+			niceFrame.style.height = obj.height + "px";
+			niceFrame.style.borderRadius = "15px";
+			NicePayStd.niceLayerHandler();
+			break;
+		default :
+			//ì½”ë“œë³„ ì—ëŸ¬ ì²˜ë¦¬
+			//obj.code
+			//obj.message
+			break;
+	}
+}
+//ë ˆì´ì–´ìƒì„±
+NicePayStd.creatLayer = function(w, h, opt){
+	//************** ë ˆì´ì–´ ë™ì ìƒì„± *********************//
+	NicePayCommon.createDivElement("nice_layer", 9999);
+	NicePayCommon.createDivElement("bg_layer", 9998);
+	//iframe ë™ì  ìƒì„±
+	var html = "";
+	html += "<div style=\"width:100%;text-align:center;padding:95px 0 0 0;\">";
+	
+	if(opt != POPUP) {
+		html += "	<div><span style=\"color:#FFF;font-size:15px;\">Please, wait...</span></div>";
+		html += "	<div style=\"position: relative;top: -180px;\"><img src=\""+nicepayDomain+"/webstd/images/loading.gif\" style=\"width: 344px;\"></div>";
+	} else {
+		html += "	<div style=\"position: relative;top: -400px;left:-200px;\"><img src=\""+nicepayDomain+"/webstd/images/loading.gif\" style=\"width: 344px;\"></div>";
+	}
+	html += "</div>";
+	
+	html += "<div id=\"payment_layer\" style=\"position: absolute; width: 100%; top: 0;\">";
+	html += "	<iframe title=\"NICE PAYMENT WINDOW\" name=\"nice_frame\" id=\"nice_frame\" src=\"\" width=\"100%\" height=\""+h+"px\" scrolling=\"no\" frameborder=\"no\"></iframe>";
+	html += "</div>";
+	
+	var payLayer = (hasFrame == false) ? document.getElementById("nice_layer") : parent.document.getElementById("nice_layer");
+	var bgLayer = (hasFrame == false) ? document.getElementById("bg_layer") : parent.document.getElementById("bg_layer");
+	
+	payLayer.innerHTML = html;
+	if(payLayer!=null){
+		payLayer.style.top = (NicePayStd.getWindowHeight() - h) / 2 + NicePayStd.getYposition() + "px";
+		payLayer.style.left = (NicePayStd.getWindowWidth() - w) / 2 + NicePayStd.getXposition() + "px";
+	}
+	
+	payLayer.style.width = w + "px";
+	payLayer.style.height = h + "px";
+	bgLayer.style.width = "100%";
+	bgLayer.style.height = documentBody.scrollHeight +"px";
+	bgLayer.style.background = "#4c4c4c";
+
+	var opacity = 65;
+	if(merchantForm.Opacity && merchantForm.Opacity.value != ""){
+		opacity = merchantForm.Opacity.value;
+	}
+	bgLayer.style.filter="alpha(opacity="+opacity+")";
+	bgLayer.style.opacity = opacity/100;
+	try{
+		if(merchantForm.OptionList!=null && merchantForm.OptionList!="undefined"){
+		var optionVal = merchantForm.OptionList.value;
+			if(optionVal.indexOf("hidden")!=-1){
+				nice_layer.style.filter="alpha(opacity=0)";
+				bgLayer.style.filter="alpha(opacity=0)";
+			}
+		}
+	}catch(e){
+	}
+}
+
+//ë ˆì´ì–´ ë™ì ìƒì„±ì‚­ì œ
+NicePayStd.deleteLayer = function(){
+	NicePayCommon.enableScroll();
+	
+	if(hasFrame){
+		documentBody.removeChild(parent.document.getElementById("nice_layer"));
+		documentBody.removeChild(parent.document.getElementById("bg_layer"));
+	}else{
+		documentBody.removeChild(document.getElementById("nice_layer"));
+		documentBody.removeChild(document.getElementById("bg_layer"));
+	}
+	NicePayStd.removeListener();
+}
+
+NicePayStd.deletePayment = function(){
+	var nicelayer = (hasFrame==false) ? document.getElementById("nice_layer") : parent.document.getElementById("nice_layer");
+	if(hasFrame){
+		nicelayer.removeChild(parent.document.getElementById("payment_layer"));
+	}else{
+		nicelayer.removeChild(document.getElementById("payment_layer"));
+	}
+	NicePayStd.removeListener();
+}
+
+NicePayStd.getYposition = function(){
+	  var scrollY = 0;
+	  if(hasFrame){
+		  if( typeof( parent.window.pageYOffset ) == 'number' ) {
+			  scrollY = parent.window.pageYOffset;
+		  } else if( parent.document.body && ( parent.document.body.scrollTop ) ) {
+			  scrollY =  parent.document.body.scrollTop;
+		  } else if( parent.document.documentElement && ( parent.document.documentElement.scrollTop ) ) {
+			  scrollY =  parent.document.documentElement.scrollTop;
+		  }
+	  }else{
+		  if( typeof( window.pageYOffset ) == 'number' ) {
+			  scrollY = window.pageYOffset;
+		  } else if( document.body && ( document.body.scrollTop ) ) {
+			  scrollY = (hasFrame==false) ?  document.body.scrollTop : parent.document.body.scrollTop;
+		  } else if( document.documentElement && ( document.documentElement.scrollTop ) ) {
+			  scrollY = (hasFrame==false) ? document.documentElement.scrollTop : parent.document.documentElement.scrollTop;
+		  }
+	  }
+  
+	  return scrollY ;
+}
+
+NicePayStd.getXposition = function(){
+	var scrollX = 0;
+	if(hasFrame){
+		if( typeof( parent.window.pageXOffset ) == 'number' ) {
+			scrollX = parent.window.pageXOffset;
+		} else if( parent.document.body && ( parent.document.body.scrollLeft ) ) {
+			scrollX =  parent.document.body.scrollLeft;
+		} else if( parent.document.documentElement && ( parent.document.documentElement.scrollLeft ) ) {
+			scrollX =  parent.document.documentElement.scrollLeft;
+		}
+	}else{
+		if( typeof( window.pageXOffset ) == 'number' ) {
+			scrollX = window.pageXOffset;
+		} else if( document.body && ( document.body.scrollLeft ) ) {
+			scrollX = (hasFrame==false) ?  document.body.scrollLeft : parent.document.body.scrollLeft;
+		} else if( document.documentElement && ( document.documentElement.scrollLeft ) ) {
+			scrollX = (hasFrame==false) ? document.documentElement.scrollLeft : parent.document.documentElement.scrollLeft;
+		}
+	}
+	return scrollX ;
+}
+
+NicePayStd.getWindowHeight = function() {
+	  var myHeight = 0;
+	  if(hasFrame){
+		  if( typeof( parent.window.innerWidth ) == 'number' ) {
+			  //Non-IE
+			  myHeight = parent.window.innerHeight;
+		  } else if( parent.document.documentElement && parent.document.documentElement.clientHeight ) {
+			  //IE 6+ in 'standards compliant mode'
+			  myHeight = parent.document.documentElement.clientHeight;
+		  } else if( parent.document.body && parent.document.body.clientHeight ) {
+			  //IE 4 compatible
+			  myHeight = parent.document.body.clientHeight;
+		  }
+	  }else{
+		  if( typeof( window.innerWidth ) == 'number' ) {
+			  //Non-IE
+			  myHeight = window.innerHeight;
+		  } else if( document.documentElement && document.documentElement.clientHeight ) {
+			  //IE 6+ in 'standards compliant mode'
+			  myHeight = document.documentElement.clientHeight;
+		  } else if( document.body && document.body.clientHeight ) {
+			  //IE 4 compatible
+			  myHeight = document.body.clientHeight;
+		  }
+	  }
+	  return myHeight;
+}
+
+NicePayStd.getWindowWidth = function() {
+	var myWidth = 0;
+	if(hasFrame){
+		if( typeof( parent.window.innerWidth ) == 'number' ) {
+			//Non-IE
+			myWidth = parent.window.innerWidth;
+		} else if( parent.document.documentElement && parent.document.documentElement.clientWidth ) {
+			//IE 6+ in 'standards compliant mode'
+			myWidth = parent.document.documentElement.clientWidth;
+		} else if( parent.document.body && parent.document.body.clientWidth ) {
+			//IE 4 compatible
+			myWidth = parent.document.body.clientWidth;
+		}
+	}else{
+		if( typeof( window.innerWidth ) == 'number' ) {
+			//Non-IE
+			myWidth = window.innerWidth;
+		} else if( document.documentElement && document.documentElement.clientWidth ) {
+			//IE 6+ in 'standards compliant mode'
+			myWidth = document.documentElement.clientWidth;
+		} else if( document.body && document.body.clientWidth ) {
+			//IE 4 compatible
+			myWidth = document.body.clientWidth;
+		}
+	}
+	return myWidth;
+}
+
+NicePayStd.niceLayerHandler = function(){
+	try{
+		var nicelayer = (hasFrame==false) ? document.getElementById("nice_layer") : parent.document.getElementById("nice_layer");
+		if(nicelayer!=null){
+			nicelayer.style.top = (NicePayStd.getWindowHeight() - nicelayer.style.height.replace("px",""))/2 + NicePayStd.getYposition() +"px";
+			nicelayer.style.left = (NicePayStd.getWindowWidth() - nicelayer.style.width.replace("px",""))/2 + NicePayStd.getXposition() +"px";
+		}
+	}catch(e){
+	}
+}
+
+NicePayStd.setListener = function(){
+	if(hasFrame){
+		if (parent.window.addEventListener) {  // all browsers except IE before version 9
+			parent.window.addEventListener("message", NicePayStd.receiveMessageValue, false);
+		} else {
+			if (parent.window.attachEvent) {   // IE before version 9
+				parent.window.attachEvent("onmessage", NicePayStd.receiveMessageValue);     // Internet Explorer from version 8
+			}
+		}
+		if(typeof parent.window.addEventListener != "undefined")	parent.window.addEventListener("resize",NicePayStd.niceLayerHandler, false);
+		if(typeof parent.window.attachEvent != "undefined" )	parent.window.attachEvent("onresize",NicePayStd.niceLayerHandler);
+		
+		if(typeof parent.window.addEventListener != "undefined")	parent.window.addEventListener("scroll",NicePayStd.niceLayerHandler, false);
+		if(typeof parent.window.attachEvent != "undefined" )	parent.window.attachEvent("onscroll",NicePayStd.niceLayerHandler);
+	}else{
+		if (window.addEventListener) {  // all browsers except IE before version 9
+			window.addEventListener("message", NicePayStd.receiveMessageValue, false);
+		} else {
+			if (window.attachEvent) {   // IE before version 9
+				window.attachEvent("onmessage", NicePayStd.receiveMessageValue);     // Internet Explorer from version 8
+			}
+		}
+		if(typeof window.addEventListener != "undefined")	window.addEventListener("resize",NicePayStd.niceLayerHandler, false);
+		if(typeof window.attachEvent != "undefined" )	window.attachEvent("onresize",NicePayStd.niceLayerHandler);
+		
+		if(typeof window.addEventListener != "undefined")	window.addEventListener("scroll",NicePayStd.niceLayerHandler, false);
+		if(typeof window.attachEvent != "undefined" )	window.attachEvent("onscroll",NicePayStd.niceLayerHandler);
+	}
+}
+
+NicePayStd.removeListener = function(){
+	try{
+		if(hasFrame){
+			if (parent.window.addEventListener) {  // all browsers except IE before version 9
+				parent.window.removeEventListener("message", NicePayStd.receiveMessageValue, false);
+			} else {
+				if (parent.window.attachEvent) {   // IE before version 9
+					parent.window.detachEvent("onmessage", NicePayStd.receiveMessageValue);     // Internet Explorer from version 8
+				}
+			}
+			if(typeof parent.window.addEventListener != "undefined")	parent.window.removeEventListener("resize",NicePayStd.niceLayerHandler, false);
+			if(typeof parent.window.attachEvent != "undefined" )	parent.window.detachEvent("onresize",NicePayStd.niceLayerHandler);
+			
+			if(typeof parent.window.addEventListener != "undefined")	parent.window.removeEventListener("scroll",NicePayStd.niceLayerHandler, false);
+			if(typeof parent.window.attachEvent != "undefined" )	parent.window.detachEvent("onscroll",NicePayStd.niceLayerHandler);
+		}else{
+			if (window.addEventListener) {  // all browsers except IE before version 9
+				window.removeEventListener("message", NicePayStd.receiveMessageValue, false);
+			} else {
+				if (window.attachEvent) {   // IE before version 9
+					window.detachEvent("onmessage", NicePayStd.receiveMessageValue);     // Internet Explorer from version 8
+				}
+			}
+			if(typeof window.addEventListener != "undefined")	window.removeEventListener("resize",NicePayStd.niceLayerHandler, false);
+			if(typeof window.attachEvent != "undefined" )	window.detachEvent("onresize",NicePayStd.niceLayerHandler);
+			
+			if(typeof window.addEventListener != "undefined")	window.removeEventListener("scroll",NicePayStd.niceLayerHandler, false);
+			if(typeof window.attachEvent != "undefined" )	window.detachEvent("onscroll",NicePayStd.niceLayerHandler);
+		}
+	}catch(e){}
+}
+
+NicePayStd.uaMatch = function(ua) {
+	// If an UA is not provided, default to the current browser UA.
+	if (ua === undefined) {
+		ua = window.navigator.userAgent;
+	}
+	ua = ua.toLowerCase();
+
+	var match = /(edge)\/([\w.]+)/.exec(ua)
+			|| /(opr)[\/]([\w.]+)/.exec(ua)
+			|| /(chrome)[ \/]([\w.]+)/.exec(ua)
+			|| /(iemobile)[\/]([\w.]+)/.exec(ua)
+			|| /(version)(applewebkit)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(ua)
+			|| /(webkit)[ \/]([\w.]+).*(version)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(ua) 
+			|| /(webkit)[ \/]([\w.]+)/.exec(ua)
+			|| /(opera)(?:.*version|)[ \/]([\w.]+)/.exec(ua)
+			|| /(msie) ([\w.]+)/.exec(ua)
+			|| ua.indexOf("trident") >= 0 && /(rv)(?::| )([\w.]+)/.exec(ua)
+			|| ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec(ua)
+			|| [];
+
+	var platform_match = /(ipad)/.exec(ua) || /(ipod)/.exec(ua)
+			|| /(windows phone)/.exec(ua) || /(iphone)/.exec(ua)
+			|| /(kindle)/.exec(ua) || /(silk)/.exec(ua)
+			|| /(android)/.exec(ua) || /(win)/.exec(ua)
+			|| /(mac)/.exec(ua) || /(linux)/.exec(ua)
+			|| /(cros)/.exec(ua) || /(playbook)/.exec(ua)
+			|| /(bb)/.exec(ua) || /(blackberry)/.exec(ua) 
+			|| [];
+
+	var browser = {}, matched = {
+		browser : match[5] || match[3] || match[1] || "",
+		version : match[2] || match[4] || "0",
+		versionNumber : match[4] || match[2] || "0",
+		platform : platform_match[0] || ""
+	};
+
+	if (matched.browser) {
+		browser[matched.browser] = true;
+		browser.version = matched.version;
+		browser.versionNumber = parseInt(matched.versionNumber, 10);
+	}
+
+	if (matched.platform) {
+		browser[matched.platform] = true;
+	}
+
+	// These are all considered mobile platforms, meaning they run a
+	// mobile browser
+	if (browser.android || browser.bb || browser.blackberry
+			|| browser.ipad || browser.iphone || browser.ipod
+			|| browser.kindle || browser.playbook || browser.silk
+			|| browser["windows phone"]) {
+		browser.mobile = true;
+	}
+
+	// These are all considered desktop platforms, meaning they run
+	// a desktop browser
+	if (browser.cros || browser.mac || browser.linux || browser.win) {
+		browser.desktop = true;
+	}
+
+	// Chrome, Opera 15+ and Safari are webkit based browsers
+	if (browser.chrome || browser.opr || browser.safari) {
+		browser.webkit = true;
+	}
+
+	// IE11 has a new token so we will assign it msie to avoid
+	// breaking changes
+	if (browser.rv || browser.iemobile) {
+		var ie = "msie";
+
+		matched.browser = ie;
+		browser[ie] = true;
+	}
+
+	// Edge is officially known as Microsoft Edge, so rewrite the
+	// key to match
+	if (browser.edge) {
+		delete browser.edge;
+		var msedge = "msedge";
+
+		matched.browser = msedge;
+		browser[msedge] = true;
+	}
+
+	// Blackberry browsers are marked as Safari on BlackBerry
+	if (browser.safari && browser.blackberry) {
+		var blackberry = "blackberry";
+
+		matched.browser = blackberry;
+		browser[blackberry] = true;
+	}
+
+	// Playbook browsers are marked as Safari on Playbook
+	if (browser.safari && browser.playbook) {
+		var playbook = "playbook";
+
+		matched.browser = playbook;
+		browser[playbook] = true;
+	}
+
+	// BB10 is a newer OS version of BlackBerry
+	if (browser.bb) {
+		var bb = "blackberry";
+
+		matched.browser = bb;
+		browser[bb] = true;
+	}
+
+	// Opera 15+ are identified as opr
+	if (browser.opr) {
+		var opera = "opera";
+
+		matched.browser = opera;
+		browser[opera] = true;
+	}
+
+	// Stock Android browsers are marked as Safari on Android.
+	if (browser.safari && browser.android) {
+		var android = "android";
+
+		matched.browser = android;
+		browser[android] = true;
+	}
+
+	// Kindle browsers are marked as Safari on Kindle
+	if (browser.safari && browser.kindle) {
+		var kindle = "kindle";
+
+		matched.browser = kindle;
+		browser[kindle] = true;
+	}
+
+	// Kindle Silk browsers are marked as Safari on Kindle
+	if (browser.safari && browser.silk) {
+		var silk = "silk";
+
+		matched.browser = silk;
+		browser[silk] = true;
+	}
+
+	// Assign the name and platform variable
+	browser.name = matched.browser;
+	browser.platform = matched.platform;
+
+	return browser;
+}
+Ó˜ÀÙˆ  ‚       ƒú      NicePayCommon      °“™c
+      NicePayStd     d&aÂ      merchantForm   ö¢­      existSubmitUrl     &Çè²      existTarget    ZDg@      hasFrame   #8f      documentBody   X
+	      payMethod      5       nAgt	   ¹ã+	      navigator
+      “‹ˆ	      userAgent      É°r      disableScrollYN    C
+®      jsVer      f      nicepay-3.0    9î§5      jsDeployedVer      ¤¯çã      1.1.3      =`ği      jsDeployedDate     ÙÌ*      191128     _C~      nicepayDomain      Ô+/      https://web.nicepay.co.kr      èöÃ™      POPUP      b[~      goPay      |£z‚      payForm    	àì      action     I*¡\      NPDisableScroll    d6CŒ      ConnWithIframe     $Ãç      top    Á¤\l      self   şèù2      parent     ¸O€      document   ˜h;      body   •,¯p      documentElement     Òï¢Z      alert!      ætu.      ÈÁÀÈtÇÀÉ  JÅ@Ç  ÖÜĞ\¸  °¬È=ÌtÇ  ”Æ­Ì´ÈÅµÂÈ²ä².    ¬ù¹È<Ç\¸  8»XÇ  tÕüÈÜÂ0®  ¼·È²ä². "   È|Xô      errorReport#    äú8ù      MJ04$   ÷Î.      [MerchantJS]Merchant access fail document body%     £„çà      encoding&   ÚEœÁ      indexOf'    °`d¹	      multipart(      „".      ÀÉĞÆXÕÀÉ  JÅ”²  )¼İÂ<Ç\¸  °¬È=ÌtÇ  ”Æ­Ì´ÈÅµÂÈ²ä².    ¬ù¹È<Ç\¸  8»XÇ  tÕüÈÜÂ0®  ¼·È²ä². )   ¹’      MJ01*   ¢Ù³i0      [MerchantJS]Form encoding requested in multipart+   Ò§f°      browser,    ¡V£V      uaMatch-    5¶ªä      msie.   ¾_ã      version/    ¡R]¡k      ¬À©ÆXÕÜÂ”²  ¾|·°Æ È”²  M i c r o S o f t ¬ÀXÇ  ô¼HÅÀÉĞÆtÇ  …ÈÌ¸´  „¼È…ÇÈ²ä².   
+   HÅÈ\Õ  °¬È|¹  ÇtÕ  I n t e r n e t   E x p l o r e r   9 . 0   tÇÁÀ  ¶”²  lĞl¸  ñ´XÇ  ä²x¹  ¾|·°Æ È  ¬À©Æ  ”Æ­Ì  Ü´½¹È²ä². 0     rÊ¼      MJ021   tUuª-      [MerchantJS]Payment requested on IE9 or lower2      %ıA      msedge3     gŸÃ†      DisableEdgeChk4     N…İ      str_comfirm;    :}È@      confirm<    ø2‡‰      window=     —x5      open>   Ñ4õ¦      about:flags?    <Ã      optionWindow@   ¬8ïÑ      width=500 , height=750A     ß°„™      setListenerB    n:†	      TransTypeC      C)eê      tempPayMethodD      tj[Ğ	      PayMethodE      Ğ–C’      isEscrowF   qëp      possibleG   R43      CARD,BANK,VBANK,H   ÀI|"      ĞÅ¤ÂlĞ\¸  ÁD¾¤Â”²  àÂ©ÆtÎÜ´, Ä¬ŒÈtÇ´Ì,  ¬ÁÀÄ¬ŒÈtÇ´ÌÌ¹   ¬¥²iÕÈ²ä². I   ßÙ?³      niceFormJ   1É^      setFormDataK    p©       VerifySTypeL    …ÌÜ      NpDirectCardM   <…ÊD      459N    »=×´      456O    -ë˜K      590P    l® è      430Q    éš­I      400R    ylå      644S    ö³Û      489T    wX¦k      480U    »¨‘m      510V    ‡Õ<ú      500W    |ª^      SSGX    ]SÃ      640Y    53[Ï      685Z    À Ô	      SSG_MONEY[      ]†:"      SSGPAY_MONEY\   ÕT 
+      SamsungPay]     ’ 9U      440^    £|Ë;      630_    
+{åÄ      SAMSUNGPAYV2`   Ò?Mú      750a    mÃF      Paycob      uŠ¯_      720c    Àò­ğ      645d    Å%¼k      KakaoPaye   µ*      426f    òk›      550g    GÙ      SKPayh      ,«%      SSGV2i      0(      LPAYj   -1Fñ      450k    5ë›º      470l    Çâ»       NaverPaym   ıµ¥µ      APPLEPAYn   ò”U       PINPAYo     ¾˜Á'      540p    ¤“ŞÃ      700q    wª€      NpDirectBankr   ş%™µ      LIIVs   İíÈ      665t    £Sü      KBANKu      Ân-      BANKv   W`†¯      NpDirectCellPhonew      Œæ
+s	      CELLPHONEx      º½ÿ      NpDirectSsgBanky    ‰–„      SSG_BANKz   ƒ¾²–      NpDirectCmsBank{    wµ›      CMS_BANK|   Ú?Pi      670}    ¡êñ´      NpDirectTmoney~     *´p	      GIFT_TMNY      gÏ´      DirectShowOpt€      ‘®      SelectCardCode     Gãób      NicepayReserved‚    lö”      DirectEasyPayƒ      8Ô      NpDirectEasyBank„   ´è©      DirectEasyBank…     ^ÄÂ      DirectEasyHpp†      ™²      PayMethodValue‡     >./,      WindowWidthˆ    .J”£      660‰    ãtÑ†      WindowHeightŠ   êt'ã      505‹    q      CallTypeŒ   q‹Í
+      ReqSubPath     µªğÀ      /v3/v3Payment.jsp      x’ĞÓ
+      EscrowFlag     Õ„}
+      DirectFlag     Ìı…      DriectCardCd‘   ĞŞUT      NpDriectBankCd’     Ô‹a=      DirectCellPhoneCd“      Ó_®      PayMethodArray”     `      DirectShowArray•    ì<Éu      CARD–   îo‡Û      GIFT_SSG—   [•'      NiceReservedArr˜    ™jœ      ReservedParamArr™   „“X      DirectSamsungPayš   r#áÈ      DirectPayco›    ¿g      DirectKakaoœ    :™O§      DirectPay11     <’M      E007   »Ìé      E018Ÿ   ~Ğ4Ì      E020    7Jlj      E021¡   İÅ      E022¢   äãCo      OnlyISP£    SgK      E019¤   ÅVı-      E023¥   VÜ(w
+      creatLayer¦     ìŠµ|      disableScroll§      àºo
+      nice_frame¨     @ôõ…      EncGoodsName©   HıÒw	      GoodsNameª      yè¬¥      EncBuyerName«   Ó"+	      BuyerName¬      üõÕ<
+      NpDirectYn­     yô      NpDirectLayer®      ¯6qY      NpForwardNew¯   Œ]‡@      JsVer°      ?Kz®	      NpSvcType±      7Å§»      WEBSTD²     ›Ôv      DeployedVer³    }ztø      DeployedDate´   é*
+£      DeployedFileNameµ   î"¨Ğ      EncVbankAccountName¶    ‘ÎÊU      VbankAccountName·   dô¶      submit¸     ‹¸™!      °¬È  ”Æ­Ì  É  ĞÅì· ¬  ¼İÀXÕ ÆµÂÈ²ä².   ä²ÜÂ  ÜÂÄ³tÕ  üÈíÂÜÂ$Æ. ¹     +[      MJ03º   F¨¼      [MerchantJS]Exception : »   ¢cı.      deleteLayer¼    ¨(9      createDivElement½   8¡Ø      frameID¾    ¥fa¡      zindex¿     tÇ£      getElementByIdÀ     ×êê      newDivÁ     DC      createElementÂ      œ³æÙ      divÃ    È’      positionÄ   H<*      absoluteÅ   f÷      zIndexÆ     ±/}î      clearÇ      m‘      bothÈ   õ]‡      leftÉ   ­$~      appendChildÊ    “Gë	      scrollTopË      ï|œú	      overflowXÌ      „ÛèW      hiddenÍ     ñšüÕ      enableScrollÎ   zÁ²S      autoÏ   Bü¿;      keyĞ    §‹ôö      errorCdÑ    œ%N      errorMsgÒ   ÃÛŞ¼      newFormÓ    *gÒÛ      formÔ   8–œÃ      error_reportÕ   ½pwm      methodÖ     ßb+      post×   píNš      error_frameØ    ä      /v3/api/errorReport.jspÙ    ùpS	      newIframeÚ      á7»µ      iframeÛ     ëÄJû      widthÜ      lÆT«      0pxİ    ·ÉÅ      heightŞ     ixpd      MIDß    Z1²H      URLà    0+QA      locationá   »©`X      hrefâ   xMnĞ      ERR_CDã     æqW      ERR_MSGä    ÷EŞ      Workerå     ¼xaÖ      SvcTypeæ    \#"      Moidç   rbŞ	      JsVersionè      ¦gï      newInputé   3AtÙ
+      setTimeoutê     ùúK      removeChildë    ›û      receiveMessageValueì    vQT      postMessageí    ßN#9      objî    6—(      dataï   Šhc)      codeğ   êaj®      resultMessageñ      „6¦1      strò    K¢Ô      postMessage not supportedó      ßïÌ      AuthResultCodeô     S°÷      0000õ    XÂY      AuthResultMsgö      ­ß&      xÇÉ  1Áõ¬÷     ¶ß 	      AuthTokenø      §•p©      TxTidù      ømA
+      BillAuthYNú     ”Ö@      BillingNextAppURLû      óÃ=
+      NextAppURLü     
+ UŒ      NetCancelURLı   2	      Signatureş      Câ×Ì	      NpCardBinÿ      @âï²      nicepaySubmit      o?ßæ      RmAuthLayer   úB„      deletePayment      1ÄŸ      not result value  r®ø¤      9999  ˆ[±c      nicepayClose  [’ŠÌ      payLayer  »*÷
+      nice_layer    Â¹ï#	      niceFrame     ¸=íL      borderRadius	  ³ŞÇk      15px
+  ¦pö      niceLayerHandler  <]FO      opt   r;Á€      bg_layer  ÔãX      html  Wn}Ê>      <div style="width:100%;text-align:center;padding:95px 0 0 0;">    ?ÚK      	<div><span style="color:#FFF;font-size:15px;">Please, wait...</span></div>   ¡il–8      	<div style="position: relative;top: -180px;"><img src="  5¬Kƒ8      /webstd/images/loading.gif" style="width: 344px;"></div>  p´(YD      	<div style="position: relative;top: -400px;left:-200px;"><img src="  ©^      </div>    Ëø¶MI      <div id="payment_layer" style="position: absolute; width: 100%; top: 0;">     İ¥hÇc      	<iframe title="NICE PAYMENT WINDOW" name="nice_frame" id="nice_frame" src="" width="100%" height="   ±,÷‚-      px" scrolling="no" frameborder="no"></iframe>     ç‹Ü      bgLayer   QÃ:	      innerHTML     4ê      getWindowHeight   fŞáp      getYposition  WO      getWindowWidth    ×GÙj      getXposition  »?y      100%  LsA¿      scrollHeight  ,
+      background     /BÕ      #4c4c4c!   ßueÉ      opacity"   Æ®      Opacity#   >	Å      filter$    3Ñìƒ      alpha(opacity=%    ß
+      OptionList&    ÛÈÈ	      optionVal'     ’rd      alpha(opacity=0)(  ûe¾      removeListener)    2÷	      nicelayer*     ÕfCz      payment_layer+     öm5      scrollY,   ³ÍÛd      pageYOffset-   ¯ç?Ó      scrollX.   {şn,      pageXOffset/   |cÉr
+      scrollLeft0    u6¿p      myHeight1  UŸ
+      innerWidth2    0U—      innerHeight3   Ëú¸      clientHeight4  -ÉîÊ      myWidth5   •§ùG      clientWidth6    rO      addEventListener7  VõZ/      attachEvent8   ó›)	      onmessage9     É9ßÿ      onresize:  \zû      scroll;    Í6!«      onscroll<  ]ü      removeEventListener=   ·ZPˆ      detachEvent>   R‰Do      toLowerCase?   Ñ4Üñ      (edge)\/([\w.]+)@  /tÀå      (opr)[\/]([\w.]+)A     ZDj      (chrome)[ \/]([\w.]+)B     BGËÕ      (iemobile)[\/]([\w.]+)C    [#=:      (version)(applewebkit)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)D    Šá€‹D      (webkit)[ \/]([\w.]+).*(version)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)E  ˆØÍ`      (webkit)[ \/]([\w.]+)F     K¯æ÷"      (opera)(?:.*version|)[ \/]([\w.]+)G    Ã'¶İ      (msie) ([\w.]+)H   X      tridentI   T¤6|      (rv)(?::| )([\w.]+)J   ‚ı\
+      compatibleK    mŞ¹ß      (mozilla)(?:.*? rv:([\w.]+)|)L     7½§      platform_matchM    g"~ç      (ipad)N    Ó§à      (ipod)O    “©1      (windows phone)P   zÒóÉ      (iphone)Q  5€¼›      (kindle)R  K„µ-      (silk)S    Ä‰í	      (android)T     ³œÂÒ      (win)U     T%‘[      (mac)V     7ÅtJ      (linux)W   À4q…      (cros)X    íÕ­
+      (playbook)Y    R§é      (bb)Z  Ølï      (blackberry)[  GÁËµ      matched\   äßø      versionNumber]     KÄ€      platform^   (İ      android_   ÔÀ
+      blackberry`    T­ï      ipada  ‘âÙ¾      iphoneb    ÷Ò³      ipodc  …4       kindled    0¢¬      playbooke  ¶¡š      silkf  ] Œ[      windows phoneg     
+Le      mobileh    ˆV‚û      crosi  xg(      macj    -ÒŠ      linuxk     UræÁ      winl    ¶      desktopm   üu^      chromen    Êi×      opro   Cã€¥      safarip    ËúÃ      webkitq    @‚î-      iemobiler  ÓS­e      edges  t9,¬      operat     pV/‰Õ      W i n 1 0   E d g e   XÖ½¬  °¬È  HÅ´°  
+ 
+   W i n 1 0   E d g e   XÖ½¬ĞÅÁ”²  °¬È ¬  ĞÆ`Õ  XÕÀÉ  JÅDÇ  Â  ˆÇµÂÈ²ä².   
+ 
+ °¬È|¹  tÇ©ÆXÕÜÂ$¸tº  a b o u t : f l a g s   =ÌDÇ  D·´Æ  ÄÖ  
+ ¬¼Ç  $ÁÈ  >   M i c r o s o f t   8ÖXÖ1Á  ©º]¸  ¬À©Æ  mÕ©ºDÇ  ´ÌlĞ  tÕÈ\¸  
+ $ÁÈXÕÜÂtº  °¬È|¹  ÄÉ‰ÕXÕäÂ  Â  ˆÇµÂÈ²ä².   
+ 
+ tÕÈ|¹  $ÁÈXÕì·   ¬ÜÂ$¸tº  ' UÖxÇ' DÇ  
+ °¬È|¹  ÄÉ‰ÕXÕÜÂ$¸tº  ' èÍŒÁ' |¹  ²ì·üÈÜÂ0®  ¼·È²ä².   
+ 
+ u    æ0      NicePayCommon.createDivElementv    ‹à¸      NicePayCommon.disableScrollw   \ÍÜ      NicePayCommon.enableScrollx    ÇÓ      NicePayCommon.setFormDatay     ˆÚR      NicePayCommon.errorReportz     ?”e      NicePayCommon.errorReport/<{   <?1ş      NicePayStd.receiveMessageValue|    k0¸¢      NicePayStd.resultMessage}  »^ˆ      NicePayStd.creatLayer~     @M‹U      NicePayStd.deleteLayer    7Åa      NicePayStd.deletePayment€  nuÔ      NicePayStd.getYposition   µ¼O      NicePayStd.getXposition‚   
+3áè      NicePayStd.getWindowHeightƒ    š#	      NicePayStd.getWindowWidth„     ]Íğ½      NicePayStd.niceLayerHandler…   ×ÑÔ      NicePayStd.setListener†    ¦      NicePayStd.removeListener‡     :§3m      NicePayStd.uaMatch        –                  ï%,‰                                        "                                                                                                                                                                     	                  
+                                                                                                                                                                                                                                                                                             ³OŒc            P  P  P  P  P  P  P  P  P  P  P  P  P  P  P  Ğ»  Ğ#   "           F  ”    Œ  +  ‘  E  ‰      B  †  q  ‹  v  ˜  ƒ  L    D  €  I  4  x  …  ’  }  —  i  ‚    z  C  ‡     #      e                              ½  ¾  À                                              f  Ï  <                Ğ  Ñ  Ò  Ù  Ï  è                           e               e `í  Pñ  P  `„  `€  `            í             e           e              w  h      ! &          e                                )               +               -               0               4               )          e                                           e              Š Ä  L +  [  2  _ d Ë s ^ c e ¯Â0°?     @     A     B     C     D     E     F     G     I     K     M     N     O     P     Q     R     S     T     U     V     W     X     Y     Z     Iô$KE®úš                	   -    Ş  ß  â  ã  D  ä  å  æ  ç     
+     ï  P     
+    ï  P                +  .  \ ] ‡&Õª!«!   ¨  y§37¨  ×                >        Ù   ·   9   É   Ş·   9   É   Ş·   É   Ş·   	   É   Ş·
+   º   J   É
+   Ş·      É   Ş·      É   Ş·      É   Ş·      É   Ş·      É   Ş·      É   Şº   m   L   Şº   m   L   Şº   m   L   Şº   m   L   Şº   m    L!   Şº   m"   L#   Şº   m$   L%   Şº   m&   L'   Şº   m(   L)   Şº   m*   L+   Şº   m,   L-   Şº   m.   L/   Şº   m0   L1   Şº   m2   L3   Şº   m4   L5   Şº   m6   L7   Şº   m8   L9   Şº   m:   L;   Ş¥
+`+e; e@	e+e e+e+e+eKeKe;€ ¥`0€ ²`0€ Â`0€ Ò`0€ İ`0€ `0€ $`0€ ‚`0€ ¸`0€ Å`0€ Ï`0€ æ`0€ ü`0€ `0€ 4`0€ ?`0€ ]`0€ }`0€ P€€ !  òjàM`   ¼      #   *       ø     $·   »  É   Ş·   »  J   É   Ş»  J   š"   —   ·   »  J   J   É   Ş—   »  J   œ   —   Ş»  J   J      —   šK   —   º	   º
+   œ   —   Şº
+   J      —   š   —   ·   É   Ş—   º   šH   —   ·   º   J   J      —"   Şº   J   J   —%   É   Ş™9   —&   ·   º   J      —*   Şº   J   —,   É   Ş—-   «º   J   ›5   —0   º       w Şº   àJ   ã      w Ş¢—5   »  J   àJ   ã   s ÿš5   —:   º       w Şº   àJ   ã      w Ş¢—?   º   àJ    ãº!   s Ì  Ş½  J"   œ   —E   Ş½  J#   	—G   š5   —H   º    $   w Şº   àJ   ã%   &   w Ş¢—M   ½  J'   š¡   —O   »  J(   œ   —Q   Ş»  J(   J      —T   š   —U   ™b   —U   ½  J#   šL   —X   )   Ì  Şº*    ½  s š+   —[   º+   àJ,   ã-   .   /   w Ş ¢—^   º   àJ0   ãw  Ş»  J1   š  —c   »  J1   J   2   šõ   —g   »  J3   J   àJ4   ã5   s Ì   ŞÌ  Ş6   Ì   ŞÌ  Ş˜k   ½  ½   J7   š|   —n   ½   ½  K   š   —q   Ì  Ş™S   —q   ½   àJ   ã½   ½  K5   &s š   —w   Ì  Ş™   —w   ½  0(Ì  Ş™uÿÿÿ—y   ½  ›   —z   º    8   w Ş¢—|   »  Ì  Şº   àJ9   ã½  :   ;   w Şh   h   <   i    =   i   >   i      i   i    h   ?   i    @   i   A   i      i   i   h   B   i    C   i   C   i      i   i   h   D   i    C   i   C   i      i   i   h   E   i    C   i   C   i      i   i   h   F   i    G   i   H   i      i   i   h   I   i    G   i   J   i      i   i   h   K   i    C   i   C   i      i   i   h   L   i    G   i   M   i      i   i   h   N   i    @   i   A   i      i   i	   h   O   i    G   i   M   i      i   i
+   h   P   i    Q   i   >   i      i   i   h   R   i    G   i   J   i      i   i   h   S   i    T   i   U   i      i   i   h   V   i    T   i   U   i      i   i   h   W   i    T   i   U   i      i   i   h   X   i    Y   i   Z   i      i   i   h   [   i    C   i   \   i      i   i   h   ]   i    ^   i   _   i      i   i   h   `   i    a   i   b   i      i   i   h   c   i    d   i   d   i   e   i   i   h   f   i    T   i   U   i      i   i   h   g   i    h   i   i   i      i   i   h   j   i    d   i   d   i   e   i   i   h   k   i    d   i   d   i   e   i   i   h   l   i    m   i   n   i      i   i   Ì  Şh   h   o   i    n   i   p   i      i   i    h   q   i    d   i   d   i   e   i   i   h   r   i    d   i   d   i   e   i   i   Ì  Şh   h   s   i    d   i   d   i   e   i   i    h   [   i    C   i   \   i      i   i   Ì  Şh   h   t   i    d   i   d   i   e   i   i    Ì  Şh   h   u   i    h   i   v   i      i   i    Ì  Şh   h   w   i    d   i   d   i   e   i   i    Ì  Ş»  Jx   Ì  Ş»  J1   Ì
+  Ş»  Jy   Ì  Ş»  J3   Ì  Ş»  Jz   Ì  Ş»  J{   Ì  Ş»  J|   Ì  Ş»  J}   Ì  Ş   Ì  Ş~   Ì!  Ş   Ì  Ş   Ì  Ş€   Ì  ŞÌ	  ŞÌ  Ş   Ì  Ş   Ì  Ş   Ì  Ş½
+  š)   —°   ½
+  J   2   š   —³   Ì	  Ş—³   ½  šz   —´   ½  J   Ì  Ş·   ½  àJ4   ã5   s É   Şº   J7      —½   Ş½     —¾   š   —¿      Ì  Ş—¿   ™   —¿      Ì  Ş—¿   ½  œ%   —À   Ş½	  œ   —Â   Ş½     —Ã   š¥  —Ä   ½  J   àJ4   ã‚   s Ì  Ş½  J7   œ   —Ê   Ş½  J7   
+—Ì   šW  —Í   Ì  Ş˜Í   ½  ½  J7   š3  —Ğ   ½  ½  K½  š›   —Ó   ½  ƒ   œ   —Õ   Ş½  —Õ   š   —Ö   ½  J   Ì  Ş—×   ½  r   š   —Ù   r   Ì  Ş—Ù   ½  s   š   —Û   s   Ì  Ş—Û   Ì  Ş™Š   ™p   —Û   ½  ½  K„   œ/   —Ş   Ş½  ƒ   œ   —à   Ş½  J   V   —â   š#   —ã   Ì  Ş½  J   Ì  Ş™   —ä   ½  0(Ì  Ş™¾şÿÿ—æ   ½  š¥  —ç   ½  J   àJ4   ã‚   s Ì  Ş½  J7   šs  —í   Ì  Ş˜í   ½  ½  J7   šO  —ğ   ½  ½  KàJ4   ã…   s Ì  Ş½  K†   œ   —ö   Ş½  K   —ø   š   —ù   X   Ì  Ş™ì   —ù   ½  K‡   œ   —ü   Ş½  K   —ş   š   —ÿ   ]   Ì  Ş™¦   —ÿ   ½  Kˆ   œ   —  Ş½  K   —  š   —  `   Ì  Ş™`   —  ½  K‰   œ   —  Ş½  K   —
+  š   —  c   Ì  Ş™   —  ½  0(Ì  Ş™¢şÿÿ—  ½  šá   —  ½  J   Š   š   —  f   Ì  Ş™´   —  ½  J   ‹   š   —  g   Ì  Ş™‡   —  ½  J   Œ   š   —  j   Ì  Ş™Z   —  ½  J      š   —  [   Ì  Ş™-   —  ½  J      š   —  k   Ì  Ş—  ½  šš  —  ½  ƒ   š€  —   ½     šH  —"  Y   Ì!  Ş>   Ì  Ş   Ì  ŞÌ  Ş˜"  ½  ½  J7   šp   —%  ½  ½  KK½  šA   —)  ½  ½  KKÌ!  Ş½  ½  KKÌ  Ş½  ½  KKÌ  Ş™   —/  ½  0(Ì  Ş™ÿÿÿ—1  ½  <      —3  Ş½  P   —4  œ@   —5  Ş½  œ1   —6  Ş»  J   œ   —8  Ş»  J   J      —;  š   —<  Y   Ì!  Ş>   Ì  Ş—<  ™   —<  Ì  Ş½     L   Ş—=  ™  —=  ½  r   šl  —?  ½  œ   —@  Ş½  J      —B  šn   —C  ½  J      š   —F  o   Ì  Ş™A   —F  ½  J   ‘   š   —I  q   Ì  Ş™   —I     Ì  Ş—I  ½     š   —K  Ì  Ş˜K  ½  ½  J7   šp   —N  ½  ½  KK½  šA   —R  ½  ½  KKÌ!  Ş½  ½  KKÌ  Ş½  ½  KKÌ  Ş™   —X  ½  0(Ì  Ş™ÿÿÿ—Z  ™   —Z  Ì  Ş½     L   Ş—[  ™†  —[  ½  s   š?  —]  ½  œ   —^  Ş½  J      —`  šA   —a  ½  J      š   —d  [   Ì  Ş™   —d     Ì  Ş—d  ½     š   —f  Ì  Ş˜f  ½  ½  J7   šp   —i  ½  ½  KK½  šA   —m  ½  ½  KKÌ!  Ş½  ½  KKÌ  Ş½  ½  KKÌ  Ş™   —s  ½  0(Ì  Ş™ÿÿÿ—u  ™   —u  Ì  Ş½     L   Ş—v  ™8  —v  ½  t   šŸ   —x  Ì  Ş˜x  ½  ½  J7   šq   —{  ½  ½  KKt   šA   —  ½  ½  KKÌ!  Ş½  ½  KKÌ  Ş½  ½  KKÌ  Ş™   —…  ½  0(Ì  Ş™€ÿÿÿ—‡  ™Š  —‡  ½  u   šŸ   —‰  Ì  Ş˜‰  ½  ½  J7   šq   —Œ  ½  ½  KKu   šA   —  ½  ½  KKÌ!  Ş½  ½  KKÌ  Ş½  ½  KKÌ  Ş™   —–  ½  0(Ì  Ş™€ÿÿÿ—˜  ™Ü   —˜  ½  w   šŸ   —š  Ì  Ş˜š  ½  ½  J7   šq   —  ½  ½  KKw   šA   —¡  ½  ½  KKÌ!  Ş½  ½  KKÌ  Ş½  ½  KKÌ  Ş™   —§  ½  0(Ì  Ş™€ÿÿÿ—©  ™.   —©  ~   Ì!  Ş   Ì  Ş   Ì  ŞÌ  Ş—©  ™'   —©  ½  š   —ª  ½     L   Ş—«  º   àJ’   ã½!  ½  ½  w Ş½  º“   ½  &L   Şº   àJ”   ãw  Ş·•   »  J–   É•   Ş½  —   L–   Şº   àJ9   ã½  ˜   º™    ½  Jš   J   s w Şº   àJ9   ã½  ›   ½  Jœ   š&   —Ã  º™    ½  Jœ   J   s ™   —Ç     —Ç  w Şº   àJ9   ã½     ½  š   —Ì     ™   —Ì     —Ì  w Şº   àJ9   ã½  Ÿ      w Şº   àJ9   ã½         w Şº   àJ9   ã½  ¡   º¢   w Şº   àJ9   ã½  £   ¤   w Şº   àJ9   ã½  ¥   º¦   w Şº   àJ9   ã½  §   º¨   w Şº   àJ9   ã½  ©   º¢   w Şº   àJ9   ã½  ª   ½  J«   š&   —ê  º™    ½  J«   J   s ™   —î     —î  w Ş½  àJ¬   ãw  Ş™P   —ñ   ¤­°±"  Ş±"  Şº    ®   w Şº   àJ   ã¯   °   ½"  J±   &w Ş¤Ñ¥Ñ—ø  ¥@`.`“@`’ `@
+`µ `° `‘@`/`Ã `´0!`” `P$`– P$`1€ ƒF`” P `P$`– P$`1€ ƒF$`ÿÿÿøP(`¯ `P$`– P$`1€ ƒF+`“@-`¿0/ `– `J8	`ÿÿÿÿP-`› P$`1€ ƒF@`PDB`’ ` `™ P(`&`JH	 `f” 	`™ `&`JM	`ÿÿÿøP/`&`JH*`•@R`.`P$`1€ ƒFY`(`ÿÿÿôPD\`%² ² ² ² ² ² ² ² ² ² ² ² ² ² ² ² ² ² ² ² ² ² ² ² ² ·@y`%² ² ·@`%² · `%· `%· `%· `-`-`-`-`-`-`-`-` `*`*` `*`&`&`*`*` `.`™ `K€  ­`.`.`•  P `° `™ ` `© `• P `± 	 `f” 	`	/
+`¨ `“ 
+`” ` 
+`” ` `&` 
+`Í `&`.`J€  ½0`•@€  Ö`.`• P(`• 	 `f” `• P(	`² `*` 	`² `*` 	`² `*` 	`² `*`J€  Ù+`•@€  ğ`.`™ `” `™ `” `™ `” `™ `” `™ ` `.`” `” `*`*`*
+ `f” 
+`/` `‘ `‘ `J€ *`•@€ `ó `*`™ `&` `” `­ 	`™ `” `™ `” ` `” 
+ `f” 
+`/` `‘ `‘ `J€ "*`Ÿ0€ * `&` `” `­ 	`™ `” ` `” 
+ `f” 
+`/` `‘ `‘ `J€ 8/`Ÿ0€ @ `&` `” 	 `f” 	`› ` `‘ `‘ `J€ E,`Ÿ@€ M`” 	 `f” 	`› ` `‘ `‘ `J€ N,`Ÿ@€ V`” 	 `f” 	`› ` `‘ `‘ `J€ W+`Ÿ0€ _ `*`*`*`• `.`” `ÿÿÿÚP$`	 +`P `“ `/`	ÿÿÿùPÿÿÿÚP$`	™ ÿÿÿùP— ÿÿÿÄP$`	© ÿÿÿÛP$`ÿÿÿôP$`ÿÿÿôP$`	ÿÿÿáP$`ÿÿÿôP$`	ÿÿÿÛP$`	ÿÿÿÚP$`	ÿÿÿÖP$`	"™ #ÿÿÿùP— ÿÿÿ¶P `	P‘ +`P$`‘ "
+ÿÿÿÑP$`Y€€€ !  €   ­   s  C   ÿÿÿÿ    ´                ‡            Z  G         ì  c         ˜  „          Ÿ  „          í  „          ¾  …          l  …            …           R    <   Ñ¢jA<                             º   àJ   ãw  Ş¥ `PP€€P  ”
+õP  ñ                        º   àJ   ã»  s š×   —   º   š#   —   º   àJ   ã   s ™#   —   º   J   àJ   ã   s —   Ì   Ş½   »  L   Ş½   J   	   L
+   Ş½   J   » L   Ş½   J      L   Ş½   J   L   Ş½   J   L   Şº   àJ   ã½   w Ş—   ¥ `ÿÿÿñP/`¢ P£ 'PM`-`” `’ `” ` ` `ÿÿÿôP9P€€˜  ¡î-Ô˜  I                 *        º      š®   —   º   J   œ   —   Şº   J   J   —	   š)   —
+   º   J   J      L   Ş™8   —   º   J	   š$   —   º   J	   J      L   Ş—   º
+   J      L   Ş™   —   º   J   œ   —   Şº   J   J   —   š)   —   º   J   J      L   Ş™8   —#   º   J	   š$   —&   º   J	   J      L   Ş—*   ¥ `• `³ `¤ `” `Ÿ@`Ÿ `³ `¤ `” `Ÿ0P€ì  S*ïì  ›                 6        º      š×   —   º   J   œ   —   Şº   J   J   J   —
+   š)   —   º   J   J      L   Ş™\   —   º   J	   œ   —   Şº   J	   J   J   —   š$   —   º   J	   J      L   Ş—   º
+   J      L   Ş™¸   —   º   J   œ   —!   Şº   J   J   J   —%   š)   —&   º   J   J      L   Ş™\   —*   º   J	   œ   —-   Şº   J	   J   J   —1   š$   —2   º   J	   J      L   Ş—6   ¥ `• `¸ `¤ `¸ `Ÿ@`Ÿ `¸ `¤ `¸ `Ÿ0P€€€Ğ   †æÛ¨Ğ   …                        »  » Kš   —   »  » K» L   Ş™^   —   º   àJ   ã   s Ì   Ş½      L   Ş½   » L   Ş½   » L   Ş»  àJ   ã½   w Ş—   ¥ `‘ `š `‘ 	P(`/`-`-`
+ÿÿÿôP9
+P€€€h  ‡¸Â8  _         
+       F      $«º   àJ   ã   s Ì   Ş½      L   Ş½      L   Ş½      L   Ş½   	   L
+   Ş½   º      &L   Şº   àJ   ã½   w Şº   àJ   ã   s Ì  Ş½  	   L   Ş½  	   L   Ş½     L   Ş½     L   Şº   àJ   ã½  w Ş9   º   J   J   <   º   J   J   <   »  <   º    » s <   º   J   J   <       <!   "   <#   º   J$   J   <$   º%   &   &º'   &&   &º(   &<)   Ë Ş» ^˜7   _`›}   —8   Ì  º   àJ   ã*   s Ì  Ş½  ½  L   Ş½  ½  L   Ş½  » ½  KL   Ş½  +   L,   Ş½   àJ   ã½  w ŞŞ™€ÿÿÿ—B   a½   àJ-   ãw  Şº.    m/   èw Ş™   —F    ¤­°±  Ş±  ŞÑ—F   ¥!`‘ 	P(`/`/`/`/`• `ÿÿÿôPD
+`‘ 	P(`/`/`/`/`ÿÿÿôPD`%” ” (ÿÿÿùP(” **” O`– ÿÿÿõ$`‘ 	P(`.`.`’ `/`ÿÿÿôPDL%`PD'`5*C'P‘@+‘0-P€h  H  0   M     ÿÿÿÿ      ”  …              D  Œ   6£¤ÍŒ   I                          º   àJ   ãº   àJ   ã   s w Şº   àJ   ãº   àJ   ã   s w Ş¥ `‘ 	PÿÿÿëP$`‘ 	PÿÿÿëP$P€€  çÓOå€                         ¼  Í   ŞÛÍ   ŞİÍ   Ş5Í   Ş¹   ¹   L   Ş¹   ¹   L   Ş¹   J   š‘   —	   À   J   Í   ŞÀ   J	   š$   —   ¹
+   àJ   ãÀ   w Ş™D   —   ¹       À   &   &z ç  Í   Ş¹
+   àJ   ãÀ   w Ş—   ™3   —   ¹
+   àJ   ã9      <	      <   w Ş—   ¥ ` ` `”@` `”@
+`ÿÿÿòP@`ÿÿÿõ.`ÿÿÿòP“0@`
+
+ÿÿÿãP9P€è	  ıQ*†¨	  ‰                í      $»  J   à   ŸS   —   à   Ÿ  —   à   ŸH  —   à   Ÿx  —   à   Ÿà  —      —   »  J   š—  —   º   àJ	   ãº
+         w Şº   àJ	   ãº
+         w Şº   àJ	   ãº
+      »  J   J   w Şº   àJ	   ãº
+      »  J   J   w Ş»  J   J      šw   —    º   àJ	   ãº
+         w Ş»  J   J      š1   —(   º   àJ	   ãº
+      »  J   J   w Ş—.   ™X   —.   º   àJ	   ãº
+      »  J   J   w Şº   àJ	   ãº
+      »  J   J   w Ş—:   º   àJ	   ãº
+      »  J   J   w Ş»  J   J   š1   —C   º   àJ	   ãº
+      »  J   J   w Ş—I   º   àJ	   ãº
+         w Şº   àJ	   ãº
+         w Şº    w  Şº
+   J   œ    —V   Şº
+   J   J      —Z   š   —[   º   àJ   ãw  Ş™   —^   º   àJ    ãw  Ş—a   ™-   —a   º!    9"      <   #   <$   w Ş—f   ™P  —f   »  J   š«   —h   º   àJ	   ãº
+      »  J   J   w Şº   àJ	   ãº
+      »  J   J   w Şº   àJ	   ãº
+      »  J   J   w Şº   àJ	   ãº
+      »  J   J   w Ş™K   —€   º   àJ	   ãº
+      %   w Şº   àJ	   ãº
+      »  J$   w Ş—‰   º   àJ   ãw  Ş«º&    w  Ş™   —    ¤­°±  Ş±  ŞÑ—   ™  —   »  J   š«   —   º   àJ	   ãº
+      »  J   J   w Şº   àJ	   ãº
+      »  J   J   w Şº   àJ	   ãº
+      »  J   J   w Şº   àJ	   ãº
+      »  J   J   w Ş™K   —¨   º   àJ	   ãº
+      %   w Şº   àJ	   ãº
+      »  J$   w Ş—±   º   àJ   ãw  Ş«º&    w  Ş™   —¶    ¤­°±  Ş±  ŞÑ—¶   ™Î  —¶   º)   š#   —¹   º*   àJ+   ã,   s ™#   —¼   º-   J*   àJ+   ã,   s —À   Ì   Ş½   J.   »  J/   0   &L/   Ş™U  —Ä   º)   š#   —Ç   º*   àJ+   ã,   s ™#   —Ê   º-   J*   àJ+   ã,   s —Î   Ì   Şº)   š#   —Ñ   º*   àJ+   ã1   s ™#   —Ô   º-   J*   àJ+   ã1   s —Ø   Ì  Ş½   J.   »  J/   0   &L/   Ş½   J.   »  J2   0   &L2   Ş½  J.   »  J/   0   &L/   Ş½  J.   »  J2   0   &L2   Ş½  J.   3   L4   Şº   àJ5   ãw  Ş™   —í   ™   —í   ¥ 	`ç@`’ `ÿÿÿôP$`ÿÿÿôP$`
+ÿÿÿÙP$`
+ÿÿÿİP$` `ÿÿÿôP$	` `
+ÿÿÿØP“0 `
+ÿÿÿØP$`
+ÿÿÿÖPI`
+ÿÿÿÙPD`— `
+ÿÿÿÙPI`ÿÿÿôP$`ÿÿÿôPD`*`¹ `P `P“0! `
+
+ÿÿÿğPI$` `’ `
+ ÿÿÿÔP$`
+ÿÿÿÕP$`
+ÿÿÿÙP$`
+ÿÿÿÙP `ÿÿÿôP$`
+ÿÿÿÕPI0`P42!`— ‘@6` `’ `
+ ÿÿÿÔP$`
+ÿÿÿÕP$`
+ÿÿÿÙP$`
+ÿÿÿÙP `ÿÿÿôP$`
+ÿÿÿÕPIB`P!`— ‘@G` `¢ P£ /P-` ` `¢ P£ /P-`¢ P£ /P-` ` ` ` `” `P$`@Z`:\P€€€è	  È	  '   c     ÿÿÿÿ(   ¤     ÿÿÿÿ        L                    ª/á)ğ  ø         
+       }      $º   àJ   ã   'w Şº   àJ   ã   'w Ş   Ì   Ş½      &.Ì   Ş» º   š;   —
+   ½      &.Ì   Ş½   	   º
+   &   &&.Ì   Ş™&   —   ½      º
+   &   &&.Ì   Ş—   ½      &.Ì   Ş½      &.Ì   Ş½      » &   &&.Ì   Ş½      &.Ì   Şº   š#   —   º   àJ   ã   s ™#   —   º   J   àJ   ã   s —#   Ì  Şº   š#   —&   º   àJ   ã   s ™#   —)   º   J   àJ   ã   s —-   Ì  Ş½  ½   L   Ş½  š€   —0   ½  J   º   àJ   ãs  » '+º   àJ   ãs  &   &L   Ş½  J   º   àJ   ãs  »  '+º   àJ   ãs  &   &L   Ş—H   ½  J   »     &L   Ş½  J   »    &L    Ş½  J   !   L   Ş½  J   º"   J#      &L    Ş½  J   $   L%   ŞAÌ  Şº&   J'   œ    —Z   Şº&   J'   J(      —^   š   —_   º&   J'   J(   Ì  Ş—b   ½  J   )   ½  &*   &L+   Ş½  J   ½  d+L,   Ş«º&   J-   œ   —m   Şº&   J-   .   —p   šg   —q   º&   J-   J(   Ì  Ş½  àJ/   ã0   s ÿš3   —x   º   J   1   L+   Ş½  J   1   L+   Ş—}   ™é2Í   —}    ¤­°±  Ş±  ŞÑ—}   ¥@`” P$`” PD`*`@` ` `	F `	R˜@`@` `	y‘ `@`¢ P£ /P-`¢ P£ -PM`.` `• !P	P `• "P	P•@`˜ `˜ `” `Ÿ `”@#`'`¹ `™@'`&‘ `–!`¶ `” ` 
+P `• `¦@1‘03P€€€     2   æ     ÿÿÿÿ        A     L  “Ñ`L  Ù                  "        º   àJ   ãw  Şº   ša   —   º   àJ   ãº   J   àJ   ã	   s w Şº   àJ   ãº   J   àJ   ã
+   s w Ş™R   —   º   àJ   ãº   àJ   ã	   s w Şº   àJ   ãº   àJ   ã
+   s w Ş—   º   àJ   ãw  Ş¥ `PD`/`– PÿÿÿäP$`– PÿÿÿäP `‘ 	PÿÿÿëP$`‘ 	PÿÿÿëPI
+`PP€€$  P)8’$  Ì                         º   š#   —   º   àJ   ã   s ™#   —   º   J   àJ   ã   s —
+   Ì   Şº   š7   —   ½   àJ   ãº   J   àJ   ã   s w Ş™-   —   ½   àJ   ãº   àJ   ã   s w Ş—   º   àJ	   ãw  Ş¥ `¢ P£ /P-`/`– PÿÿÿäP `‘ 	PÿÿÿëPI`PP€¸  }€T¸  W                N        Ì   Şº   š  —   º   J   J      š#   —   º   J   J   Ì   Ş™À   —   º   J   J   œ   —   Şº   J   J   J   —   š(   —   º   J   J   J   Ì   Ş™`   —   º   J   J	   œ   —   Şº   J   J	   J   —    š#   —!   º   J   J	   J   Ì   Ş—%   ™>  —%   º   J      š   —*   º   J   Ì   Ş™
+  —,   º   J   œ   —/   Şº   J   J   —2   šW   —3   º   š   —6   º   J   J   ™   —9   º   J   J   J   —=   Ì   Ş™…   —=   º   J	   œ   —@   Şº   J	   J   —C   šR   —D   º   š   —G   º   J	   J   ™   —J   º   J   J	   J   —N   Ì   Ş—N   ½   ¢¥ `&`/	`  ` `½ `£ `½ `¨0
+ 	`› `™ `³ `Ò `³ `Í@`Q€€¸  *le¸  W                N        Ì   Şº   š  —   º   J   J      š#   —   º   J   J   Ì   Ş™À   —   º   J   J   œ   —   Şº   J   J   J   —   š(   —   º   J   J   J   Ì   Ş™`   —   º   J   J	   œ   —   Şº   J   J	   J   —    š#   —!   º   J   J	   J   Ì   Ş—%   ™>  —%   º   J      š   —*   º   J   Ì   Ş™
+  —,   º   J   œ   —/   Şº   J   J   —2   šW   —3   º   š   —6   º   J   J   ™   —9   º   J   J   J   —=   Ì   Ş™…   —=   º   J	   œ   —@   Şº   J	   J   —C   šR   —D   º   š   —G   º   J	   J   ™   —J   º   J   J	   J   —N   Ì   Ş—N   ½   ¢¥ `&`/`  ` `½ `£ `½ `¨0
+ `› `™ `³ `Ò `³ `Í@`Q€€T  ç¹ÂT  ï                @        Ì   Şº   š  —   º   J   J      š#   —   º   J   J   Ì   Ş™À   —   º   J   J   œ   —   Şº   J   J   J	   —   š(   —   º   J   J   J	   Ì   Ş™`   —   º   J   J
+   œ   —   Şº   J   J
+   J	   —    š#   —!   º   J   J
+   J	   Ì   Ş—%   ™Ö   —%   º   J      š   —*   º   J   Ì   Ş™¢   —,   º   J   œ   —/   Şº   J   J	   —2   š#   —3   º   J   J	   Ì   Ş™Q   —6   º   J
+   œ   —9   Şº   J
+   J	   —<   š   —=   º   J
+   J	   Ì   Ş—@   ½   ¢¥ `&`/	` @` `½@`£ `½@`¨0 	`›@`™ `³@` `³@`™@`QT  f7T  ï                @        Ì   Şº   š  —   º   J   J      š#   —   º   J   J   Ì   Ş™À   —   º   J   J   œ   —   Şº   J   J   J   —   š(   —   º   J   J   J   Ì   Ş™`   —   º   J   J	   œ   —   Şº   J   J	   J   —    š#   —!   º   J   J	   J   Ì   Ş—%   ™Ö   —%   º   J      š   —*   º   J   Ì   Ş™¢   —,   º   J   œ   —/   Şº   J   J   —2   š#   —3   º   J   J   Ì   Ş™Q   —6   º   J	   œ   —9   Şº   J	   J   —<   š   —=   º   J	   J   Ì   Ş—@   ½   ¢¥ `&`/` @` `½@`£ `½@`¨0 `›@`™ `³@` `³@`™@`QÄ  (ş{¤  ;                ,       $«º   š#   —   º   àJ   ã   s ™#   —   º   J   àJ   ã   s —
+   Ì   Ş½   š¾   —   ½   J   º   àJ   ãs  ½   J   J	   àJ
+   ã      s '+º   àJ   ãs  &   &L   Ş½   J   º   àJ   ãs  ½   J   J   àJ
+   ã      s '+º   àJ   ãs  &   &L   Ş—,   ™   —,    ¤­°±  Ş±  ŞÑ—,   ¥!`¢ P£ /P-` `• "PŸ PP `• #PŸ PP¢@‘0	P€€€Ä  ´     )     ÿÿÿÿ              0  	»%0  >                 ~        º   š¿  —   º   J   J   š4   —   º   J   àJ   ã   º   J   w Ş™G   —   º   J   J   š.   —   º   J   àJ   ã	   º   J   w Ş—   º   J   J   
+   š/   —   º   J   àJ   ã   º   J   w Ş—"   º   J   J   
+   š.   —(   º   J   àJ   ã   º   J   w Ş—.   º   J   J   
+   š/   —4   º   J   àJ   ã   º   J   w Ş—:   º   J   J   
+   š.   —@   º   J   àJ   ã   º   J   w Ş—F   ™y  —F   º   J   š/   —I   º   àJ   ã   º   J   w Ş™=   —N   º   J   š)   —Q   º   àJ   ã	   º   J   w Ş—V   º   J   
+   š*   —[   º   àJ   ã   º   J   w Ş—`   º   J   
+   š)   —e   º   àJ   ã   º   J   w Ş—j   º   J   
+   š*   —o   º   àJ   ã   º   J   w Ş—t   º   J   
+   š)   —y   º   àJ   ã   º   J   w Ş—~   ¥ `/`™ `– *ÿÿÿäP `™ `– '
+ÿÿÿçPI	`  6`– (ÿÿÿæP)`  2`– %
+ÿÿÿéPI`  6`– (ÿÿÿæP)`  2`– %
+ÿÿÿéP“ `” `‘ #ÿÿÿäP `” `‘  
+ÿÿÿçPI`› /`‘ !ÿÿÿæP)`› +`‘ 
+ÿÿÿéPI`› /`‘ !ÿÿÿæP)`› +`‘ 
+ÿÿÿéP9P€€€|  7ª7\  ]                ~       $«º   š¿  —   º   J   J   š4   —   º   J   àJ   ã   º   J   w Ş™G   —   º   J   J	   š.   —   º   J   àJ
+   ã   º   J   w Ş—   º   J   J      š/   —   º   J   àJ   ã   º   J   w Ş—"   º   J   J	      š.   —(   º   J   àJ
+   ã   º   J   w Ş—.   º   J   J      š/   —4   º   J   àJ   ã   º   J   w Ş—:   º   J   J	      š.   —@   º   J   àJ
+   ã   º   J   w Ş—F   ™y  —F   º   J   š/   —I   º   àJ   ã   º   J   w Ş™=   —N   º   J	   š)   —Q   º   àJ
+   ã   º   J   w Ş—V   º   J      š*   —[   º   àJ   ã   º   J   w Ş—`   º   J	      š)   —e   º   àJ
+   ã   º   J   w Ş—j   º   J      š*   —o   º   àJ   ã   º   J   w Ş—t   º   J	      š)   —y   º   àJ
+   ã   º   J   w Ş—~   ™   —~    ¤­°±   Ş±   ŞÑ—~   ¥!`/`™ `– -ÿÿÿáP 	`™ `– '
+ÿÿÿçPI
+`  6`– +ÿÿÿãP)`  2`– %
+ÿÿÿéPI`  6`– +ÿÿÿãP)`  2`– %
+ÿÿÿéP“ `” `‘ &ÿÿÿáP 	`” `‘  
+ÿÿÿçPI`› /`‘ $ÿÿÿãP)`› +`‘ 
+ÿÿÿéPI`› /`‘ $ÿÿÿãP)`› +`‘ 
+ÿÿÿéP–@‘P€€€|  l     K     ÿÿÿÿ           B  T  ]©ƒT  A	                Ù       »   š   —   º   J   J   Ë  Ş—   »  àJ   ãs  Ë  Şl   àJ   ã»  s z  —
+   Şl   àJ   ã»  s ]  —   Şl   àJ   ã»  s @  —   Şl	   àJ   ã»  s #  —   Şl
+   àJ   ã»  s   —   Şl   àJ   ã»  s é   —   Şl   àJ   ã»  s Ì   —   Şl   àJ   ã»  s ¯   —   Şl   àJ   ã»  s ’   —"   Ş»  àJ   ã   s  œ   —&   Şl   àJ   ã»  s —(   Q   —)   Ş»  àJ   ã   s œ   —-   Şl   àJ   ã»  s —/      —0   Şh    —1   Ì   Şl   àJ   ã»  s ‰  —4   Şl   àJ   ã»  s l  —7   Şl   àJ   ã»  s O  —:   Şl   àJ   ã»  s 2  —=   Şl   àJ   ã»  s   —@   Şl   àJ   ã»  s ø   —C   Şl   àJ   ã»  s Û   —F   Şl   àJ   ã»  s ¾   —I   Şl   àJ   ã»  s ¡   —L   Şl   àJ   ã»  s „   —O   Şl   àJ   ã»  s g   —R   Şl   àJ   ã»  s J   —U   Şl    àJ   ã»  s -   —X   Şl!   àJ   ã»  s    —[   Şh    —\   Ì  Ş9"   Ì  Ş9#   ½   K3   —`   Ş½   K!   —b   Ş½   K   —d   Ş$   —d   <%   ½   K"   —g   Ş½   K   —i   Ş&   —i   <'   ½   K"   —l   Ş½   K   —n   Ş&   —n   <(   ½  K   —q   Ş$   —q   <)   Ì  Ş½  J%   šK   —t   ½  ½  J%   NŞ½  ½  J'   L'   Ş½  º*    ½  J(   
+s L(   Ş—|   ½  J)   š   —~   ½  ½  J)   NŞ—€   ½  J+   ´   —‚   Ş½  J,       —„   Ş½  J-   Œ   —†   Ş½  J.   x   —ˆ   Ş½  J/   d   —Š   Ş½  J0   P   —Œ   Ş½  J1   <   —   Ş½  J2   (   —   Ş½  J3      —’   Ş½  J4   —“   š   —”   ½  L5   Ş—•   ½  J6   <   ——   Ş½  J7   (   —™   Ş½  J8      —›   Ş½  J9   —œ   š   —   ½  L:   Ş—   ½  J;   (   —    Ş½  J<      —¢   Ş½  J=   —£   š   —¤   ½  L>   Ş—¥   ½  J?      —§   Ş½  J@   —¨   š-   —©   A   Ì  Ş½  ½  L%   Ş½  ½  NŞ—«   ½  JB   š7   —­   ½  PB   ŞC   Ì  Ş½  ½  L%   Ş½  ½  NŞ—¯   ½  J=   œ   —±   Ş½  J-   —²   š-   —³   -   Ì  Ş½  ½  L%   Ş½  ½  NŞ—µ   ½  J=   œ   —·   Ş½  J2   —¸   š-   —¹   2   Ì  Ş½  ½  L%   Ş½  ½  NŞ—»   ½  J,   š-   —½   -   Ì  Ş½  ½  L%   Ş½  ½  NŞ—¿   ½  J<   š-   —Á   D   Ì	  Ş½  ½	  L%   Ş½  ½	  NŞ—Ã   ½  J=   œ   —Å   Ş½  J+   —Æ   š-   —Ç   +   Ì
+  Ş½  ½
+  L%   Ş½  ½
+  NŞ—É   ½  J=   œ   —Ë   Ş½  J1   —Ì   š-   —Í   1   Ì  Ş½  ½  L%   Ş½  ½  NŞ—Ï   ½  J=   œ   —Ñ   Ş½  J3   —Ò   š-   —Ó   3   Ì  Ş½  ½  L%   Ş½  ½  NŞ—Õ   ½  ½  J%   LE   Ş½  ½  J)   L)   Ş½  ¢¥@`,`˜@`
+PG`ÿÿÿûP. ÿÿÿûP.$ÿÿÿûP.%ÿÿÿûP.IÿÿÿûP.SÿÿÿûP.$ÿÿÿûP.1ÿÿÿûP.ÿÿÿûP.
+_œ 6ÿÿÿûP“ 
+_œ BÿÿÿûP“O`ÿÿÿûPš ÿÿÿûP.ÿÿÿûPš ÿÿÿûP.ÿÿÿûPš ÿÿÿûP.ÿÿÿûPš ÿÿÿûP.ÿÿÿûPš ÿÿÿûP.ÿÿÿûPš ÿÿÿûP.ÿÿÿûPš  ÿÿÿûPO`
+`%Ä ³ ³ ¥@$`“ ` `“ `
+!ÿÿÿ÷PN*`“ `•@0`¼¼¼˜ `@9`Ô `@>`À `@D`¬ `JG`.`@M`“ `*`JQ`.`@V`¬ `JY`.`@^`¬ `Ja`.`@f`“ `Ji`.`@n`“ `Jq`.`@v`¬ `Jy`.`@~`¬ ` `.` `¬ ` `.` `“ `“ `Q€€€3õØ  `          <    Y      n  ‰                  !     "  #  $  %  &  '  (  )  *    ,    -  .  /  0  1  2  3  t ;  <  =  >  ?  @  A  B  1  D  É  ,  G  <  H  J  K  S    M  N    O  P    Q        R  S  A  T  B  E  U  F  G  Ç  V   W  X  Y  Z  [  \  ]  ^  _  `  a  b  c  d  e  f  g  0    h  i  j  k  l  m  n  o  p  r  s  t  u  w  y  {  |  ~    €    ‚  „  …  ˆ  Š    “  |  •  –  =  ™  š  ›  œ      Ÿ     ¡  ¢  £  ¤  ¥    ¦    ı  §  ¨  —   ©  ª  «  ¬  N  ­  ®  ¯    °  ±  ²    ³    ´  µ  ¶  ·    `¸  ¹  º  P    `  »    `  ¿    Á  Â     ù  Ä  Ã  Å  Ç  Æ    È    É    `  Y      Ê  ù  ‰   Ë      Ì      `  Y      ù    ‰   Ë      Î    `<    Á    Ì    n  É  	  `  ê    ¿  Ô  ×    `  Á  Ó  Ô   n  Ö  Õ  ×  ı    Ø      É  Ú  Ü  Û  İ    @  Ş  <  <  à  á  ß  â  —   ã  D  ±  ä    å  æ    |      ç    Ì    ·  é    p
+  `  `        ı  <  ì  î  ï    ğ  ˜   (  )    @1  ò  P    `ï  0  1  2  @  A  Ê     J    ó  ô  õ  ö  ÷  ø  ù  Y  ú  ‰   û  ü  ı  ş  ¨  ª  ÿ    <    »   ğ    @ P      `  `    ¿     ù  Û  a §  İ  	  
+   `   ¼    ‰                    ¿     ù      a     È  Û  İ           " <  $ )  # ! % ^  &  Ì  '   `  `   Í      ê      ¿      (   `    ¿     ê  *   (   `    <  , b      Ê      `    <  . b      /     `    <  1 b  2     3     `    <  1 b      5     `    ¿     ù     İ  Å  a ‰       Û   È    `  `    <  6 P    ë  7 8 ^  Ç  
+ 9 : ;   `    <  6 < P    ë  7 = 8 ^  Ç  
+ 9 : ;   `  `<  	  
+  >    P™     P  P  P  P  P  P  P  P&  H 	  PJ 
+  P  P  P  P  P  P  P  P  P  P  P  P  P  P  P  @  @‰   +  0  .  \ ] £  ^ Ë _ ` a b c d e f g h i j k l m n o p ß q -  r 2  s n     `  p  p      @    @    ‰     	  
+    N                      p¼    p¦    pÍ    pJ    p"  	  pë  
+  pğ    p¥    p»    p   p   p   p   p   p
+   pA    p(   p,  ÿX„Z  <                  ²           ²      »        µ      u       Ç      v       Ô      w       à   	   x       ğ   1   y       é      z       !     {       4  6   |       j  3   }            ~       ª  
+          ´  
+   €       ¾  
+          È     ‚       Ó  
+   ƒ       İ     „       ñ     …            †         F   ‡       H©À      Û‹      Û‹                  Ê  ¨2  ¼  ¨2                 ¾2  Ş2  ª2  Ş2                  ¯3  05  §3  05  ¦  *            W5  87  O5  87  ³  '             ^7  –9  V7  –9  Ã  &             »9  ‰:  ³9  ‰:  Ó  %           ®:  À?  ¦:  À?  Ş  %            ?  §?  ?  §?               ƒ.Š@  tC  ‚@  tC    *            ˜C  RQ  C  RQ  %  $            …Q  GZ  }Q  GZ  ƒ  !            ‰Z  ı[  Z  ı[  ¹  "             "\  g]  \  g]  Æ  $             ‹]  )a  ƒ]  )a  Ğ  #             Ma  Ìd  Ea  Ìd  ç  #             ód  Äh  ëd  Äh  ı  &             êh  wl  âh  wl    %             Ÿl  ]n  —l  ]n  5  '             €n  5u  xn  5u  @  "             [u  P|  Su  P|  ^  %             o|  Ú‹  g|  Ú‹  ~            5¡İ¸bÎIêøw$T€      %g!åùg!åùGg#qè   d    O^partitionKey=%28https%2Cphswcoding.co.kr%29,:https://web.nicepay.co.kr/v3/webstd/js/nicepay-3.0.js strongly-framed 1 security-info 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 request-method GET response-head HTTP/1.1 200 OK
+Date: Wed, 30 Oct 2024 04:16:11 GMT
+Last-Modified: Wed, 16 Oct 2024 22:29:59 GMT
+ETag: "8bde-6249f9c370c52"
+Accept-Ranges: bytes
+Content-Length: 35806
+Content-Type: application/javascript
+ original-response-headers Date: Wed, 30 Oct 2024 04:16:11 GMT
+Last-Modified: Wed, 16 Oct 2024 22:29:59 GMT
+ETag: "8bde-6249f9c370c52"
+Accept-Ranges: bytes
+Content-Length: 35806
+Keep-Alive: timeout=10, max=2000
+Connection: Keep-Alive
+Content-Type: application/javascript
+ ctid 2 uncompressed-len 0 net-response-time-onstart 299 net-response-time-onstop 309 alt-data 1;35806,javascript/moz-script-bytecode-20241002215545-8l alt-data-from-child 1  ¾â

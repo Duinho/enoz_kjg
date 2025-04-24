@@ -1,0 +1,227 @@
+﻿
+var oldVal;
+$(document).ready(function () {
+	oldVal = $("#Amt").val();
+
+	var tmp_LevelIdx = $('#hhdLevelIDX').val();
+});
+
+//총결제금액이 바뀔때마다 해쉬값 새로 만들기
+function onchangeAmt() {
+	var currentVal = $("#Amt").val();	//현재 총금액
+	var supplyAmt = 0;
+	var taxFreeAmt = $("#TaxFreeAmt").val();	//면세금액(교재비)
+	if (currentVal != oldVal) {		//현재 총금액과 원래 총금액이 다르면 해쉬값 새로 생성
+		var _Price = $("#Amt").val();
+		var _Mkey = $("#MKEY").val();
+		var _Mid = $("#MID").val();
+		var _EdiDate = $("#EdiDate").val();
+
+		var jsonData = "{ plain:\"" + _EdiDate + _Mid + _Price + _Mkey + "\"}";
+
+		$.ajax({
+			url: "/Services/OrderScript.asmx/stringToSHA256",
+			data: jsonData,
+			async: false,
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			type: 'POST',
+			success: function (data) {
+				var r = data.d;
+				$("#EncryptData").val(r);
+				$("#SignData").val(r);
+			},
+			error: function (request, status, error) {
+				alert("다시 시도하여 주십시오." + request.responseText);
+			}
+		});
+	}
+	oldVal = currentVal;
+	supplyAmt = currentVal - taxFreeAmt;	//공급가액 = 현재 총금액 - 면세금액 ::: 다시 계산해서 태그에 넣는다.
+	$("#SupplyAmt").val(supplyAmt);
+	if (currentVal == 0) {
+		$("#divButton").css('display', 'none');
+		$("#divApply").css('display', 'inline');
+	}
+	else {
+		$("#divButton").css('display', 'inline');
+		$("#divApply").css('display', 'none');
+	}
+
+}
+
+function checkBeforePaying() {
+
+	var requestedPrice = payForm.Amt.value
+	addBook();
+
+	if (requestedPrice !== payForm.Amt.value) {
+		// 금액불일치: 에러처리
+		alert("결제 오류가 발생하였습니다. 이전 화면으로 이동합니다.")
+		location.href = "/Course/CourseList";
+		return false
+	}
+
+	return true
+}
+
+function requestPayment(bookOption, paymethod) {
+	// 금액불일치: 에러처리
+	if (checkBeforePaying()) {
+		Pay(payForm, bookOption, paymethod)
+	}
+}
+
+//무통장 수강신청(총결제금액 0원)
+function pay_info_cash() {
+	if (!checkBeforePaying()) {
+		return
+	}
+
+	var obj = document.payForm;
+
+	if (!funcIsNull(obj.tbOrdName, "받는 사람 이름을", "insert")) return;
+	if (!funcIsNull(obj.tbOrdPhone1, "연락처를", "insert")) return;
+	if (!funcIsNull(obj.tbOrdPhone2, "연락처를", "insert")) return;
+	if (!funcIsNull(obj.tbOrdPhone3, "연락처를", "insert")) return;
+	if (!funcIsNull(obj.tbOrdMobile1, "학부모 휴대전화를", "insert")) return;
+	if (!funcIsNull(obj.tbOrdMobile2, "학부모 휴대전화를", "insert")) return;
+	if (!funcIsNull(obj.tbOrdMobile3, "학부모 휴대전화를", "insert")) return;
+	if (!funcIsNull(obj.tbOrdZipCode1, "우편번호를", "insert")) return;
+	if (!funcIsNull(obj.tbOrdAddr1, "주소를", "insert")) return;
+
+	var yesno = confirm("수강신청을 진행하시겠습니까?");
+	if (yesno == false) {
+		return;
+	} else {
+		if ($("#submitCheck").val() == 0) {
+			$("#submitCheck").val('1')
+			makeParameter();
+			document.payForm.action = "/Course/PayBankProc";
+			document.payForm.submit();
+		} else {
+
+			alert(' 수강신청이 진행 중입니다. \n\n\r 사이트 접속량 급증으로 다소 시간이  걸리 수 있으니 양해 부탁드립니다.')
+		}
+	}
+}
+
+//교재구매&워크북구매 체크에 따른 금액 변동
+function addBook() {
+	var bookOption = document.getElementById("cbBook") //교재구매 체크박스
+
+	if (!bookOption) {
+		return
+	}
+
+	var tmp_book_price = document.payForm.TmpBookPrice.value;	//.cs에서 계산된 Only 교재비(iTotBookPrice)
+	var tmp_baesong_price = document.payForm.TmpBookBaesong.value;	//.cs에서 계산된 배송비(iBookBaesong)
+	var tmp_price = document.payForm.TmpPrice.value;			//.cs에서 계산된 총금액(iTotPrice) = 수강료 + 교재비 + 배송비
+
+	var tmp_lec_price = parseInt(tmp_price) - parseInt(tmp_book_price) - parseInt(tmp_baesong_price);	//Only 강좌 금액 = 총금액 - 교재비 - 배송비
+
+	if (tmp_price == "") {
+		bookOption.checked = false;
+		alert("교재를 구매를 할 수 없습니다.\n\n고객센터로 연락하시기 바랍니다.");
+		return false;
+	}
+	else {
+		try {
+			var book_price = parseInt(tmp_book_price);
+			var beasong_price = parseInt(tmp_baesong_price);
+			var set_price = 0;
+			var set_book_price = 0;
+			set_book_price = book_price;		//순수 교재비
+			set_price = parseInt(tmp_price);	//총 수강료 (수강료 + 교재비 + 배송비)
+
+			if (bookOption.checked == true) {
+
+				//UOE만 워크북 구매 체크박스가 보이게 설정
+				var tmp_LevelIdx = document.getElementById("hhdLevelIDX").value;
+
+				//교재구매 O / 워크북구매 O
+				document.payForm.hhdBook.value = "Y";
+
+				document.payForm.BookAmt.value = set_book_price;        //여분필드 string 생성에 사용하는 순수 교재비
+				document.payForm.Amt.value = set_price;                 //NicePay 결제할 총금액
+				document.getElementById("SupplyAmt").value = set_price - set_book_price;      //결제 ::: 공급가액 = 총금액 - 순수교재비
+				document.getElementById("TaxFreeAmt").value = set_book_price;                 //결제 ::: 면세금액(only 순수 교재비)
+
+				document.getElementById("order_book_price").innerHTML = addComma2(set_book_price) + " 원";	//사용자에게 표시되는 순수교재비
+				document.getElementById("order_price").innerHTML = addComma2(set_price) + " 원";				//사용자에게 표시되는 결제 총금액(배송료포함)
+				//document.getElementById("baesong_text").innerHTML = '&nbsp;(배송비 ' + addComma2(beasong_price) + '원 포함)';		//배송료포함 안내
+
+			} else {
+				set_price = tmp_lec_price;	//총결제금액 ::: Only 수강료 = 처음설정된 총금액 - 교재비 - 배송비 ::: Only 수강료
+
+				document.payForm.BookAmt.value = 0;		//교재비 0원
+				document.payForm.Amt.value = set_price;	//총결제금액 ::: Only 수강료
+				document.getElementById("SupplyAmt").value = set_price;        //결제 ::: 공급가액 = Only 수강료
+				document.getElementById("TaxFreeAmt").value = 0;               //결제 ::: 면세금액(only 순수 교재비) = 0원
+
+				document.getElementById("order_book_price").innerHTML = "0 원";
+				document.getElementById("order_price").innerHTML = addComma2(set_price) + " 원";
+				//document.getElementById("baesong_text").innerHTML = ""; //배송료포함 안내 뺴기
+
+				//교재를 구매하지않으면 워크북도 구매하지않도록 체크박스 해제
+				document.payForm.hhdBook.value = "N";
+
+			}
+			onchangeAmt();
+		}
+		catch (err) {
+			bookOption.checked = false;
+			alert("고객님의 PC에 장애가 발생하여 교재를 구매를 할 수 없습니다.\n\n고객센터로 연락하시기 바랍니다." + "\n\n" + err);
+			return false;
+		}
+	}
+}
+
+function Pay(form, gubun, paymethod) {
+
+	var obj = document.payForm;
+
+	document.getElementById("PayMethod").value = paymethod;
+	var cbBook = document.getElementById("cbBook");
+
+	if (cbBook && cbBook.checked == true) {
+		if (!funcIsNull(obj.tbOrdName, "받는 사람 이름을", "insert")) return;
+		if (!funcIsNull(obj.tbOrdPhone1, "연락처를", "insert")) return;
+		if (!funcIsNull(obj.tbOrdPhone2, "연락처를", "insert")) return;
+		if (!funcIsNull(obj.tbOrdPhone3, "연락처를", "insert")) return;
+		if (!funcIsNull(obj.tbOrdMobile1, "학부모 휴대전화를", "insert")) return;
+		if (!funcIsNull(obj.tbOrdMobile2, "학부모 휴대전화를", "insert")) return;
+		if (!funcIsNull(obj.tbOrdMobile3, "학부모 휴대전화를", "insert")) return;
+		if (!funcIsNull(obj.tbOrdZipCode1, "우편번호를", "insert")) return;
+		if (!funcIsNull(obj.tbOrdAddr1, "주소를", "insert")) return;
+	}
+
+	makeParameter();	//여분필드 string 생성함수
+
+	if (paymethod == "KPAY") {
+		kakaopayStart();
+	} else {
+		nicepayStart();
+	}
+}�ế`      f�f�G[��hӶ&   |    O^partitionKey=%28https%2Cbgswcoding.co.kr%29,:https://www.bgswcoding.co.kr/Common/scripts/coursepay.js?v=638627984226775926 strongly-framed 1 security-info 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 request-method GET response-head HTTP/2 200 
+cache-control: public,max-age=31536000
+content-type: application/javascript
+last-modified: Mon, 09 Jan 2023 01:21:57 GMT
+accept-ranges: bytes
+etag: "80a8d3c3c823d91:0"
+server: none
+date: Tue, 24 Sep 2024 09:13:42 GMT
+content-length: 8049
+X-Firefox-Spdy: h2
+ original-response-headers cache-control: public,max-age=31536000
+content-type: application/javascript
+last-modified: Mon, 09 Jan 2023 01:21:57 GMT
+accept-ranges: bytes
+etag: "80a8d3c3c823d91:0"
+server: none
+x-powered-by: 
+x-aspnet-version: 
+date: Tue, 24 Sep 2024 09:13:42 GMT
+content-length: 8049
+X-Firefox-Spdy: h2
+ ctid 2 uncompressed-len 0 net-response-time-onstart 44 net-response-time-onstop 44   q
