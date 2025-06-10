@@ -1,0 +1,1130 @@
+
+<!DOCTYPE html>
+<html>
+<head><title>
+	온라인 SW 코딩 교실
+</title><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge" /><meta name="language" content="ko" /><meta name="viewport" content="initial-scale=1.0, width=device-width" /><meta name="format-detection" content="telephone=no" /><meta name="robots" content="index,follow" /><meta property="og:type" content="website" /><meta name="twitter:card" content="summary" />
+    <meta name="subject" content="온라인 SW 코딩 교실" /><meta name="description" content="온라인 SW 코딩 교실, 초등학교 코딩, 코딩학습의 시작과 마무리까지 체계적인 구성으로 코딩실력이 한단계 업그레이드" /><meta name="og:title" content="온라인 SW 코딩 교실" /><meta name="og:description" content="온라인 SW 코딩 교실, 초등학교 코딩, 코딩학습의 시작과 마무리까지 체계적인 구성으로 코딩실력이 한단계 업그레이드" /><meta name="og:image" content="https://www.bgswcoding.co.kr/webfs/common/images/common/swcoding/logo_bg.png" /><meta name="og:url" content="https://www.bgswcoding.co.kr" /><meta name="twitter:title" content="https://www.bgswcoding.co.kr" /><meta name="twitter:description" content="온라인 SW 코딩 교실, 초등학교 코딩, 코딩학습의 시작과 마무리까지 체계적인 구성으로 코딩실력이 한단계 업그레이드" /><meta name="twitter:image" content="https://www.bgswcoding.co.kr/webfs/common/images/common/swcoding/logo_bg.png" /><meta name="twitter:domain" content="온라인 SW 코딩 교실" />
+
+    <script src="/Common/scripts/jscript.js?v=638851749331080192"></script>
+    <script src="/Common/scripts/common.js?v=638851749331080192"></script>
+
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="/Common/css/default.css?v=002" /><!-- default.css를 수정시 v++ 하기 -->
+    <link rel="stylesheet" type="text/css" href="/Common/css/font.css" /><link rel="stylesheet" href="//cdn.linearicons.com/free/1.0.0/icon-font.min.css" />
+    <script src="//cdn.linearicons.com/free/1.0.0/svgembedder.min.js"></script>
+    
+    <!-- XEICON CEN -->
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/xeicon@2.3.3/xeicon.min.css" />
+
+    <!-- fontawsome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+
+    <!-- gnb -->
+    <script src="/Common/scripts/js/jquery-1.12.4.min.js"></script>
+    <script src="/Common/scripts/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/Common/scripts/js/common_ui.js"></script>
+
+    <!-- allmenu -->
+    <script src="/Common/scripts/js/allmenu.js"></script>
+
+    <!-- slick  -->
+    <script type="text/javascript" src="/Common/scripts/js/slick/slick.min.js"></script>
+    <link media="all" href="/Common/scripts/js/slick/slick.css" type="text/css" rel="stylesheet" /><link media="all" href="/Common/scripts/js/slick/slick-theme.css" type="text/css" rel="stylesheet" />
+
+    <!-- gotop -->
+    <!--<script type="text/javascript" src="/Common/scripts/js/go-top.js"></script>-->
+
+    <!-- s_gnb -->
+    <script type="text/javascript" src="/Common/scripts/js/front.js"></script>
+
+    <!--aos-->
+    <script type="text/javascript" src="/Common/scripts/js/aos/aos.js"></script>
+    <link media="all" href="/Common/scripts/js/aos/aos.css" type="text/css" rel="stylesheet" />
+
+    <!-- tab -->
+    <script>
+        $(document).ready(function () {
+            //Default Action
+            $(".tab_content").hide(); //Hide all content
+            $("ul.tabs li:first").addClass("active").show(); //Activate first tab
+            $(".tab_content:first").show(); //Show first tab content
+
+            //On Click Event
+            $("ul.tabs li").click(function () {
+                $("ul.tabs li").removeClass("active"); //Remove any "active" class
+                $(this).addClass("active"); //Add "active" class to selected tab
+                $(".tab_content").hide(); //Hide all tab content
+                var activeTab = $(this).find("a").attr("href"); //Find the rel attribute value to identify the active tab + content
+                $(activeTab).fadeIn(); //Fade in the active content
+                return false;
+            });
+
+        });
+
+    </script>
+
+    <script>
+        $(function () {
+            gnb.web();
+        });
+    </script>
+    
+<script>
+    history.pushState(null, null, "http://www.bgswcoding.co.kr");
+    window.onpopstate = function (evnet) {
+        history.go(1);
+    }
+</script>
+
+<!--==================================== Daum 우편번호 script ========================================-->
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script src="/Common/scripts/common.js?v=638851749332017785"></script>
+
+<!--==================================== NicePay script =============================================-->
+<script src="https://web.nicepay.co.kr/v3/webstd/js/nicepay-3.0.js" type="text/javascript"></script>
+<script src="/Common/scripts/nicepay.js?v=638851749332017785"></script>
+
+
+<!-- 교재만 구입 checkbox 사용 ====-->
+<script src="/Common/scripts/coursepay.js?v=638851749332017785"></script>
+
+<script>
+
+	// 여분필드 value string 생성
+    function makeParameter() {
+
+        var _id = $("#UserId").val();
+        var _low_tmp = $("#hhdLow").val();
+        var _jse = $("#hhdCheckJS").val();
+		var _bookprice = $("#BookAmt").val();
+        var _book = $("#hhdBook").val();
+        var _workbook = $("#hhdWorkBook").val();
+        var _level_idx = $("#hhdLevelIDX").val();
+        var _lecture_idx = $("#hhdLecIDX").val();
+		var _time_idx = $("#hhdTimeIDX").val();
+        var _lec_time = $("#hhdLecTime").val();
+
+        var _ord_name = $("#tbOrdName").val();
+        var _ord_phone = $("#tbOrdPhone1").val() + '-' + $("#tbOrdPhone2").val() + '-' + $("#tbOrdPhone3").val();
+        var _ord_mobile = $("#tbOrdMobile1").val() + '-' + $("#tbOrdMobile2").val() + '-' + $("#tbOrdMobile3").val();
+        var _ord_zipcode = $("#tbOrdZipCode1").val();
+        var _ord_add1 = $("#tbOrdAddr1").val();
+        var _ord_add2 = $("#tbOrdAddr2").val();
+        var _ord_comment = $("#tbOrdComment").val();
+
+        var jsonData = "{ id:\"" + _id + "\", low_tmp:\"" + _low_tmp + "\", jse:\"" + _jse + "\", bookprice:\"" + _bookprice + "\", book:\"" + _book
+            + "\", workbook:\"" + _workbook + "\", level_idx:\"" + _level_idx + "\", lecture_idx:\"" + _lecture_idx + "\", time_idx:\"" + _time_idx + "\", lec_time:\"" + _lec_time
+					+ "\", ord_name:\"" + _ord_name + "\", ord_phone:\"" + _ord_phone + "\", ord_mobile:\"" + _ord_mobile + "\", ord_zipcode:\"" + _ord_zipcode
+					+ "\", ord_add1:\"" + _ord_add1 + "\", ord_add2:\"" + _ord_add2 + "\", ord_comment:\"" + _ord_comment + "\"}";
+		//alert(jsonData);
+        $.ajax({
+            url: "/Services/OrderScript.asmx/MakeParameterString",
+            data: jsonData,
+            async: false,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            type: 'POST',
+			success: function (data) {
+                var r = data.d;
+                $("#ReqReserved").val(r);
+            },
+            error: function (request, status, error) {
+                alert("다시 시도하여 주십시오." + request.responseText);
+            }
+        });
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 잔여인원체크
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    function personCheck(gubun, method) {
+
+		//var isCbDevice = "";
+		//$("input[name=cbDevice]:checked").each(function(){
+		//	isCbDevice = "Y";
+		//});
+
+		//if(isCbDevice != "Y") {
+		//	alert("교육 장비 구비 여부는 한 개 이상 선택해주세요.");
+		//	$("#cbPc").focus();
+		//	return false;
+		//}
+
+
+        var time_idx = $("#hhdTimeIDX").val();
+        $.ajax({
+            url: "/Services/OrderScript.asmx/PersonCheck",
+            data: "{ mode:\"Person" + "\", selectedId:\"" + time_idx + "\"}",
+            async: false,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            type: 'POST',
+            success: function (data) {
+                var r = data.d;
+                var RESULT = r.iResult;
+                var ReCnt = r.iReCnt;
+                // 잔여인원이 남아 았을경우
+                if (parseInt(ReCnt) >= 0 && RESULT == true) {
+                    console.log('잔여인원 Check OK');
+                    if (gubun == 0) {
+                        pay_info_cash();
+                    }
+                    else {
+                        requestPayment(gubun, method);
+                    }
+                }
+                else {	// 마감되었을 경우 
+                    var txt = "죄송합니다.\n신청하신 수업은 정원이 마감되었습니다.\n강좌를 취소하시겠습니까?";
+                    orderAppCancel(1958, txt);
+                }
+            },
+            error: function (request, status, error) {
+                alert("다시 시도하여 주십시오." + request.responseText);
+            }
+        });
+    }
+
+    function orderAppCancel(idx, txt) {
+        if (confirm(txt)) {
+            $.ajax({
+                url: "/Services/OrderScript.asmx/CourseApplicationCancel",
+                data: "{ idx:\"" + idx + "\"}",
+                async: false,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                type: 'POST',
+                success: function (data) {
+                    var r = data.d;
+                    if (r == "Y") {
+                        alert("취소되었습니다.");
+                        location.href = "/";
+                    }
+                    else {
+                        alert("오류가 발생되었습니다.");
+                        location.href = "/";
+                    }
+                },
+                error: function (request, status, error) {
+                    alert("다시 시도하여 주십시오." + request.responseText);
+                }
+            });
+        }
+        return false;
+	}
+
+    function kakaopayStart() {
+        console.log('KakaoPay Start');
+        //alert(jsonData);
+        var _goodsNo = document.payForm.Moid.value;
+        var _goodsName = document.payForm.GoodsName.value;
+        var _totalPrice = document.payForm.Amt.value;
+        var _taxFeeAmt = document.payForm.TaxFreeAmt.value;
+
+        var query = "goodsno=" + _goodsNo + "&goodsname=" + _goodsName + "&totalprice=" + _totalPrice + "&taxfeeamt=" + _taxFeeAmt + "&pgdata=" + $("#ReqReserved").val();
+        console.log(query);
+        $.ajax({
+            url: "/Course/PayKakaoReady",
+            data: query,
+            async: false,
+            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            dataType: "json",
+            type: 'POST',
+            success: function (data) {
+                console.log("data : " + data);
+                var _url = data.kurl;
+                window.open(_url, 'kakaowin', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=no,width=540,height=700,left=100,top=100');
+            },
+            error: function (request, status, error) {
+                alert("카카오페이 결제 오류입니다.\n\n다시 시도하여 주십시오." + request.responseText);
+            }
+        });
+	}
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 회원정보 주소 가져오기
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    function userAddress(m_id) {
+        $.ajax({
+            url: "/Services/OrderScript.asmx/GetUserAddress",
+            data: "{ m_id:\"" + m_id + "\"}",
+            async: false,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            type: 'POST',
+            success: function (data) {
+                var r = data.d;
+                $('#tbOrdZipCode1').val(r.post);
+                $('#tbOrdAddr1').val(r.address1);
+                $('#tbOrdAddr2').val(r.address2);
+            },
+            error: function (request, status, error) {
+                alert("다시 시도하여 주십시오." + request.responseText);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+        $('#cbAddress').click(function () {
+            if ($('#cbAddress').prop('checked')) {
+                userAddress('championhistory');
+            }
+            else {
+                $('#tbOrdZipCode1').val('');
+                $('#tbOrdAddr1').val('');
+                $('#tbOrdAddr2').val('');
+            }
+        });
+    });
+</script>
+
+<style>
+    .h-grid4 [type=radio]{
+    visibility: visible;
+    display: inline-block;
+    }
+    .h-grid4.radio_block [type=radio]{
+        visibility: hidden;
+    }
+</style>
+
+</head>
+<body>
+
+<div id="wrap">
+    <div class="main">
+		
+
+<!-- 수강신청기간이 아니면 "신청기간" 애니메이션이 보이지않게 -->
+<script>
+	$(document).ready(function () {
+		
+    });
+</script>
+
+<div style="position: fixed; z-index:999; ">
+
+	<!-- #header Start -->
+	<div id="header" class="transit overflowHidden">
+	<!-- 하위메뉴 펼침 .hopen 추가 /scroll height:453px / 1280이하일때 .hmob -->
+
+		<h1 class="logo"><a href="/" class="transit">온라인 SW 코딩 교실</a></h1>
+
+		<a href="javascript:void(0);" class="ico-menu"></a>
+		<div class="mobile-wrap">
+			<div id="gnb" class=""><!--gng 오버했을때 class open 추가 -->
+				 <ul>
+	<li><a href="/Introduce/System" class="menu1 transit">화상코딩소개</a><!-- tablet에서 부터 선택됐을때 li에 class on 넣어줌 -->
+		<ul>
+			<!--<li><a href="/Introduce/Greeting">인사말</a></li>-->
+			<li><a href="/Introduce/System">교육시스템</a></li>
+			<li><a href="/Introduce/Management">수업운영방안</a></li>			
+			<!-- <li><a href="/Introduce/Teachers">강사소개</a></li> -->
+		</ul>
+	</li>
+	<li><a href="/Course/CourseIndex" class="menu1 transit">수강신청</a>
+		<ul>
+			<li><a href="/Course/CourseIndex">수강절차 안내</a></li>
+			<li class="active"><a href="/Course/CourseList">수강신청</a></li>						
+		</ul>
+	</li>
+	<li><a href="/Lecture/Step" class="menu1 transit">학습안내</a>
+		<ul>
+			<li><a href="/Lecture/Step">학습진행절차</a></li>
+			<li><a href="/Lecture/Process">학습과정</a></li>
+			<li><a href="/Lecture/Books">교구재안내</a></li>
+		</ul>
+	</li>
+	<li><a href="/Center/BoardList?sDiv=Notice" class="menu1 transit">학습지원센터</a>
+		<ul>
+			<li><a href="/Center/BoardList?sDiv=Notice">공지사항</a></li>
+			<li><a href="/Center/FAQ">자주하는질문</a></li>			
+			<li><a href="/Center/UseGuide01">이용가이드</a></li>		
+			<li><a href="/Center/BoardList?sDiv=Data&cate=video">학습자료실</a></li>
+		</ul>
+	</li>
+	<li><a href="/Account/MemConfirm" class="menu1 transit">마이페이지</a>
+		<ul>
+			<li><a href="/MyPage/Mypage">교육신청 정보</a></li>
+			<li><a href="/MyPage/MemConfirm">회원정보 수정</a></li>
+			<li><a href="/MyPage/OrderList">수강신청 현황</a></li>			
+			<li><a href="/MyPage/Study">학습현황</a></li>
+			<li><a href="/MyPage/Certificate">수료증출력</a></li>
+			<li><a href="/MyPage/Counsel">1:1질문방</a></li>	
+		</ul>
+	</li>
+
+</ul>
+			</div>
+
+			<div id="login">
+		
+				<!-- 로그인후 -->
+				<ul style="">
+					<li class="status">
+						<a href="/MyPage/Mypage"><strong>최동훈 님</strong></a>
+						<span class="sep">|</span>
+						<a href="/Account/LoginProc">LOGOUT</a>
+					</li>
+					<li class="status_btn1"><a href="/MyPage/ClassRoom"><span>내 강의실</span></a></li>
+					<li class="status_btn1_img"><a href="/MyPage/ClassRoom"><img src="/webfs/Common//images/common/ico_down.png" alt="내 강의실"></a></li>
+					<!--<li class="status_btn2"><a href="/webfs/common/program/ENOZ57_5767(Kor).exe"><span>화상설치</span></a></li>-->
+					<!--<li class="status_btn2_img"><a href="/webfs/common/program/ENOZ57_5767(Kor).exe"><img src="/images/common/ico_edu.png" alt="화상설치"></a></li>-->
+					<!--<li class="status_btn3"><a href="/MyPage/Mypage"><span>마이페이지</span></a></li>-->
+				</ul>
+				
+			</div>
+
+			<div id="allmenuWrap">
+				<div id="allmenu">
+					<a href="javascript:void(0);" id="navtoggler">menu</a>
+				</div>
+				<nav id="fullscreenmenu">
+					<ul>
+	<li><a href="/Introduce/System" class="menu1 transit">화상코딩소개</a><!-- tablet에서 부터 선택됐을때 li에 class on 넣어줌 -->
+		<ul>
+			<!--<li><a href="/Introduce/Greeting">인사말</a></li>-->
+			<li><a href="/Introduce/System">교육시스템</a></li>
+			<li><a href="/Introduce/Management">수업운영방안</a></li>			
+			<!-- <li><a href="/Introduce/Teachers">강사소개</a></li> -->
+		</ul>
+	</li>
+	<li><a href="/Course/CourseIndex" class="menu1 transit">수강신청</a>
+		<ul>
+			<li><a href="/Course/CourseIndex">수강절차 안내</a></li>
+			<li class="active"><a href="/Course/CourseList">수강신청</a></li>						
+		</ul>
+	</li>
+	<li><a href="/Lecture/Step" class="menu1 transit">학습안내</a>
+		<ul>
+			<li><a href="/Lecture/Step">학습진행절차</a></li>
+			<li><a href="/Lecture/Process">학습과정</a></li>
+			<li><a href="/Lecture/Books">교구재안내</a></li>
+		</ul>
+	</li>
+	<li><a href="/Center/BoardList?sDiv=Notice" class="menu1 transit">학습지원센터</a>
+		<ul>
+			<li><a href="/Center/BoardList?sDiv=Notice">공지사항</a></li>
+			<li><a href="/Center/FAQ">자주하는질문</a></li>			
+			<li><a href="/Center/UseGuide01">이용가이드</a></li>		
+			<li><a href="/Center/BoardList?sDiv=Data&cate=video">학습자료실</a></li>
+		</ul>
+	</li>
+	<li><a href="/Account/MemConfirm" class="menu1 transit">마이페이지</a>
+		<ul>
+			<li><a href="/MyPage/Mypage">교육신청 정보</a></li>
+			<li><a href="/MyPage/MemConfirm">회원정보 수정</a></li>
+			<li><a href="/MyPage/OrderList">수강신청 현황</a></li>			
+			<li><a href="/MyPage/Study">학습현황</a></li>
+			<li><a href="/MyPage/Certificate">수료증출력</a></li>
+			<li><a href="/MyPage/Counsel">1:1질문방</a></li>	
+		</ul>
+	</li>
+
+</ul>
+				</nav>
+			</div>
+
+		</div>
+		<a href="javascript:void(0);" class="close"></a>
+	</div>
+
+	<div class="dim">
+	</div>
+	<!-- #header End -->
+
+</div>
+	</div>
+
+    
+
+
+
+<script type="text/javascript">
+	$(function(){
+		gnb.web(0);
+        subFunc.snb('3', '3');
+	});
+</script>
+
+<div id="sVisu" class="sVisu3">
+	<div class="txt_box" data-aos="fade-up" data-aos-delay="200">
+		<h2>수강신청</h2>
+		<p class="t1">SOFTWARE CODING EDUCATION</p>
+	</div>
+</div>
+
+<div id="page02">
+	<div id="s_navi">
+		<ul class="smenu">
+			<li class="submenu1"><a href="/Course/CourseIndex" class="menu1">수강절차 안내</a></li>			
+			<li class="submenu2"><a href="/Course/CourseList" class="menu2">수강신청</a></li>
+		</ul>
+	</div>
+</div><!-- .page -->
+<!-- 서브메뉴 End -->
+
+<!-- sub_top -->
+<div class="sub_top">
+	<div class="sub_top_in">
+		<div class="snb">
+			<div class="home">
+				<a href="/">Home</a>
+			</div>
+			<div class="depth1_area">
+				<a href="javascript:;" class="open_depth"></a>
+				<ul class="smenu">
+					<li class="submenu1"><a href="/Introduce/System" class="menu1">화상코딩소개</a></li>					
+					<li class="submenu2"><a href="/Course/CourseIndex" class="menu2">수강신청</a></li>
+					<li class="submenu3"><a href="/Lecture/Step" class="menu3">학습안내</a></li>
+					<li class="submenu4"><a href="/Center/FAQ" class="menu4">학습지원센터</a></li>
+					<li class="submenu5"><a href="/Board/BoardList" class="menu5">커뮤니티</a></li>
+				</ul>
+			</div>
+
+			<div class="depth2_area">
+				<a href="javascript:;" class="open_depth"></a>
+				<ul class="smenu">
+					<li class="submenu1"><a href="/Course/CourseIndex" class="menu1">수강절차 안내</a></li>			
+					<li class="submenu2"><a href="/Course/CourseList" class="menu2">수강신청</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- //sub_top -->
+
+<!-- 버튼 클릭 중복 방지 -->
+<form name="checkform" id="checkform">
+	<input type="hidden" name="submitCheck" id="submitCheck" value="0">
+</form>
+
+<div id="subContent">
+	<div id="subTitle">
+		<h2>수강신청</h2>
+		<p>수강신청을 하고 회원님의 코딩학습수준을 높여보세요.</p>
+	</div>
+
+	<div id="pageCont" class="s-inner">
+		<div class="h-grid4">
+
+			<ul class="stepBox2">
+				<li class="step1">
+				    <dl>
+						<dt>STEP 1</dt>
+						<dd>교육선택</dd>
+					</dl>
+				</li>
+				<li class="step2 selected">
+				    <dl>
+						<dt>STEP 2</dt>
+						<dd>교구 배송 주소 입력</dd>
+					</dl>
+				</li>
+				<li class="step3">
+				    <dl>
+						<dt>STEP 3</dt>
+						<dd>수강 신청 완료</dd>
+					</dl>
+				</li>
+			</ul>
+
+			<!--=======================결제=======================-->
+			<form name="payForm" method="post" action="/Course/PayNiceProc" class="pay">
+
+				<input type="hidden" name="txtPoll_1" id="txtPoll_1" value="" />
+				<input type="hidden" name="txtPoll_2" id="txtPoll_2" value="" />
+				<input type="hidden" name="txtPoll_3" id="txtPoll_3" value="" />
+				<input type="hidden" name="txtPoll_4" id="txtPoll_4" value="" />
+				<input type="hidden" name="txtPoll_5" id="txtPoll_5" value="" />
+
+			<!-- ### 1. 주문자 회원 정보 ##### -->
+			
+			
+			<div class="table_t3 nanum_g" style="margin-top:50px">
+				<h3 class="title-1">회원정보</h3>
+				<table>
+					<tbody>
+						<tr>
+							<th>회원명</th>
+							<td colspan="3">
+								<span class="txt1">최동훈</span> (championhistory)
+							</td>
+						</tr>
+						<tr>
+							<th>전화번호</th>
+							<td colspan="3">
+							
+									미입력
+							
+							</td>
+						</tr>
+						<tr>
+							<th>휴대전화</th>
+							<td colspan="3">
+								010-7948-0827
+							</td>
+						</tr>
+						<tr>
+							<th>회원 주소</th>
+							<td colspan="3">
+							
+									[41526] 대구 북구 공항로 16 (복현동, 복현자이) &nbsp;105동 102호
+							
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+
+			<!-- ### 2. 수강정보 ##### -->
+			<div class="table_t3 nanum_g">
+				<h3 class="title-1">수강정보</h3>
+				<table>
+					<tbody>
+						<!--
+						<tr>
+							<th>강좌 레벨</th>
+							<td colspan="3">
+								<span class="txt1">Coding / STARTER 1</span>
+							</td>
+						</tr>
+						-->
+						<tr>
+							<th>강좌 구분</th>
+							<td colspan="3">
+								<span class="txt1">1 : 7</span>
+							</td>
+						</tr>
+						<tr>
+							<th>강좌 정보</th>
+							<td colspan="3">
+								<span class="txt1">1개월/주2회/화목/90분</span>
+							</td>
+						</tr>
+						<tr>  
+							<th>강좌 시간</th>
+							<td colspan="3">
+								<span class="txt1">19:00 ~ 20:30 (90분)</span>
+							</td>
+						</tr>
+						<tr>  
+							<th>수강 기간</th>
+							<td colspan="3">
+								
+								<span class="txt1">2025년 06월 30일 ~ 2025년 07월 24일</span>
+							</td>
+						</tr>
+						<!--
+						<tr>
+							<th>수강료</th>
+							<td colspan="3">
+								<span class="txt2 fc-blue" style="font-size:1.2em">
+									<b>
+									0 원
+									
+									</b>
+								</span>
+							</td>
+						</tr>
+						-->
+						<!--
+						<tr class="book_price">
+							<th>교재비</th>
+							<td colspan="3">
+
+
+									<span class="txt2 fc-green" style="font-size:1.2em;" id="order_book_price">										
+										0 원										
+									</span>
+									<span class="txt1" style="font-size:1em"> <b>( 디지털 타이머 : 에너지 절약 프로젝트  )</b></span>&nbsp;
+										
+																				
+												<div class="courese_info style2" style="margin-top:10px;">
+													<input type="checkbox" name="cbBook" id="cbBook" value="Y" style="margin: 0px 0px 5px;" onclick="addBook();" checked="checked"> 
+													<label for="cbBook" style="font-size:1em;color:darkmagenta;cursor:pointer;margin-right:10px;">교재를 선택하겠습니다. (무료)</label>													
+												</div>
+										
+									
+
+							</td>
+						</tr>
+						-->
+
+						<!--
+						<tr>
+							<th>총 결제금액</th>
+							<td colspan="3">
+								<span class="txt3 fc-red" style="font-size:1.5em" id="order_price">
+									<b>0 원</b>
+								</span>
+                                
+							</td>
+						</tr>
+						-->
+
+					</tbody>
+				</table>
+			</div>
+			<div class="table_t3 nanum_g input">
+				<h3 class="title-1">교재 배송지 정보</h3>
+				<table class="ht1">
+					<tbody>
+						<tr>
+							<th>받는사람</th>
+							<td colspan="3">
+								<input type="text" size="25" id="tbOrdName" name="tbOrdName" value="최동훈" class="type3 w1">
+							</td>
+						</tr>
+						<tr>
+							<th>학부모 휴대전화</th><!--학부모 폰번호-->
+							<td colspan="3">
+								<input type="text" name="tbOrdMobile1" id="tbOrdMobile1" size="4" maxlength="4" class="type3 w2 IsNum" value="010">
+								<input type="text" name="tbOrdMobile2" id="tbOrdMobile2" size="4" maxlength="4" class="type3 w2 IsNum" value="7948">
+								<input type="text" name="tbOrdMobile3" id="tbOrdMobile3" size="4" maxlength="4" class="type3 w2 IsNum" value="0827">
+
+							</td>					    
+						</tr>
+						<tr>
+							<th>전화번호</th>
+							<td colspan="3">
+								<input type="text" name="tbOrdPhone1" id="tbOrdPhone1" size="4" maxlength="4" class="type3 w2 IsNum" value="010">
+								<input type="text" name="tbOrdPhone2" id="tbOrdPhone2" size="4" maxlength="4" class="type3 w2 IsNum" value="7948">
+								<input type="text" name="tbOrdPhone3" id="tbOrdPhone3" size="4" maxlength="4" class="type3 w2 IsNum" value="0827">
+
+							</td>
+						</tr>
+						<tr>
+							<th>받을 주소</th>
+							<td colspan="3">
+								<div>
+								
+									<input type="text" name="tbOrdZipCode1" id="tbOrdZipCode1" size="6" maxlength="6" class="type3 w2 IsNum" onclick="sample3_execDaumPostcode('tbOrdZipCode1','tbOrdAddr1','tbOrdAddr2','tbBdMgtSn')">
+								
+									<a href="javascript:void(0);" onclick="sample3_execDaumPostcode('tbOrdZipCode1','tbOrdAddr1','tbOrdAddr2','tbBdMgtSn')" class="btn_zip">
+										<span>우편번호 찾기</span>
+									</a>
+									<div class="sc_check1" id="div_cbAddress" style="padding-left:1%;display:inline-block">
+										<input type="checkbox" name="cbAddress" id="cbAddress"> &nbsp;
+										<label for="cbAddress" class="fc-blue">회원정보에서 가져오기</label>
+									</div>
+								</div>
+								<div style="margin-top:7px" class="input1">
+									<input type="text" name="tbOrdAddr1" id="tbOrdAddr1" class="type3 w4" size="55">
+									<br>
+									<input type="text" name="tbOrdAddr2" id="tbOrdAddr2" class="type3 w1" size="25"style="margin-top:7px;">
+									<input type="hidden" name="tbBdMgtSn" id="tbBdMgtSn" value="" />
+								</div>
+								<style>
+									.wrap_daum {
+											display:none;border:1px solid;width:520px;height:450px;margin:5px 0;position:relative;
+										}
+
+								</style>
+								<div class="wrap_daum" id="wrap_daum">
+									<img src="//t1.daumcdn.net/postcode/resource/images/close.png" id="btnFoldWrap" style="cursor:pointer;right:0px;top:-1px;z-index:10;position:absolute" onclick="foldDaumPostcode()" alt="접기 버튼">
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th>배송시 유의사항</th>
+							<td colspan="3">
+								<textarea id="tbOrdComment" name="tbOrdComment" maxlength="80" class="type3"></textarea>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<!--
+				<div class="refund">				
+					<div class="refund_content" style="border:0;">
+						<dl>
+							<dt>교육 장비 구비 여부</dt>
+							<dd>
+								<div style="border:1px solid #ccc; padding:10px; margin:10px;">
+									가정에 구비되어 있는 화상 장비를 선택해주세요(복수선택 가능) <br />
+									참가 가정에서는 온라인 접속에 필요한 노트북 혹은 데스크톱 구비 필요(마이크, 헤드셋 포함)
+								</div>
+								<div class="sc_check1" id="div_device" style="padding-left:1%;display:inline-block">
+									<input type="checkbox" name="cbDevice" id="cbPc" value="A"> &nbsp;
+									<label for="cbPc" class="fc-black">데스크탑 또는 노트북</label>  <br />
+									<input type="checkbox" name="cbDevice" id="cbCamera" value="B"> &nbsp;
+									<label for="cbCamera" class="fc-black">카메라 (노트북일 경우 작동 여부를 확인해주시고 체크해주시길 바랍니다)</label> <br />
+									<input type="checkbox" name="cbDevice" id="cbHeadSet" value="C"> &nbsp;
+									<label for="cbHeadSet" class="fc-black">헤드셋</label> <br />
+									<input type="checkbox" name="cbDevice" id="cbMike" value="D"> &nbsp;
+									<label for="cbMike" class="fc-black">마이크</label>									
+								</div>
+								<div>
+									<span style="color:red; font-weight:bold;">※ 3기 VR/AR 교육을 위해 교육 중 휴대폰이 반드시 필요합니다. (태블릿 사용불가)</span> 
+
+								</div>
+							</dd>
+						</dl>
+					</div>
+				</div>
+				-->
+				<div class="refund">				
+					<div class="refund_content" style="border:0;">
+						<dl>
+							<dt>교육 장비 구비 여부</dt>
+							<dd>
+								<div style="border:1px solid #ccc; padding:10px; margin:10px;">
+									온라인 교육을 위해 참가 가정에서는 노트북 혹은 데스크톱이 개별로 필수 구비되어 있어야 합니다.  (마이크, 헤드셋, 웹캠 포함)
+						<br>
+						*갤럭시 탭, 아이패드와 같은 태블릿PC는 교육이 불가합니다.(마이크, 헤드셋 포함)
+						<br>
+						*교육에 필요한 교구재는 위 기재해 주신 주소로 모두 개별 택배 발송해드립니다.
+								</div>
+								<div class="sc_check1" id="div_device" style="padding-left:1%;display:inline-block">
+									<input type="checkbox" name="cbDevice" id="cbPc" value="A"> &nbsp;
+									<label for="cbPc" class="fc-black">네, 확인하였습니다.</label>  <br />													
+								</div>
+								
+							</dd>
+						</dl>
+					</div>
+				</div>
+				</div>
+
+				<div class="refund">				
+					<div class="refund_content" style="border:0;">
+						<dl>
+							<dt>교육 유의사항</dt>
+							<dd>- 교육에 필요한 교구재는 위 기재해 주신 주소로 모두 개별 택배 발송해드립니다. <br />
+								다만, 온라인 교육진행에 필요한 노트북 또는 PC가 반드시 구비되어 있어야 합니다. <br />
+								추가로 교육진행에 필요한 화상카메라(웹캠), 마이크 부착 헤드셋을 미리 준비해주세요.
+							</dd>
+						</dl>
+					</div>
+				</div>
+
+			</div><br/>
+
+			<!-- ### 수강료 및 교재 환불 규정 ##### -->
+			
+			
+<!-- 			<div class="table_t3 nanum_g" style="margin-top:50px">
+				<h3 class="title-1">수강료 및 교재 환불 규정</h3>
+				<table>
+					<tbody>
+						<tr>
+							<th>수강료 환불 규정</th>
+							<td colspan="3">
+								<ul>
+									<li>- 수업 시작 1일 전까지 수강포기 : 100% 환불</li>
+									<li>- 1주 이내 포기 : 75% 환불</li>
+									<li>- 2주 이내 포기 : 50% 환불</li>
+									<li>- 2주 이후 : 환불 없음</li>		
+								</ul>
+								<p>연락 당일 기준으로 처리 됩니다.<br> 공휴일 등으로 인해 콜센터 연락이 되지 않을 경우엔 반드시 1대1 질문방에 글을 미리 올려주시기 바랍니다.</p>
+							</td>
+						</tr>
+						<tr>
+							<th>교재 환불 규정</th>
+							<td colspan="3">
+								<ul>
+									<li>- 수업 시작 전날까지 교재 이용 및 파손 없을시 100% 환불</li>
+									<li>- 수업 시작 후 교재 환불 불가</li>
+									<li>- 단순 변심에 의한 교재 반품의 경우, 배송비는 수요자가 부담</li>
+								</ul>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div> -->
+
+
+
+			<!--<div class="sc_check1" id="div_cbAgree" style="padding-left:1%;">
+				<input type="checkbox" name="cbAgree" id="cbAgree"> &nbsp;
+				<label for="cbAgree"><b>개인정보 제공에 동의합니다.</b></label>
+			</div>-->
+
+
+			<div class="btn_apply1">
+				<div id="divButton" style="display:inline">
+					
+						<a href="javascript:void(0);" onclick="personCheck(0, '')" class="btn_type5 btn1"><span>신청</span></a>
+					
+				</div>
+                <div id="divApply" style="display:none">
+					<a href="javascript:void(0);" onclick="personCheck(0, '')" class="btn_type5 btn1"><span>신청</span></a>
+				</div>
+				<a href="javascript:void(0);" onclick="orderAppCancel(1958,'정말 취소하시겠습니까?');" class="btn_type5 btn2"><span>취소</span></a>
+			</div>	
+
+
+
+			<!--======================================= hidden 파라미터 ========================================-->
+
+			<!-- 결제 금액 변동시 계산에 사용하는 필드 -->
+			<input type="hidden" name="TmpBookPrice" value="0">			<!-- only original 교재비 -->
+			<input type="hidden" name="TmpBookBaesong" value="0" >	<!-- original 배송비 -->
+			<input type="hidden" name="TmpPrice" value="0">				<!-- original 총금액 -->
+
+			<!-- 여분필드 string 생성시 필요한 hidden 필드 -->
+			<input type="hidden" id="UserId" name="UserId" value="championhistory">					<!-- 구매자 아이디 -->
+			<input type="hidden" id="hhdLow" name="hhdLow" value="N" />				<!-- 수강료 할인 종류 -->
+			<input type="hidden" id="hhdCheckJS" name="hhdCheckJS" value="J" />
+			<input type="hidden" id="hhdBook" name="hhdBook" value="Y"/>						<!-- 교재구매여부(Default 'Y') -->
+			<input type="hidden" id="hhdWorkBook" name="hhdWorkBook" value="N"/>				<!-- 워크북구매여부(Default 'N') -->
+			<input type="hidden" id="BookAmt" name="BookAmt" value="0">			<!-- 교재비 (배송비를 제외한 순수 교재비) -->
+			<input type="hidden" id="hhdLevelIDX" name="hhdLevelIDX" value="1" />
+			<input type="hidden" id="hhdLecIDX" name="hhdLecIDX" value="4" />
+			<input type="hidden" id="hhdTimeIDX" name="hhdTimeIDX" value="20" />
+			<input type="hidden" id="hhdLecTime" name="hhdLecTime" value="19:00 ~ 20:30 ()" />		<!-- 신청시간&요일 (예 - 16:35 ~ 17:05 (월, 수, 금)) -->
+
+			<!-- NicePay에서 제공하는 여분 필드-->
+			<input type="hidden" id="ReqReserved" name="ReqReserved" value=""/>
+
+			<!-- NicePay 결제-->
+			<input type="hidden" name="PayMethod" id="PayMethod">					    	<!-- 결제수단 : CARD(카드), VBANK(가상계좌) -->
+			<input type="hidden" name="GoodsName" value="Coding / STARTER 1 / 1 : 7">					<!-- 결제상품명 -->
+			<input type="hidden" id="Amt" name="Amt" value="0">				<!-- 총 주문금액 -->
+			<input type="hidden" id="MKEY" name="MKEY" value="MKMq1BHSGxZ+39aLhz8aKOugiD7JDLQEYrXGu+YJUJmqM9dCnyuOeA+TiQdw1UcThYeA7Uq0Y+stmZoITC8wwA==">			<!-- 상점키 -->
+			<input type="hidden" id="MID" name="MID" value="enoz72233m">				<!-- 상점아이디 -->
+			<input type="hidden" name="Moid" value="BG250610175532920ORY">							<!-- 주문번호 -->
+			<input type="hidden" name="BuyerName" value="최동훈">					<!-- 주문자명 -->		
+			<input type="hidden" name="BuyerTel" value="010-7948-0827">					<!-- 주문자연락처 -->
+			<input type="hidden" name="BuyerEmail" value="championhistory@nate.com">					<!-- 주문자이메일 -->
+			<input type="hidden" name="MallUserID" value="championhistory">				<!-- 회원ID -->
+			<input type="hidden" name="ReturnURL" value="http://dev.coding.enoz.kr/Course/PayNiceProc">				    <!-- 인증완료 결과처리 URL (모바일 결제창 전용)PC 결제창 사용시 필요 없음 -->
+
+			<!-- NicePay 비과세 -->
+			<input type="hidden" id="SupplyAmt" name="SupplyAmt" value="0">		<!-- 공급가액 -->
+			<input type="hidden" name="GoodsVat" value="0">									<!-- 부가가치세 -->
+			<input type="hidden" name="ServiceAmt" value="0">								<!-- 봉사료 -->
+			<input type="hidden" id="TaxFreeAmt" name="TaxFreeAmt" value="0"><!-- 면세금액(교재비) -->
+
+			<!-- NicePay Option -->
+			<input type="hidden" name="VbankExpDate" value="20250611"/>        	<!-- 가상계좌입금만료일 -->	 
+			<input type="hidden" name="GoodsCl" value="0"/>									<!-- 상품구분(실물(1),컨텐츠(0)) -->
+			<input type="hidden" name="TransType" value="0"/>								<!-- 일반(0)/에스크로(1) --> 
+			<input type="hidden" name="CharSet" value="utf-8"/>								<!-- 응답 파라미터 인코딩 방식 (euc-kr / utf-8)-->
+
+			<!-- NicePay 변경 불가 필드 -->
+			<input type="hidden" id="EdiDate" name="EdiDate" value="20250610175533"/>			<!-- 요청 시간 (YYYYMMDDHHMISS) -->
+            <input type="hidden" id="SignData"name="SignData" value="acf933ebda1538186ff36991a8362a0b919aee24b06ebc91e156285966f3895e"/>		<!-- 위변조 검증 해쉬 (PC) -->
+
+					
+
+		</form>
+		</div>
+	</div>
+</div>
+<!-- ///// -->
+<script>
+	$(document).ready(function(){	
+		$('.popup .popupup form .madal-btn .close').click(function () {
+			$('#modal').fadeOut();
+		});
+
+		$("#btn_poll").click(function () {
+			var frm_poll = document.form_poll;
+			if (frm_poll.q1.value == "" || frm_poll.q2.value == "" || frm_poll.q3.value == "" || frm_poll.q4.value == "" || frm_poll.q5.value == "") {
+				alert("조사 항목을 선택해주세요.");
+				return false;
+            }
+            $("#txtPoll_1").val(frm_poll.q1.value);
+            $("#txtPoll_2").val(frm_poll.q2.value);
+            $("#txtPoll_3").val(frm_poll.q3.value);
+            $("#txtPoll_4").val(frm_poll.q4.value);
+			$("#txtPoll_5").val(frm_poll.q5.value);
+
+            $('#modal').fadeOut();
+		});
+	});
+</script> 
+		<div id="modal">
+			<div class="popup">
+				<div class="popupup">
+					<div class="popup-tit">
+						<h2>사전 역량 조사</h2>
+					</div>
+					<div class="popup-sub"><p><em>*</em> 본 조사는 참가 학생의 SW 역량을 조사하기 위함이며, 교육 반 배정 시 참고 자료로 사용됩니다.</p></div>
+					<form name="form_poll">
+						<div class="Q1" ><label>Q1. 엔트리로 코드를 만들 수 있나요?</label><ul class ="ans"><li><input type ="radio" id="q1_1" name="q1" value="A"><label for="q1_1">전혀 그렇지 않다</label></li><li><input type ="radio" id="q1_2" name="q1" value="B"><label for="q1_2">그렇지 않다</label></li><li><input type ="radio" id="q1_3" name="q1" value="C"><label for="q1_3">보통이다</label></li><li><input type ="radio" id="q1_4" name="q1" value="D"><label for="q1_4">그렇다</label></li><li><input type ="radio" id="q1_5" name="q1" value="E"><label for="q1_5">매우 그렇다</label></li></ul></div><div class="Q2" ><label>Q2. 알고리즘이 무엇인지 설명할 수 있나요?</label><ul class ="ans"><li><input type ="radio" id="q2_1" name="q2" value="A"><label for="q2_1">전혀 그렇지 않다</label></li><li><input type ="radio" id="q2_2" name="q2" value="B"><label for="q2_2">그렇지 않다</label></li><li><input type ="radio" id="q2_3" name="q2" value="C"><label for="q2_3">보통이다</label></li><li><input type ="radio" id="q2_4" name="q2" value="D"><label for="q2_4">그렇다</label></li><li><input type ="radio" id="q2_5" name="q2" value="E"><label for="q2_5">매우 그렇다</label></li></ul></div><div class="Q3" ><label>Q3. 엔트리 인공지능으로 프로젝트를 만들 수 있나요?</label><ul class ="ans"><li><input type ="radio" id="q3_1" name="q3" value="A"><label for="q3_1">전혀 그렇지 않다</label></li><li><input type ="radio" id="q3_2" name="q3" value="B"><label for="q3_2">그렇지 않다</label></li><li><input type ="radio" id="q3_3" name="q3" value="C"><label for="q3_3">보통이다</label></li><li><input type ="radio" id="q3_4" name="q3" value="D"><label for="q3_4">그렇다</label></li><li><input type ="radio" id="q3_5" name="q3" value="E"><label for="q3_5">매우 그렇다</label></li></ul></div><div class="Q4" ><label>Q4. RGB LED의 흰색 불을 켤 수 있나요?</label><ul class ="ans"><li><input type ="radio" id="q4_1" name="q4" value="A"><label for="q4_1">전혀 그렇지 않다</label></li><li><input type ="radio" id="q4_2" name="q4" value="B"><label for="q4_2">그렇지 않다</label></li><li><input type ="radio" id="q4_3" name="q4" value="C"><label for="q4_3">보통이다</label></li><li><input type ="radio" id="q4_4" name="q4" value="D"><label for="q4_4">그렇다</label></li><li><input type ="radio" id="q4_5" name="q4" value="E"><label for="q4_5">매우 그렇다</label></li></ul></div><div class="Q5" ><label>Q5. 내가 만든 코드의 오류를 찾아내고 수정할 수 있나요?</label><ul class ="ans"><li><input type ="radio" id="q5_1" name="q5" value="A"><label for="q5_1">전혀 그렇지 않다</label></li><li><input type ="radio" id="q5_2" name="q5" value="B"><label for="q5_2">그렇지 않다</label></li><li><input type ="radio" id="q5_3" name="q5" value="C"><label for="q5_3">보통이다</label></li><li><input type ="radio" id="q5_4" name="q5" value="D"><label for="q5_4">그렇다</label></li><li><input type ="radio" id="q5_5" name="q5" value="E"><label for="q5_5">매우 그렇다</label></li></ul></div>
+						<!--
+						<div class="Q1">
+							<label>Q1. 코듀의 지형을 생성하고 꾸밀 수 있나요?</label>
+							<ul class ="ans">
+								<li><input type="radio" id="q1_1" name="q1" value="A"><label for="q1_1">전혀 그렇지 않다</label></li>
+								<li><input type="radio" id="q1_2" name="q1" value="B"><label for="q1_2">그렇지 않다</label></li>
+								<li><input type="radio" id="q1_3" name="q1" value="C"><label for="q1_3">보통이다</label></li>
+								<li><input type="radio" id="q1_4" name="q1" value="D"><label for="q1_4">그렇다</label></li>
+								<li><input type="radio" id="q1_5" name="q1" value="E"><label for="q1_5">매우 그렇다</label></li>
+							</ul>
+						</div>
+						<div class="Q2">
+							<label>Q2. 코듀의 오브젝트를 키보드와 마우스로 제어할 수 있나요?</label>
+							<ul class ="ans">
+								<li><input type="radio" id="q2_1" name="q2" value="A"><label for="q2_1">전혀 그렇지 않다</label></li>
+								<li><input type="radio" id="q2_2" name="q2" value="B"><label for="q2_2">그렇지 않다</label></li>
+								<li><input type="radio" id="q2_3" name="q2" value="C"><label for="q2_3">보통이다</label></li>
+								<li><input type="radio" id="q2_4" name="q2" value="D"><label for="q2_4">그렇다</label></li>
+								<li><input type="radio" id="q2_5" name="q2" value="E"><label for="q2_5">매우 그렇다</label></li>
+							</ul>
+						</div>
+				
+						<div class="Q3">
+							<label>Q3. 마이크로비트가 무엇인지 설명할 수 있나요?</label>
+							<ul class ="ans">
+								<li><input type="radio" id="q3_1" name="q3" value="A"><label for="q3_1">전혀 그렇지 않다</label></li>
+								<li><input type="radio" id="q3_2" name="q3" value="B"><label for="q3_2">그렇지 않다</label></li>
+								<li><input type="radio" id="q3_3" name="q3" value="C"><label for="q3_3">보통이다</label></li>
+								<li><input type="radio" id="q3_4" name="q3" value="D"><label for="q3_4">그렇다</label></li>
+								<li><input type="radio" id="q3_5" name="q3" value="E"><label for="q3_5">매우 그렇다</label></li>
+							</ul>
+						</div>
+						<div class="Q4">
+							<label>Q4. 마이크로비트의 센서를 활용해서 오브젝트를 제어할 수 있나요?</label>
+							<ul class ="ans">
+								<li><input type="radio" id="q4_1" name="q4" value="A"><label for="q4_1">전혀 그렇지 않다</label></li>
+								<li><input type="radio" id="q4_2" name="q4" value="B"><label for="q4_2">그렇지 않다</label></li>
+								<li><input type="radio" id="q4_3" name="q4" value="C"><label for="q4_3">보통이다</label></li>
+								<li><input type="radio" id="q4_4" name="q4" value="D"><label for="q4_4">그렇다</label></li>
+								<li><input type="radio" id="q4_5" name="q4" value="E"><label for="q4_5">매우 그렇다</label></li>
+							</ul>
+						</div>
+						<div class="Q5">
+							<label>Q5. 내가 만든 코드의 오류를 찾아내고 수정할 수 있나요?</label>
+							<ul class ="ans">
+								<li><input type="radio" id="q5_1" name="q5" value="A"><label for="q5_1">전혀 그렇지 않다</label></li>
+								<li><input type="radio" id="q5_2" name="q5" value="B"><label for="q5_2">그렇지 않다</label></li>
+								<li><input type="radio" id="q5_3" name="q5" value="C"><label for="q5_3">보통이다</label></li>
+								<li><input type="radio" id="q5_4" name="q5" value="D"><label for="q5_4">그렇다</label></li>
+								<li><input type="radio" id="q5_5" name="q5" value="E"><label for="q5_5">매우 그렇다</label></li>
+							</ul>
+						</div>
+						-->
+						<div class="madal-btn">
+							<input type="button" value="확인" id="btn_poll">
+						</div>
+			
+				
+					</form>
+				
+					<!-- Buttons -->
+	
+				</div>
+			
+			  </div>
+		</div>
+<!-- ///// -->
+<script>
+    $('.IsNum').keyup(function () {
+        $(this).val($(this).val().replace(/[^0-9]/gi, "")); //숫자만 입력가능
+    });
+</script>
+
+
+    <!-- ### Bottom ### -->
+    <!--
+    <div id="fLink">
+      <div class="f-inner">
+      <ul>
+	    <li class="first"><a href="//www.moe.go.kr" target="_blank"><img src="/webfs/Common//images/common/m_related1.png" alt="교육부"></a></li>
+	    <li><a href="//www.moi.go.kr/" target="_blank"><img src="/webfs/Common//images/common/m_related2.png" alt="행정자치부"></a></li>
+	    <li><a href="//www.edunet4u.net" target="_blank"><img src="/webfs/Common//images/common/m_related3.png" alt="에듀넷"></a></li>
+	    <li><a href="//www.scienceall.com" target="_blank"><img src="/webfs/Common//images/common/m_related4.png" alt="사이언스아트"></a></li>
+	    <li class="last"><a href="//www.pohang.go.kr" target="_blank"><img src="/webfs/Common/images/common/swcoding/m_related5_ph.png" alt="북구청"></a></li>
+     </ul>
+      <div class="naver">
+		    <a onclick="window.open('//endic.naver.com/popManager.nhn?m=miniPopMain','endic','width=405, height=513, left=300,top=100,scrollbars=yes')"><img src="/webfs/Common//images/common/m_dic.png" alt="네이버 영어사전"></a>
+	    </div>
+      </div>
+    </div> -->
+
+    <!-- footer -->
+    <div id="footer">
+      <div class="f-inner">
+
+        <!-- 
+        <ul class="f-sns">
+	      <li><a href="javascript:void(0)"><img src="/webfs/Common//images/common/f-blog.png" alt="블로그"></a></li>
+	      <li><a href="javascript:void(0)"><img src="/webfs/Common//images/common/f-instagram.png" alt="인스타그램"></a></li>
+	      <li><a href="javascript:void(0)"><img src="/webfs/Common//images/common/f-facebook.png" alt="페이스북"></a></li>
+	    </ul> -->
+
+    
+	    <!-- <ul class="f-info">
+	        <li>온라인 SW 코딩 교실</li>
+		    <li>주소 : [08591] 서울특별시 금천구 가산디지털1로 2 (가산동) 우림라이온스밸리2차 1209호</li>
+		    <li>대표번호 : 010-5300-6552 </li>
+		    <li>㈜이앤오즈 대표이사 조민옥</li>
+		    <li>사업자등록번호 : 119-86-09328</li>
+		    <li>온라인 SW 화상코딩 사업은 북구과 (주)이앤오즈가 협약으로 위탁 운영되는 사업입니다.</li>
+		    <li class="copy">Copyright All rights Reserved 2023 by POHANG-CITY</li>
+		    <li class="copy"><a href="/Account/Terms">이용약관</a></li>
+		    <li class="copy"><a href="/Account/Privacy">개인정보취급방침</a></li>
+	    </ul> -->
+
+        <ul class="f-info">
+            <li>온라인 SW 화상 코딩 교실</li>
+            <li>운영사무국 : 070-8250-7873</li>
+        </ul>	
+       </div>
+
+    </div>
+    <!-- //footer -->
+
+    <!-- gotop -->
+    <!--<a href="#" id="go_top" class="go_top">TOP</a>-->
+
+</div><!-- //wrap -->
+    
+<script>
+    AOS.init({
+        duration: 600,
+        offset: 100,
+        delay: 100,
+        easing: 'ease-out-quad',
+    });
+</script>
+
+<!-- pop -->
+<script>
+    $('.popClick').click(function () {
+        $(this).children("div.popWrap").addClass('on')
+        $('.popBG').show();
+    })
+    $('.close-btn').click(function () {
+        $('.popWrap').removeClass('on');
+        $('.popBG').hide();
+    })
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('.book-roll').slick({
+            dots: false,
+            arrows: true,
+            infinite: true,
+            speed: 500,
+            fade: true,
+            cssEase: 'linear'
+        });
+    });
+</script>
+
+</body>
+</html>
+�äH�)           hG��HH9^hG��   s    O^partitionKey=%28https%2Cbgswcoding.co.kr%29,:https://www.bgswcoding.co.kr/Course/CoursePayment?pTargetDate=202506 strongly-framed 1 security-info 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 request-method GET response-head HTTP/2 200 
+cache-control: private
+content-type: text/html; charset=utf-8
+server: none
+date: Tue, 10 Jun 2025 08:55:33 GMT
+content-length: 49776
+X-Firefox-Spdy: h2
+ original-response-headers cache-control: private
+content-type: text/html; charset=utf-8
+server: none
+x-aspnet-version: 
+x-powered-by: 
+date: Tue, 10 Jun 2025 08:55:33 GMT
+content-length: 49776
+X-Firefox-Spdy: h2
+ ctid 1 uncompressed-len 0   �p

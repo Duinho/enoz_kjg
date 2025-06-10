@@ -6,8 +6,8 @@
 </title><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge" /><meta name="language" content="ko" /><meta name="viewport" content="initial-scale=1.0, width=device-width" /><meta name="format-detection" content="telephone=no" /><meta name="robots" content="index,follow" /><meta property="og:type" content="website" /><meta name="twitter:card" content="summary" />
     <meta name="subject" content="온라인 SW 코딩 교실" /><meta name="description" content="온라인 SW 코딩 교실, 초등학교 코딩, 코딩학습의 시작과 마무리까지 체계적인 구성으로 코딩실력이 한단계 업그레이드" /><meta name="og:title" content="온라인 SW 코딩 교실" /><meta name="og:description" content="온라인 SW 코딩 교실, 초등학교 코딩, 코딩학습의 시작과 마무리까지 체계적인 구성으로 코딩실력이 한단계 업그레이드" /><meta name="og:image" content="https://www.bgswcoding.co.kr/webfs/common/images/common/swcoding/logo_bg.png" /><meta name="og:url" content="https://www.bgswcoding.co.kr" /><meta name="twitter:title" content="https://www.bgswcoding.co.kr" /><meta name="twitter:description" content="온라인 SW 코딩 교실, 초등학교 코딩, 코딩학습의 시작과 마무리까지 체계적인 구성으로 코딩실력이 한단계 업그레이드" /><meta name="twitter:image" content="https://www.bgswcoding.co.kr/webfs/common/images/common/swcoding/logo_bg.png" /><meta name="twitter:domain" content="온라인 SW 코딩 교실" />
 
-    <script src="/Common/scripts/jscript.js?v=638664169453540014"></script>
-    <script src="/Common/scripts/common.js?v=638664169453540014"></script>
+    <script src="/Common/scripts/jscript.js?v=638851749230044752"></script>
+    <script src="/Common/scripts/common.js?v=638851749230044752"></script>
 
     <!-- css -->
     <link rel="stylesheet" type="text/css" href="/Common/css/default.css?v=002" /><!-- default.css를 수정시 v++ 하기 -->
@@ -141,9 +141,6 @@
 <script>
 	$(document).ready(function () {
 		
-			$('#fullscreenmenu ul li ul li.active a').toggleClass('no-display');		//전체메뉴(nav)에 있는 버튼
-            $('.mq7 dl dt').toggleClass('no-display');									//default 메인에 있는 버튼
-		
     });
 </script>
 
@@ -176,7 +173,7 @@
 	<li><a href="/Lecture/Step" class="menu1 transit">학습안내</a>
 		<ul>
 			<li><a href="/Lecture/Step">학습진행절차</a></li>
-			<li><a href="/Lecture/Process2">학습과정</a></li>
+			<li><a href="/Lecture/Process">학습과정</a></li>
 			<li><a href="/Lecture/Books">교구재안내</a></li>
 		</ul>
 	</li>
@@ -204,10 +201,18 @@
 
 			<div id="login">
 		
-				<!-- 로그인전 -->
-				<ul>
-					<li><a href="/Account/Login">로그인</a></li>
-					<li><a href="/Account/MemAgree">회원가입</a></li>
+				<!-- 로그인후 -->
+				<ul style="">
+					<li class="status">
+						<a href="/MyPage/Mypage"><strong>최동훈 님</strong></a>
+						<span class="sep">|</span>
+						<a href="/Account/LoginProc">LOGOUT</a>
+					</li>
+					<li class="status_btn1"><a href="/MyPage/ClassRoom"><span>내 강의실</span></a></li>
+					<li class="status_btn1_img"><a href="/MyPage/ClassRoom"><img src="/webfs/Common//images/common/ico_down.png" alt="내 강의실"></a></li>
+					<!--<li class="status_btn2"><a href="/webfs/common/program/ENOZ57_5767(Kor).exe"><span>화상설치</span></a></li>-->
+					<!--<li class="status_btn2_img"><a href="/webfs/common/program/ENOZ57_5767(Kor).exe"><img src="/images/common/ico_edu.png" alt="화상설치"></a></li>-->
+					<!--<li class="status_btn3"><a href="/MyPage/Mypage"><span>마이페이지</span></a></li>-->
 				</ul>
 				
 			</div>
@@ -235,7 +240,7 @@
 	<li><a href="/Lecture/Step" class="menu1 transit">학습안내</a>
 		<ul>
 			<li><a href="/Lecture/Step">학습진행절차</a></li>
-			<li><a href="/Lecture/Process2">학습과정</a></li>
+			<li><a href="/Lecture/Process">학습과정</a></li>
 			<li><a href="/Lecture/Books">교구재안내</a></li>
 		</ul>
 	</li>
@@ -328,34 +333,13 @@
           <div class="class-tit">테스트 <p>강의실</p> </div>
           <div class="test-class">
               <div class="test-icon">
-                  <div class="tticon1">
-                      <div class="class-name">
-                        <a href="javascript:void(0);" class="on_video"
-                        data-userid="" data-username="" data-roomcode="0"
-                        data-ver="0" data-tcode="0" data-link="https://us02web.zoom.us/j/84338988271?pwd=n5DSXDvee3sU3kxy0dAEyedRDI2EOM.1"><p>테스트 <span> 1</span></p></a>
-                          
-                      </div>
-                  </div>
-                  <div class="tticon2">
-                      <div class="class-name">
-                        <a href="javascript:void(0);" class="on_video"
-                              data-userid="" data-username="" data-roomcode="0"
-                              data-ver="0" data-tcode="0" data-link="https://us02web.zoom.us/j/89693304433?pwd=qmoi44mJOBxYgKLSEey5RjQns9g7YB.1"><p>테스트 <span> 2</span></p></a>
-                      </div>
-                  </div>
-                  <div class="tticon3">
-                      <div class="class-name">
-                        <a href="javascript:void(0);" class="on_video"
-                              data-userid="" data-username="" data-roomcode="0"
-                              data-ver="0" data-tcode="0" data-link="https://us02web.zoom.us/j/89587191910?pwd=MfaB3rrAk06TIvpMecXtlmmZdtFTHq.1"><p>테스트 <span> 3</span></p></a>
-                      </div>
-                  </div>
+                  
                   <!-- <div class="tticon1">
                     <div class="class-name">
                         <p>Test <span> 1</span></p>
                     </div>
                     <div class="class-1"><a href="javascript:void(0);" class="on_video"
-                            data-userid="" data-username="" data-roomcode="0"
+                            data-userid="championhistory" data-username="최동훈" data-roomcode="0"
                             data-ver="0" data-tcode="0" data-link="https://us02web.zoom.us/j/84338988271?pwd=n5DSXDvee3sU3kxy0dAEyedRDI2EOM.1">테스트 강의실 1</a></div>
                 </div>
                 <div class="tticon2">
@@ -363,7 +347,7 @@
                         <p>Test <span> 2</span></p>
                     </div>
                     <div class="class-2"><a href="javascript:void(0);" class="on_video"
-                            data-userid="" data-username="" data-roomcode="0"
+                            data-userid="championhistory" data-username="최동훈" data-roomcode="0"
                             data-ver="0" data-tcode="0" data-link="https://us02web.zoom.us/j/89693304433?pwd=qmoi44mJOBxYgKLSEey5RjQns9g7YB.1">테스트 강의실 2</a></div>
                 </div>
                 <div class="tticon3">
@@ -371,9 +355,11 @@
                         <p>Test <span> 3</span></p>
                     </div>
                     <div class="class-3"><a href="javascript:void(0);" class="on_video"
-                            data-userid="" data-username="" data-roomcode="0"
+                            data-userid="championhistory" data-username="최동훈" data-roomcode="0"
                             data-ver="0" data-tcode="0" data-link="https://us02web.zoom.us/j/89587191910?pwd=MfaB3rrAk06TIvpMecXtlmmZdtFTHq.1">테스트 강의실 3</a></div>
                 </div> -->
+
+                  <div class="tticon1"><div class="class-name"><a href = "javascript:void(0);" class="on_video"data-userid="championhistory" data-username="최동훈" data-roomcode="0"data-ver="0" data-tcode="0" data-link="https://us02web.zoom.us/j/84338988271?pwd=n5DSXDvee3sU3kxy0dAEyedRDI2EOM.1"><p>테스트<span> 1</span></p></a></div></div><div class="tticon2"><div class="class-name"><a href = "javascript:void(0);" class="on_video"data-userid="championhistory" data-username="최동훈" data-roomcode="0"data-ver="0" data-tcode="0" data-link="https://us02web.zoom.us/j/89693304433?pwd=qmoi44mJOBxYgKLSEey5RjQns9g7YB.1"><p>테스트<span> 2</span></p></a></div></div><div class="tticon3"><div class="class-name"><a href = "javascript:void(0);" class="on_video"data-userid="championhistory" data-username="최동훈" data-roomcode="0"data-ver="0" data-tcode="0" data-link="https://us02web.zoom.us/j/89587191910?pwd=MfaB3rrAk06TIvpMecXtlmmZdtFTHq.1"><p>테스트<span> 3</span></p></a></div></div>
               </div>
           </div>
         </li>
@@ -384,11 +370,11 @@
 	   <ul>
 
 		
+			<li><a href="/Center/BoardView?sDiv=Notice&iIdx=6">2025년 온라인SW코딩교실을 시작합니다!</a></li>
+		
 			<li><a href="/Center/BoardView?sDiv=Notice&iIdx=5">크롬(Chrome) 설치 방법</a></li>
 		
 			<li><a href="/Center/BoardView?sDiv=Notice&iIdx=3">zoom 스피커&amp;마이크 테스트</a></li>
-		
-			<li><a href="/Center/BoardView?sDiv=Notice&iIdx=2">컴퓨터 화면2분할 방법</a></li>
 		
 
 	   </ul>
@@ -457,36 +443,11 @@
 		  <p class="more"><a href="/Lecture/Books" class="fc-cd-purple">+</a></p>
 		</div>
 		<div class="bookWrap bookWrap-play">
-        <div class="book-in">
-            <a href="/Lecture/Books">
-			    <div class="b-img"><img src="/webfs/Common//Images/course/swcoding/bg_coding2.png?032225" alt="스타터 1기" /></div>
-			    <div class="b-info">
-            <p class="book class">1기</p>
-			    <p class="book bg-cd-purple">수강과목</p>
-			    <p class="content">화성탐사, 새로운 세계를 향한 첫걸음</p>
-			    <p class="book bg-cd-purple">수업목표</p>
-			    <p class="content">코듀에서 화성 탐사 로버를 프로그래밍하고 마이크로비트로 제어하며 화성 탐사와 관련된 다양한 문제를 해결하는 과정에서 문제 해결 능력과 컴퓨팅 능력 학습</p>
-			    <p class="book bg-cd-purple">SW 활용</p>
-			    <p class="content">코듀, 마이크로비트</p>
-			</div>
-		    </a>
-        </div>
+
+        
 		
 
-		  <div class="book-in">
-		    <a href="/Lecture/Books2">
-				<div class="b-img"><img src="/webfs/Common//Images/course/swcoding/bg_coding2.png?032225" alt="스타터 2기" /></div>
-				<div class="b-info">
-          <p class="book class">2기</p>
-				  <p class="book bg-cd-purple">수강과목</p>
-				  <p class="content">화성탐사, 새로운 세계를 향한 첫걸음</p>
-				  <p class="book bg-cd-purple">수업목표</p>
-				  <p class="content">코듀에서 화성 탐사 로버를 프로그래밍하고 마이크로비트로 제어하며 화성 탐사와 관련된 다양한 문제를 해결하는 과정에서 문제 해결 능력과 컴퓨팅 능력 학습</p>
-				  <p class="book bg-cd-purple">SW 활용</p>
-				  <p class="content">코듀, 마이크로비트</p>
-				</div>
-			 </a>
-		  </div>		
+		  	
 
             <!--
 		  <div class="book-in">
@@ -504,6 +465,7 @@
 			 </a>
 		  </div> -->
 
+            <div class="book-in"><a href = "/Lecture/Books" ><div class="b-img"><img src = "/Webfs/Common/Images/course/swcoding/북구표지.jpg?055523" alt="스타터 1기" /></div><div class="b-info"><p class="book class">1기</p><p class="book bg-cd-purple">수강과목</p><p class="content">디지털 타이머 : 에너지 절약 프로젝트</p><p class="book bg-cd-purple">수업목표</p><p class="content">일상 생활에서 자신도 모르게 에너지 낭비하고 있는 사례를 조사 및 절약 방안을 논의하고 엔트리 프로젝트 제작</p><p class="book bg-cd-purple">SW 활용</p><p class="content">아두이노, 엔트리</p></div></a></div>
 		</div>
 	  </div>
 
@@ -646,6 +608,12 @@
 			  <p>화상수업 이용가이드</p>
 			</a>
 		  </li>
+          <li>
+            <a href="https://helpu.kr/codemaster" target="_blank">
+		        <img src="/images/main/mremote.png">
+		        <p>원격지원 요청</p>
+		    </a>
+          </li>
 		  <li>
 		    <a href="/Center/UseGuide01">
 			  <img src="/webfs/Common//images/main/mLinsten2.png">
@@ -690,9 +658,9 @@
 
             var element = $('.enter_class');
 
-            var userid = "";
-            var username = "";
-			var regdate = "2024-11-05";
+            var userid = "championhistory";
+            var username = "최동훈";
+			var regdate = "2025-06-10";
             var stime = "";
             var duration = "";
 
@@ -752,7 +720,287 @@
 </script>
 
 <!-- 팝업창 -->
+ 
+                                    <style>
+                                        #layer_popup6{
+                                            margin: 0;
+                                            padding: 0;
+                                            font-size: inherit;
+                                            word-break: break-word;
+                                            word-break: keep-all;
+                                            -webkit-text-size-adjust: none;
+                                            -moz-text-size-adjust: none;
+                                            -ms-text-size-adjust: none;
+                                            line-height: 1.17em;
 
+                                            width: 720px;
+                                            position: fixed;
+                                            left: 30px;
+                                            top: 90px;
+                                            z-index: 100;
+                                            background-color: #fff;
+                                            text-align: left;
+                                            border: 2px solid #666;
+                                            padding-bottom: 10px;
+                                        }
+                
+                                        #layer_popup6 form{ overflow: hidden; }
+
+                                        #layer_popup6 #close6{
+                                            padding: 3px 10px 0 10px;
+                                            cursor: pointer;
+                                        }
+
+                                        #layer_popup6 .title{
+                                            height: 30px;
+                                            line-height: 30px;
+                                            padding-left: 10px;
+                                            color: #52524f;
+                                            background-color: #f5765f;
+                                        }
+                                        
+                                        #layer_popup6 .img{
+                                            text-align:center;
+                                            height:600px;
+                                            overflow-y:scroll;
+                                            overflow-x:auto;
+                                        }
+
+                                        #layer_popup6 .content{
+                                            width: 100%;
+                                        }
+
+                                        #layer_popup6 .content > p{
+                                           letter-spacing: -0.05em !important;
+                                        }
+                        
+                                        @media screen and (max-width:768px){
+                                            #layer_popup6{
+                                                position: absolute;
+                                                width: 90%;
+                                                left: 50%;
+                                                transform: translateX(-50%);
+                                                top: 90px;
+                                                z-index: 100;
+                                                display: block;   
+                                            }                    
+                                            
+                                            #layer_popup6 .img{
+                                                overflow:auto;
+                                                height:auto;
+                                            }
+
+                                            #layer_popup6 img{
+                                                width:100%;
+                                            }
+
+                                            #layer_popup6 .content{
+                                                width: 100%;
+                                                line-height:1.4em;
+                                            }
+
+                                            #layer_popup6 #close6{
+                                                padding: 3px 10px 0 10px;
+                                                cursor: pointer;
+                                            }
+                                        }
+
+				                    </style>
+
+                                    <div id="layer_popup6" >
+	                                    <form name="pop_form6" id="pop_form6">
+                                            <ul class="title">
+                                            <li style="float:left;">온라인 SW 코딩 교실 (1기)_back</li>
+                                            <li style="float:right;padding-right:10px;"><a href="javascript:closePop6();">&Chi;</a></li>
+		                                    </ul>
+		                                    <div class="img">
+                                                <div class="content">
+                                                    <img src="/webfs/common/Popup/PInytfmQNxWspvEHN403.jpg" title="PInytfmQNxWspvEHN403.jpg"><br style="clear:both;"><br style="clear:both;"><br style="clear:both;"><br style="clear:both;"><br style="clear:both;"><br style="clear:both;"><br>
+					                            </div>
+                                            </div>
+                                            <div id="close6" style="margin:auto;width:100%;">
+                                                <div id="check" style="float:left;"><input type="checkbox" name="chkbox" id="chkbox6" value="checkbox" style="margin-right:5px; ">오늘 하루동안 보지 않기</div>
+		                                        <a href="javascript:closePop6();" style="float:right;">close</a>
+		                                    </div>
+	                                    </form>
+                                    </div>
+            
+                                    <script>
+                        
+	                                    $("#layer_popup6 .tab li:first").addClass("on")
+	                                    $("#layer_popup6 .tab li").click(function(){
+		                                    $("#layer_popup6 .tab li").removeClass("on")
+		                                    $(this).addClass("on")
+		
+		                                    var tab_num = $(this).index()
+		                                    $("#layer_popup6 .img ul li").hide()
+		                                    $("#layer_popup6 .img ul li:eq("+ tab_num +")").show()
+		                                    //$("#layer_popup .img img").attr("src","/images/main/mPopup"+ tab_num +".jpg")
+	                                    })
+                                        $("#layer_popup6").draggable({
+                                            cursor: "move",
+                                            opacity: 0.8
+                                        });
+                                    </script>
+
+                                    <script>
+                                        function closePop6() {
+                                            if (document.getElementById("chkbox6").checked == true) {
+                                                setCookie("eventdiv_6", "done", 1);
+                                            }
+                                            document.getElementById("layer_popup6").style.visibility = "hidden";
+                                        }
+
+                                        cookiedata = document.cookie;    
+
+	                                    if ( cookiedata.indexOf("eventdiv_6=done") < 0 ){      
+		                                    document.getElementById("layer_popup6").style.visibility = "visible";
+	                                    } 
+	                                    else {
+                                            document.getElementById("layer_popup6").style.visibility = "hidden"; 
+	                                    }
+                                    </script>
+                                  
+                                    <style>
+                                        #layer_popup5{
+                                            margin: 0;
+                                            padding: 0;
+                                            font-size: inherit;
+                                            word-break: break-word;
+                                            word-break: keep-all;
+                                            -webkit-text-size-adjust: none;
+                                            -moz-text-size-adjust: none;
+                                            -ms-text-size-adjust: none;
+                                            line-height: 1.17em;
+
+                                            width: 720px;
+                                            position: fixed;
+                                            left: 30px;
+                                            top: 120px;
+                                            z-index: 200;
+                                            background-color: #fff;
+                                            text-align: left;
+                                            border: 2px solid #666;
+                                            padding-bottom: 10px;
+                                        }
+                
+                                        #layer_popup5 form{ overflow: hidden; }
+
+                                        #layer_popup5 #close5{
+                                            padding: 3px 10px 0 10px;
+                                            cursor: pointer;
+                                        }
+
+                                        #layer_popup5 .title{
+                                            height: 30px;
+                                            line-height: 30px;
+                                            padding-left: 10px;
+                                            color: #52524f;
+                                            background-color: #f5a85f;
+                                        }
+                                        
+                                        #layer_popup5 .img{
+                                            text-align:center;
+                                            height:600px;
+                                            overflow-y:scroll;
+                                            overflow-x:auto;
+                                        }
+
+                                        #layer_popup5 .content{
+                                            width: 100%;
+                                        }
+
+                                        #layer_popup5 .content > p{
+                                           letter-spacing: -0.05em !important;
+                                        }
+                        
+                                        @media screen and (max-width:768px){
+                                            #layer_popup5{
+                                                position: absolute;
+                                                width: 90%;
+                                                left: 50%;
+                                                transform: translateX(-50%);
+                                                top: 120px;
+                                                z-index: 200;
+                                                display: block;   
+                                            }                    
+                                            
+                                            #layer_popup5 .img{
+                                                overflow:auto;
+                                                height:auto;
+                                            }
+
+                                            #layer_popup5 img{
+                                                width:100%;
+                                            }
+
+                                            #layer_popup5 .content{
+                                                width: 100%;
+                                                line-height:1.4em;
+                                            }
+
+                                            #layer_popup5 #close5{
+                                                padding: 3px 10px 0 10px;
+                                                cursor: pointer;
+                                            }
+                                        }
+
+				                    </style>
+
+                                    <div id="layer_popup5" >
+	                                    <form name="pop_form5" id="pop_form5">
+                                            <ul class="title">
+                                            <li style="float:left;">온라인 SW 코딩 교실 (1기) _ front</li>
+                                            <li style="float:right;padding-right:10px;"><a href="javascript:closePop5();">&Chi;</a></li>
+		                                    </ul>
+		                                    <div class="img">
+                                                <div class="content">
+                                                    <img src="/webfs/common/Popup/QKmKFFQXFVmHhspTN33F.jpg" title="QKmKFFQXFVmHhspTN33F.jpg"><br style="clear:both;"><br style="clear:both;"><br style="clear:both;"><br style="clear:both;"><br style="clear:both;"><br style="clear:both;"><br style="clear:both;"><br>
+					                            </div>
+                                            </div>
+                                            <div id="close5" style="margin:auto;width:100%;">
+                                                <div id="check" style="float:left;"><input type="checkbox" name="chkbox" id="chkbox5" value="checkbox" style="margin-right:5px; ">오늘 하루동안 보지 않기</div>
+		                                        <a href="javascript:closePop5();" style="float:right;">close</a>
+		                                    </div>
+	                                    </form>
+                                    </div>
+            
+                                    <script>
+                        
+	                                    $("#layer_popup5 .tab li:first").addClass("on")
+	                                    $("#layer_popup5 .tab li").click(function(){
+		                                    $("#layer_popup5 .tab li").removeClass("on")
+		                                    $(this).addClass("on")
+		
+		                                    var tab_num = $(this).index()
+		                                    $("#layer_popup5 .img ul li").hide()
+		                                    $("#layer_popup5 .img ul li:eq("+ tab_num +")").show()
+		                                    //$("#layer_popup .img img").attr("src","/images/main/mPopup"+ tab_num +".jpg")
+	                                    })
+                                        $("#layer_popup5").draggable({
+                                            cursor: "move",
+                                            opacity: 0.8
+                                        });
+                                    </script>
+
+                                    <script>
+                                        function closePop5() {
+                                            if (document.getElementById("chkbox5").checked == true) {
+                                                setCookie("eventdiv_5", "done", 1);
+                                            }
+                                            document.getElementById("layer_popup5").style.visibility = "hidden";
+                                        }
+
+                                        cookiedata = document.cookie;    
+
+	                                    if ( cookiedata.indexOf("eventdiv_5=done") < 0 ){      
+		                                    document.getElementById("layer_popup5").style.visibility = "visible";
+	                                    } 
+	                                    else {
+                                            document.getElementById("layer_popup5").style.visibility = "hidden"; 
+	                                    }
+                                    </script>
+                                 
 
 <!-- 설문조사 -->
 
@@ -848,19 +1096,19 @@
 
 </body>
 </html>
-`����           g)��G�ӓg)��   L    O^partitionKey=%28https%2Cbgswcoding.co.kr%29,:https://www.bgswcoding.co.kr/ strongly-framed 1 security-info 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 request-method GET response-head HTTP/2 200 
+ �`N��           hG��HH9WhG��   L    O^partitionKey=%28https%2Cbgswcoding.co.kr%29,:https://www.bgswcoding.co.kr/ strongly-framed 1 security-info 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 request-method GET response-head HTTP/2 200 
 cache-control: private
 content-type: text/html; charset=utf-8
 server: none
-date: Tue, 05 Nov 2024 06:22:24 GMT
-content-length: 35684
+date: Tue, 10 Jun 2025 08:55:23 GMT
+content-length: 51776
 X-Firefox-Spdy: h2
  original-response-headers cache-control: private
 content-type: text/html; charset=utf-8
 server: none
 x-aspnet-version: 
 x-powered-by: 
-date: Tue, 05 Nov 2024 06:22:24 GMT
-content-length: 35684
+date: Tue, 10 Jun 2025 08:55:23 GMT
+content-length: 51776
 X-Firefox-Spdy: h2
- ctid 1 uncompressed-len 0   �d
+ ctid 1 uncompressed-len 0   �@

@@ -204,19 +204,20 @@ def 회원가입(page):
 """수강신청 함수 시작"""
 
 def 신청(page):
-    page.goto(수강신청사이트)                                           # 수강신청 페이지로 이동    
+    page.goto(수강신청사이트)
+    time.sleep(1)                                                          # 수강신청 페이지로 이동    
     if page.locator('input#q1_2').count() > 0:
         page.locator('input#q1_2').click()
         time.sleep(1)                        
     wc = random.randint(0,1)                                            # 수강신청 날짜을 랜덤으로 지정
     if wc == 0:
-        page.locator('button.btn_week[data-week="2,4"]').click() # 월수
-        time.sleep(2)
-        page.locator('label.cc-cc.check[for="1_49"]').click()
+        #page.locator('button.btn_week[data-week="2,4"]').click() # 월수
+        #time.sleep(2)
+        page.locator('label.cc-cc.check[for="3_19"]').click()
     else:
-        page.locator('button.btn_week[data-week="3,5"]').click() # 화목
-        time.sleep(2)
-        page.locator('label.cc-cc.check[for="2_50"]').click()        
+        #page.locator('button.btn_week[data-week="3,5"]').click() # 화목
+        #time.sleep(2)
+        page.locator('label.cc-cc.check[for="4_20"]').click()        
     time.sleep(2)
     page.once('dialog', handle_alert)
     page.locator('a.btn_type5.mb30:has-text("수강신청")').click()
