@@ -8,6 +8,7 @@ import openpyxl
 from playwright.sync_api import sync_playwright
 import random
 import time
+from datetime import datetime 
 
 폴더경로 = os.path.dirname(os.path.abspath(__file__))  # 지금 코드 파일이 있는 위치를 저장
 excel_file_path = os.path.join(폴더경로, '추가인원 가입 수강신청.xlsx')  # 엑셀 파일 경로
@@ -269,6 +270,7 @@ def 엑셀_초기화_및_데이터_저장(이름, 아이디, 나이, 학교, 주
         ws['C1'] = "나이"
         ws['D1'] = "학교"
         ws['E1'] = "주소"
+        ws['F1'] = "가입일시"
     else:
         wb = openpyxl.load_workbook(파일_경로) # 이전까지의 엑셀 값을 받아오고
         ws = wb.active
@@ -279,6 +281,7 @@ def 엑셀_초기화_및_데이터_저장(이름, 아이디, 나이, 학교, 주
     ws[f'C{new_row}'] = 나이
     ws[f'D{new_row}'] = 학교
     ws[f'E{new_row}'] = 주소
+    ws[f'F{new_row}'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     wb.save(파일_경로)
     wb.close()
 
