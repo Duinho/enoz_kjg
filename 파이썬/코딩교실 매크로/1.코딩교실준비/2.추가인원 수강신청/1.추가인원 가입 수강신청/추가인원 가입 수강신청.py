@@ -1,6 +1,6 @@
 # 라이브러리 설치를 위해 터미널에 아래의 pip 명령어 입력
-# 먼저 playwright install 입력
-# 그 다음 pip install openpyxl playwright 입력
+# 먼저 pip install openpyxl playwright 입력
+# 그 다음 playwright install 입력
 # 위 터미널 창에 붙여넣기하여 라이브러리 설치
 
 import os
