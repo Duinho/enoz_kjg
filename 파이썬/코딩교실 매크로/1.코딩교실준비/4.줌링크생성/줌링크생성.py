@@ -51,8 +51,8 @@ def 이메일작업(page, 이메일주소, 순번):
 
         page.wait_for_selector('button[data-testid="host-key:show-btn"]')
         page.click('button[data-testid="host-key:show-btn"]')
-
         page.wait_for_selector('#hostKey-subShowLabel')
+        time.sleep(1)
         호스트키.append(page.text_content('#hostKey-subShowLabel').strip())
 
         page.locator('a.dropdown-toggle > b.caret').nth(1).click()
@@ -64,23 +64,28 @@ def 이메일작업(page, 이메일주소, 순번):
         주제 = f"{사업명} {순번 + 1:02}반"
         page.wait_for_selector('input#topic')
         page.fill('input#topic', 주제)
-
         page.click('span:has-text("되풀이 회의")')
         page.click('span#recurringType')
-        time.sleep(1)
         page.click('dd#select-item-recurringType-3')
+        page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+        time.sleep(1)
         page.click('button[aria-label*="Show More Options"]')
-        if page.get_attribute('input#checkbox_5', 'aria-checked') == 'false':
-            page.check('input#checkbox_5')
+        time.sleep(1)
+        # "참가자가 언제든지 참가하도록 허용" 체크박스가 체크되어 있지 않으면 클릭
+        checkbox_label = page.locator('label:has-text("참가자가 언제든지 참가하도록 허용")')
+        checkbox = checkbox_label.locator('input[type="checkbox"]')
+        if checkbox.get_attribute('aria-checked') == 'false':
+            checkbox.check()
 
         page.fill('input.zm-select__input[role="combobox"]', '운영사무국')
         time.sleep(1)
         page.keyboard.press("Enter")
-
+        time.sleep(1)
         page.wait_for_selector('button.save-btn')
         page.click('button.save-btn')
 
         page.wait_for_selector('a[aria-labelledby="view-registration"]')
+        time.sleep(3)
         줌링크.append(page.get_attribute('a[aria-labelledby="view-registration"]', 'href'))
 
     except Exception as e:
