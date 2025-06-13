@@ -40,7 +40,7 @@ def 반배정(page, 대상):
 
     마지막_행 = ws.max_row
     for row in ws.iter_rows(min_row=2, max_row=마지막_행, values_only=True):
-        반이름, 아이디, 학생이름 = row[col_range]
+        반이름, 학생이름, 아이디 = row[col_range]
 
         아이디 = f'{아이디}' if 아이디 is not None else None  # 아이디가 None인 경우 처리
 
@@ -91,8 +91,8 @@ def 동작():
         
         # 각 배정 과정을 순서대로 실행
         #반배정(page, '망령출동')
-        #반배정(page, '학생배정')
-        반배정(page, '망령퇴장')
+        반배정(page, '학생배정')
+        #반배정(page, '망령퇴장')
 
         browser.close()
 
