@@ -99,8 +99,8 @@ def 회원가입(page):
         time.sleep(1)
         page.goto(회원가입사이트)
     page.wait_for_load_state('networkidle')
-    page.locator("#cbAgree1").click()
-    page.locator("#cbAgree2").click()
+    page.locator("#cbAgree1").click(force=True)
+    page.locator("#cbAgree2").click(force=True)
     page.click(".btn_type4.c1:has-text('다음')")
     page.wait_for_selector("input[name='tbMemName'].type2.w1.IsKor") 
     이름 = random.choices(성씨, weights=weights, k=1)[0]           # 성씨의 랜덤한 숫자로 지정
