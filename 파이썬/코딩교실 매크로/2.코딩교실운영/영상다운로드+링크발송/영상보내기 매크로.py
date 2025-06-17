@@ -46,10 +46,9 @@ def 드라이브링크복사():
         FOLDER_ID = re.search(r"/folders/([a-zA-Z0-9-_]+)", 드라이브링크).group(1)
         날짜가공 = format_date(날짜)
         반이름 = f' {반번호}'  # 앞에 공백 하나만 추가하여 ' 02반' 형식으로 맞춤
-
         folder_id, _ = find_folder_id(드라이브, 요일, parent_folder_id=FOLDER_ID)
 
-        subfolders = get_subfolders(드라이브, folder_id)
+        subfolders = get_subfolders(드라이브, folder_id) 
         target_folder_id = None
         for subfolder in subfolders:
             try:
@@ -97,6 +96,11 @@ def 엑셀(시트세트):
         시트링크_화목 = ws.cell(row=8, column=17).value
         드라이브링크 = ws.cell(row=9, column=17).value
         회신번호 = ws.cell(row=10, column=17).value
+    elif 시트세트 == 3:
+        시트링크_월수 = ws.cell(row=11, column=17).value
+        시트링크_화목 = ws.cell(row=12, column=17).value
+        드라이브링크 = ws.cell(row=13, column=17).value
+        회신번호 = ws.cell(row=14, column=17).value
     회신번호 = f'010{회신번호}'
 
     # 요일과 시트 이름 설정
@@ -108,7 +112,6 @@ def 엑셀(시트세트):
         시트이름 = '출석부(화/목)'
         요일 = '화목'
         시트링크 = 시트링크_화목
-
     api키 = ws.cell(row=2, column=17).value
     멘트1 = ws.cell(row=6, column=15).value
     멘트2 = ws.cell(row=7, column=15).value
@@ -131,7 +134,7 @@ def 엑셀(시트세트):
     }
     weekday_eng = yesterday.strftime('%A')
     weekday_kor = weekday_dict[weekday_eng]
-    formatted_date = f"{month}월 {day}일"
+    formatted_date = f"{month}/{day}"
     어제날짜 = f"{formatted_date}({weekday_kor})"
     if 날짜 == '자동' :
         날짜 = 어제날짜
@@ -168,11 +171,21 @@ def 특정열값검색(시트데이터, rows, page):
             if len(시트데이터[current_row - 1]) > 0:
                 반번호 = 시트데이터[current_row - 1][0]
                 if 반번호:
-                    # 반번호에서 숫자와 반을 분리하여 숫자는 두 자리로 만들기
-                    match = re.match(r'(\d+)(반)', str(반번호))
+                    s = str(반번호)
+                    # 1) 이미 '숫자반' 형태인 경우
+                    match = re.match(r'^(\d+)(반)$', s)
                     if match:
-                        number_part = match.group(1).zfill(2)  # 숫자 부분을 두 자리로 변환
-                        반번호 = f'{number_part}{match.group(2)}'  # 두 자리 숫자와 '반'을 결합
+                        number_part = match.group(1).zfill(2)
+                        반번호 = f'{number_part}{match.group(2)}'
+                    else:
+                        # 2) 숫자만 있는 경우
+                        m2 = re.match(r'^(\d+)$', s)
+                        if m2:
+                            number_part = m2.group(1).zfill(2)
+                            반번호 = f'{number_part}반'
+                        else:
+                            # 그 외 형식은 그대로 두거나, 필요시 처리
+                            반번호 = s
                     break
             current_row -= 1
 
@@ -188,11 +201,15 @@ def 특정열값검색(시트데이터, rows, page):
         else:
             page.fill('textarea#recvList', f'{학생번호}\n{학부모번호}')
         page.fill('textarea#msg', 문자박스내용)
-        page.click('div.num_select')
+        page.locator("a.hand.openLayer", has_text="선택").click()
+        frame = page.frame(name="callbackFrame")
+        frame.wait_for_selector("span:has-text('전체 회신번호')", timeout=5000)
+        frame.locator("span:has-text('전체 회신번호')").click()
+        frame.wait_for_selector('#bulkCallbackNum', timeout=3000)
+        frame.fill('#bulkCallbackNum', 회신번호)
+        frame.click("button[onclick*='callbackCheckForm']")
         time.sleep(0.3)
-        frame = page.frame(name='callbackFrame')
-        frame.click(f"a:has-text('{str(회신번호)}')")
-        page.click('a:has(img[src*="send_btn.gif"])')
+        page.locator("a.hand.openLayer", has_text="전송하기").click()
         time.sleep(0.3)
         page.keyboard.press('Enter')
         time.sleep(0.3)
@@ -200,12 +217,15 @@ def 특정열값검색(시트데이터, rows, page):
         print(f'{반번호} {학생이름} 학생 영상 발송 완료')
     page.fill('textarea#recvList', 알람받을번호)
     page.fill('textarea#msg', '영상 발송 완료')
-    page.click('div.num_select')
+    page.locator("a.hand.openLayer", has_text="선택").click()
+    frame = page.frame(name="callbackFrame")
+    frame.wait_for_selector("span:has-text('전체 회신번호')", timeout=5000)
+    frame.locator("span:has-text('전체 회신번호')").click()
+    frame.wait_for_selector('#bulkCallbackNum', timeout=3000)
+    frame.fill('#bulkCallbackNum', 회신번호)
+    frame.click("button[onclick*='callbackCheckForm']")
     time.sleep(0.3)
-    frame = page.frame(name='callbackFrame')
-    frame.wait_for_selector(f"a:has-text('{str(회신번호)}')", timeout=30000)
-    frame.click(f"a:has-text('{str(회신번호)}')")
-    page.click('a:has(img[src*="send_btn.gif"])')
+    page.locator("a.hand.openLayer", has_text="전송하기").click()
     time.sleep(0.3)
     page.keyboard.press('Enter')
     time.sleep(0.3)
@@ -246,9 +266,7 @@ def 시트확인(page):
     if e_col_index is None:
         print("이름 열이 발견되지 않았습니다.")
         return
-
-    print(f"열 위치: j_col_index={j_col_index}, l_col_index={l_col_index}, e_col_index={e_col_index}")  # 디버깅 메시지
-
+    
     날짜위치 = 날짜검색(시트데이터, 날짜)  # 셀 주소 찾기
     if 날짜위치:
         영상_행목록 = 영상검색(시트데이터, 날짜위치, '영상')
@@ -260,7 +278,7 @@ def 시트수정():
     global 날짜위치, 영상_행목록, 시트이름, 폴더경로, 시트링크
 
     # JSON 파일 경로 설정
-    json_file_path = os.path.join(폴더경로, 'auto-send-link-b97c1597bb00.json')
+    json_file_path = os.path.join(폴더경로, 'auto-send-link-70ec0fc5f41c.json')
 
     # OAuth2 인증 설정
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
@@ -350,7 +368,7 @@ def 로그인(page):
     page.press('input[name="pwd"]', 'Enter')
     time.sleep(1) 
     try:
-        page.click("a[onclick*='contentsLayerClose']")  # 닫기 버튼 클릭
+        page.click("button[onclick*='contentsLayerClose']")  # 닫기 버튼 클릭
     except:
         pass 
     
@@ -364,13 +382,13 @@ def 동작():
         browser = playwright.chromium.launch(headless=False, args=['--disable-popup-blocking'])
         page = browser.new_page()
         # 첫 번째 세트 동작
-        엑셀(시트세트=1)
+        엑셀(시트세트=3)
         로그인(page)
         영상발송(page)
 
         # 두 번째 세트 동작
-        엑셀(시트세트=2)
-        영상발송(page)
+        #엑셀(시트세트=2)
+        #영상발송(page)
 
         print('모든 영상 링크 발송 완료')
         browser.close()

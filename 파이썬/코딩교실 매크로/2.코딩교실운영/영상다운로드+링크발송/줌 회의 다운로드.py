@@ -87,8 +87,7 @@ async def 로그인():
     await asyncio.sleep(1)
     #await page.press('#password', 'Enter')
     await page.click('span.zm-button__slot:has-text("Sign In")')
-     
-    await page.wait_for_selector('h3._user__name_uucd0_91:has-text("운영사무국")', timeout=30000)
+    await page.wait_for_selector('h3._user__name_66l5p_119:has-text("운영사무국")', timeout=30000)
     await page.goto(줌링크)  # 기록관리 페이지로 이동
     await asyncio.sleep(1)
     if 한영 == "한국어":
