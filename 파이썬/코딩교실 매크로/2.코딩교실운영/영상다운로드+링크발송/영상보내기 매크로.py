@@ -97,6 +97,11 @@ def 엑셀(시트세트):
         시트링크_화목 = ws.cell(row=8, column=17).value
         드라이브링크 = ws.cell(row=9, column=17).value
         회신번호 = ws.cell(row=10, column=17).value
+    elif 시트세트 == 3:
+        시트링크_월수 = ws.cell(row=11, column=17).value
+        시트링크_화목 = ws.cell(row=12, column=17).value
+        드라이브링크 = ws.cell(row=13, column=17).value
+        회신번호 = ws.cell(row=14, column=17).value        
     회신번호 = f'010{회신번호}'
 
     # 요일과 시트 이름 설정
@@ -348,9 +353,11 @@ def 로그인(page):
     page.fill('input[name="id"]', 문자박스아이디)
     page.fill('input[name="pwd"]', 문자박스비번)
     page.press('input[name="pwd"]', 'Enter')
-    time.sleep(1) 
+    time.sleep(3) 
     try:
-        page.click("a[onclick*='contentsLayerClose']")  # 닫기 버튼 클릭
+        #<button style="color:var(--w);" onclick="setCookie('adSendDutyToday', 'Y', 7); contentsLayerClose('contentsLayer'); return false;">닫기</button>
+        #page.click("a[onclick*='contentsLayerClose']")  # 닫기 버튼 클릭
+        page.click("button[onclick*='contentsLayerClose']")
     except:
         pass 
     
@@ -369,8 +376,8 @@ def 동작():
         영상발송(page)
 
         # 두 번째 세트 동작
-        엑셀(시트세트=2)
-        영상발송(page)
+        #엑셀(시트세트=2)
+        #영상발송(page)
 
         print('모든 영상 링크 발송 완료')
         browser.close()
