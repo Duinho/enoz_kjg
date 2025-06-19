@@ -54,23 +54,26 @@ async def 문자박스():
     await page.press('input[name="pwd"]', 'Enter')
     await asyncio.sleep(3)    
     try:
-        await page.click("a[onclick*='contentsLayerClose']")  # 어떤 알림 나오는데 그거 나오면 닫기 버튼 클릭
+        await page.click("button[onclick*='contentsLayerClose']")  # 닫기 버튼 클릭  # 어떤 알림 나오는데 그거 나오면 닫기 버튼 클릭
     except:
         pass
     await asyncio.sleep(3)
-    await page.fill('textarea#recvList', 알람받을번호)          # 알람 받을 번호로 영상 다운로드 완료 발송
+    await page.fill('textarea#recvList', 알람받을번호)
     await page.fill('textarea#msg', '영상 다운로드 완료')
-    await page.click('div.num_select')
-    await asyncio.sleep(3)
-    frame = page.frame(name='callbackFrame')
-    await frame.wait_for_selector("a:has-text('01053006552')", timeout=30000)
-    await frame.click("a:has-text('01053006552')")
-    await page.click('a:has(img[src*="send_btn.gif"])')
-    await asyncio.sleep(3)
+    await page.locator("a.hand.openLayer", has_text="선택").click()
+    frame = page.frame(name="callbackFrame")
+    await frame.wait_for_selector("span:has-text('전체 회신번호')", timeout=5000)
+    await frame.locator("span:has-text('전체 회신번호')").click()
+    await frame.wait_for_selector('#bulkCallbackNum', timeout=3000)
+    await frame.fill('#bulkCallbackNum', "01053006552")
+    await frame.click("button[onclick*='callbackCheckForm']")
+    await asyncio.sleep(0.3)
+    await page.locator("a.hand.openLayer", has_text="전송하기").click()
+    await asyncio.sleep(0.3)
     await page.keyboard.press('Enter')
-    await asyncio.sleep(3)
+    await asyncio.sleep(0.3)
     await page.keyboard.press('Enter')
-        
+    
 """문자박스 함수 종료"""
 
 """줌 로그인 후 녹화 및 대화 내용으로 이동 함수 시작"""
@@ -83,6 +86,7 @@ async def 로그인():
     await page.click('button#onetrust-accept-btn-handler')
     await asyncio.sleep(3)
     await page.fill('input#email', 줌아이디)  # 이메일 및 비밀번호 입력하고 로그인
+    await page.click('span.zm-button__slot:has-text("Next")')
     await page.fill('input#password', 줌비번)
     await asyncio.sleep(1)
     #await page.press('#password', 'Enter')
