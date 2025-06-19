@@ -174,7 +174,9 @@ def 회원가입(page, sheet_name):
     
     load_lists(sheet_name)
     page.goto(회원가입사이트)
-    time.sleep(1)
+    time.sleep(2)
+    page.keyboard.press('F5')
+    time.sleep(3)
     if page.locator('a[href="/Account/LoginProc"]:has-text("LOGOUT")').count() > 0:
         page.locator('a[href="/Account/LoginProc"]').click()
         time.sleep(1)
