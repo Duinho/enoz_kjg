@@ -345,7 +345,17 @@ def 신청(page, sheet_name):
     page.keyboard.press('Enter')
     time.sleep(1)
 
-    print(f"{이름} 신청 완료")
+    현황_경로 = os.path.join(폴더경로, '추가인원 가입 현황.xlsx')
+    wb2 = openpyxl.load_workbook(현황_경로, data_only=True)
+    ws2 = wb2[sheet_name]
+    total = ws2.max_row - 1
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    today_count = 0
+    for row in ws2.iter_rows(min_row=2, values_only=True):
+        if str(row[-1]).startswith(today_str):
+            today_count += 1
+    wb2.close()
+    print(f"{이름} 신청 완료 / 총 {total}명, 오늘 {today_count}명 추가되었습니다.")
     time.sleep(random.randint(랜덤최소, 랜덤최대))
 
 
