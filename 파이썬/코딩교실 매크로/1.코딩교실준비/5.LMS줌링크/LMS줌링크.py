@@ -18,9 +18,9 @@ def 초기화():
 def 로그인(page):
     # 로그인 사이트 정보를 읽어옴
     로그인사이트   = ws.cell(row=1, column=17).value
-    adminID        = ws.cell(row=2, column=17).value
-    adminPW        = ws.cell(row=3, column=17).value
-    강사관리링크    = ws.cell(row=4, column=17).value
+    강사관리링크    = ws.cell(row=2, column=17).value
+    adminID        = ws.cell(row=3, column=17).value
+    adminPW        = ws.cell(row=4, column=17).value
 
     # 로그인 프로세스
     page.goto(로그인사이트)

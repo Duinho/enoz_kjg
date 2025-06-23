@@ -15,9 +15,9 @@ def 초기화():
 def 엑셀():
     global 로그인사이트,ID,PW,사용자관리링크,사업명,이메일,호스트키,줌링크
     로그인사이트 = ws.cell(row=1, column=17).value
-    ID = ws.cell(row=2, column=17).value
-    PW = ws.cell(row=3, column=17).value
-    사용자관리링크 = ws.cell(row=4, column=17).value
+    사용자관리링크 = ws.cell(row=2, column=17).value
+    ID = ws.cell(row=3, column=17).value
+    PW = ws.cell(row=4, column=17).value
     사업명 = ws.cell(row=5, column=17).value
     이메일 = []
     호스트키 = []
