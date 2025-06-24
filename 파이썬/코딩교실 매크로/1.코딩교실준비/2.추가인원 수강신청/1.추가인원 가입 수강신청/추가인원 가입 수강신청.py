@@ -12,6 +12,9 @@ import time
 from datetime import datetime
 
 # --- 경로 설정 --------------------------------------------------------------
+
+
+
 폴더경로 = os.path.dirname(os.path.abspath(__file__))
 excel_file_path = os.path.join(폴더경로, '추가인원 가입 수강신청.xlsx')
 사용자_데이터_디렉토리 = os.path.join(폴더경로, 'UserData')
