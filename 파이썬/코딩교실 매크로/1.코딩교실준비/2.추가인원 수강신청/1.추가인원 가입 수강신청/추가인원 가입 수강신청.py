@@ -296,7 +296,7 @@ def 회원가입(page, sheet_name):
 def 신청(page, sheet_name):
     # 2) 페이지 이동 및 초기 클릭
     page.goto(수강신청사이트)
-    time.sleep(1)
+    time.sleep(2)
     if page.locator('input#q1_2').count() > 0:
         page.locator('input#q1_2').click()
         time.sleep(1)

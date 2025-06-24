@@ -1,0 +1,14 @@
+{
+  "Zoom": {
+    "client_id": "4WC7jGzxTdafZeukSoqAyQ",
+    "client_secret": "FUhFabTGgHvSaUhsq5bSLFBea79L1tEY",
+    "account_id": "Rio8QRbmSoOpnhQsWYFMqQ"
+  },
+  "Storage": {
+    "download_dir": "./downloads"
+  },
+  "Recordings": {
+    "start_date": "2020-01-01",
+    "end_date": "2030-01-01"
+  }
+}
