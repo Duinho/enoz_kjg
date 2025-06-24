@@ -118,7 +118,7 @@ def load_lists(sheet_name):
     wb = openpyxl.load_workbook(excel_file_path, data_only=True)
     ws = wb[sheet_name]
 
-    학교마지막행   = 31
+    학교마지막행 = ws.max_row
 
     for row in ws.iter_rows(min_row=2, max_row=학교마지막행, values_only=True):
         학교_리스트.append(row[0])
@@ -184,6 +184,7 @@ def 회원가입(page, sheet_name):
 
     page.wait_for_load_state('networkidle')
     page.locator("#cbAgree1").click(force=True)
+    page.keyboard.press("End")
     page.locator("#cbAgree2").click(force=True)
     page.click(".btn_type4.c1:has-text('다음')")
     page.wait_for_selector("input[name='tbMemName'].type2.w1.IsKor")
