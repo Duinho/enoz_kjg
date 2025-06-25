@@ -13,7 +13,7 @@ from playwright.sync_api import sync_playwright
 script_dir = os.path.dirname(os.path.abspath(__file__))
 config_path = os.path.join(script_dir, 'config.json')  # 기존 config.json 사용 가능
 excel_file_path = os.path.join(script_dir, '영상보내기.xlsx')
-BASE_DIR = os.path.join(script_dir, "영상")  # 영상 폴더 고정
+BASE_DIR = os.path.join(script_dir, "녹화영상")  # 영상 폴더 고정
 
 
 # ✅ config.json (Zoom 관련 설정만 여기서 가져옴)
@@ -80,9 +80,12 @@ def list_recordings(token, user_id):
 def download_and_delete(meeting, token, user_email):
     topic = meeting['topic']
     meeting_id = meeting['id']
-    start = meeting['start_time']
-    date = start.split('T')[0]
+    start_time = meeting['start_time']
+    dt = datetime.fromisoformat(start_time.rstrip('Z'))
+    date = dt.strftime("%Y년%m월%d일")
 
+    os.makedirs(BASE_DIR, exist_ok=True)
+   
     # 지역 분류
     if "경산" in topic:
         region = "경산"
@@ -95,16 +98,20 @@ def download_and_delete(meeting, token, user_email):
     else:
         region = "기타"
 
+    # 저장 폴더 경로 (BASE_DIR/region/date/topic_date)
     folder_path = os.path.join(BASE_DIR, region, date, f"{topic}_{date}")
     os.makedirs(folder_path, exist_ok=True)
 
-    # 파일 목록
+    # 녹화 파일 목록 조회
     headers = {'Authorization': f'Bearer {token}'}
-    rec_info = requests.get(f'https://api.zoom.us/v2/meetings/{meeting_id}/recordings', headers=headers)
+    rec_info = requests.get(
+        f'https://api.zoom.us/v2/meetings/{meeting_id}/recordings',
+        headers=headers
+    )
     rec_info.raise_for_status()
     files = rec_info.json().get('recording_files', [])
 
-    # recording_type 우선순위
+    # MP4 우선순위 타입
     priority_types = [
         "shared_screen_with_gallery_view",
         "shared_screen_with_speaker_view",
@@ -114,10 +121,10 @@ def download_and_delete(meeting, token, user_email):
     ]
 
     selected_file = None
-    for p in priority_types:
-        for rec in files:
-            if rec.get("recording_type") == p and rec.get("file_type") == "MP4":
-                selected_file = rec
+    for p_type in priority_types:
+        for f in files:
+            if f.get("recording_type") == p_type and f.get("file_type") == "MP4":
+                selected_file = f
                 break
         if selected_file:
             break
@@ -128,16 +135,26 @@ def download_and_delete(meeting, token, user_email):
 
     download_url = selected_file['download_url'] + f"?access_token={token}"
     ext = selected_file['file_type'].lower()
-    filename = f"{topic}_{date}.{ext}"
+
+    # 파일명 충돌 방지
+    base_filename = f"{topic}_{date}"
+    filename = f"{base_filename}.{ext}"
     file_path = os.path.join(folder_path, filename)
 
+    counter = 1
+    while os.path.exists(file_path):
+        filename = f"{base_filename}_{counter}.{ext}"
+        file_path = os.path.join(folder_path, filename)
+        counter += 1
+
+    # 다운로드
     print(f"🔽 {user_email} 회의 → 다운로드: {filename}")
     with requests.get(download_url, stream=True) as r:
         r.raise_for_status()
-        with open(file_path, 'wb') as f:
-            shutil.copyfileobj(r.raw, f)
+        with open(file_path, 'wb') as f_out:
+            shutil.copyfileobj(r.raw, f_out)
 
-    # 삭제
+    # 녹화 삭제
     del_url = f'https://api.zoom.us/v2/meetings/{meeting_id}/recordings'
     del_res = requests.delete(del_url, headers=headers)
     if del_res.status_code == 204:
