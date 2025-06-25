@@ -40,6 +40,10 @@ def 로그인(page):
     page.keyboard.press("Enter")
     time.sleep(10)
 
+def scroll_down(page, pixels):
+    page.evaluate(f"window.scrollBy(0, {pixels});")
+    time.sleep(0.5)
+
 def 이메일작업(page, 이메일주소, 순번):
     try:
         page.goto(사용자관리링크)
@@ -60,13 +64,40 @@ def 이메일작업(page, 이메일주소, 순번):
         page.click('a:has-text("향후 회의")')
         page.wait_for_selector('a:has-text("회의 예약")')
         page.click('a:has-text("회의 예약")')
-
+        time.sleep(10)
         주제 = f"{사업명} {순번 + 1:02}반"
         page.wait_for_selector('input#topic')
         page.fill('input#topic', 주제)
         page.click('span:has-text("되풀이 회의")')
         page.click('span#recurringType')
         page.click('dd#select-item-recurringType-3')
+        
+        scroll_down(page, 500)
+        # ── 대기실 옵션 비활성화 처리 ──
+        # 1) attached 상태(=DOM에만 올라와 있으면 OK)로 대기
+        page.wait_for_selector('input#checkbox_2', state='attached')
+
+        # 2) locator 가져오기
+        waitroom_cb = page.locator('input#checkbox_2')
+
+        # 3) aria-checked 값 확인 (동기 API)
+        aria_val = waitroom_cb.get_attribute('aria-checked')
+        print(f"[DEBUG] 대기실 aria-checked = {aria_val!r}")  # 확인용 로그
+
+        # 4) true 일 때만 토글(uncheck) – force=True 로 숨겨진 상태에서도 동작
+        if aria_val == 'true':
+            waitroom_cb.uncheck(force=True)
+            # 속성 변경 반영 대기
+            page.wait_for_function(
+                "() => document.getElementById('checkbox_2').getAttribute('aria-checked') === 'false'",
+                timeout=5000
+            )
+            print("[DEBUG] 대기실 옵션 OFF 완료")
+        else:
+            print("[DEBUG] 이미 OFF 상태라 건너뜀")
+        # ────────────────────────────────────────
+        
+        
         page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
         time.sleep(1)
         page.click('button[aria-label*="Show More Options"]')
