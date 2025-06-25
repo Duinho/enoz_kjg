@@ -13,7 +13,7 @@ from playwright.sync_api import sync_playwright
 script_dir = os.path.dirname(os.path.abspath(__file__))
 config_path = os.path.join(script_dir, 'config.json')  # 기존 config.json 사용 가능
 excel_file_path = os.path.join(script_dir, '영상보내기.xlsx')
-BASE_DIR = os.path.join(script_dir, "영상")  # 영상 폴더 고정
+BASE_DIR = os.path.join(script_dir, "녹화영상")  # 영상 폴더 고정
 
 
 # ✅ config.json (Zoom 관련 설정만 여기서 가져옴)
@@ -75,13 +75,35 @@ def list_recordings(token, user_id):
         params['next_page_token'] = data['next_page_token']
     return meetings
 
+# 한 번 처리한 meeting_id 스킵용
+# 한 번 처리한 meeting_id 스킵용
+processed_meetings = set()
 
-# ✅ 다운로드 + 삭제
+# MP4 우선순위 타입 정의
+priority_types = [
+    "shared_screen_with_gallery_view",
+    "shared_screen_with_speaker_view",
+    "shared_screen",
+    "speaker_view",
+    "gallery_view"
+]
+
 def download_and_delete(meeting, token, user_email):
-    topic = meeting['topic']
+    """
+    1) 중복 meeting_id 스킵
+    2) 날짜는 'YYYY년 M월 D일' (앞자리 0 없음)
+    3) priority_types 에서 첫 매칭 MP4 한 개만 다운로드
+    4) 파일명 충돌 시에만 _1, _2… 추가
+    """
     meeting_id = meeting['id']
-    start = meeting['start_time']
-    date = start.split('T')[0]
+    if meeting_id in processed_meetings:
+        print(f"⏭️ 이미 처리된 회의 스킵: {meeting_id}")
+        return
+    processed_meetings.add(meeting_id)
+
+    topic = meeting.get('topic', 'NoTopic')
+    dt = datetime.fromisoformat(meeting['start_time'].rstrip('Z'))
+    date_str = f"{dt.year}년 {dt.month}월 {dt.day}일"
 
     # 지역 분류
     if "경산" in topic:
@@ -95,55 +117,60 @@ def download_and_delete(meeting, token, user_email):
     else:
         region = "기타"
 
-    folder_path = os.path.join(BASE_DIR, region, date, f"{topic}_{date}")
+    # 폴더: BASE_DIR/region/YYYY년 M월 D일/토픽_YYYY년 M월 D일
+    folder_path = os.path.join(BASE_DIR, region, date_str, f"{topic}_{date_str}")
     os.makedirs(folder_path, exist_ok=True)
 
-    # 파일 목록
+    # 녹화 파일 목록 조회
     headers = {'Authorization': f'Bearer {token}'}
-    rec_info = requests.get(f'https://api.zoom.us/v2/meetings/{meeting_id}/recordings', headers=headers)
-    rec_info.raise_for_status()
-    files = rec_info.json().get('recording_files', [])
+    rec = requests.get(
+        f'https://api.zoom.us/v2/meetings/{meeting_id}/recordings',
+        headers=headers
+    )
+    rec.raise_for_status()
+    files = rec.json().get('recording_files', [])
 
-    # recording_type 우선순위
-    priority_types = [
-        "shared_screen_with_gallery_view",
-        "shared_screen_with_speaker_view",
-        "shared_screen",
-        "speaker_view",
-        "gallery_view"
-    ]
-
-    selected_file = None
-    for p in priority_types:
-        for rec in files:
-            if rec.get("recording_type") == p and rec.get("file_type") == "MP4":
-                selected_file = rec
+    # 우선순위 MP4 한 개만 선택
+    selected = None
+    for p_type in priority_types:
+        for f in files:
+            if f.get('recording_type') == p_type and f.get('file_type') == 'MP4':
+                selected = f
                 break
-        if selected_file:
+        if selected:
             break
 
-    if not selected_file:
-        print(f"⚠️ MP4 파일 없음: {topic}")
+    if not selected:
+        print(f"⚠️ MP4 파일 없음: {topic} ({meeting_id})")
         return
 
-    download_url = selected_file['download_url'] + f"?access_token={token}"
-    ext = selected_file['file_type'].lower()
-    filename = f"{topic}_{date}.{ext}"
-    file_path = os.path.join(folder_path, filename)
+    # 다운로드 URL & 기본 파일명
+    download_url = selected['download_url'] + f"?access_token={token}"
+    base_filename = f"{topic} _{date_str}.mp4"
+    file_path = os.path.join(folder_path, base_filename)
 
-    print(f"🔽 {user_email} 회의 → 다운로드: {filename}")
+    # 파일명 충돌 시에만 _1, _2… 추가
+    counter = 1
+    name, ext = os.path.splitext(base_filename)
+    while os.path.exists(file_path):
+        file_path = os.path.join(folder_path, f"{name}_{counter}{ext}")
+        counter += 1
+
+    print(f"🔽 {user_email} 회의 → 다운로드: {os.path.basename(file_path)}")
     with requests.get(download_url, stream=True) as r:
         r.raise_for_status()
-        with open(file_path, 'wb') as f:
-            shutil.copyfileobj(r.raw, f)
+        with open(file_path, 'wb') as out:
+            shutil.copyfileobj(r.raw, out)
 
-    # 삭제
-    del_url = f'https://api.zoom.us/v2/meetings/{meeting_id}/recordings'
-    del_res = requests.delete(del_url, headers=headers)
-    if del_res.status_code == 204:
+    # 녹화 전체 삭제
+    res_del = requests.delete(
+        f'https://api.zoom.us/v2/meetings/{meeting_id}/recordings',
+        headers=headers
+    )
+    if res_del.status_code == 204:
         print(f"🧹 삭제 완료: {topic} ({meeting_id})")
     else:
-        print(f"❌ 삭제 실패: {del_res.status_code}, {del_res.text}")
+        print(f"❌ 삭제 실패 ({res_del.status_code}): {res_del.text}")
 
 
 # ✅ 문자 정보 Excel에서 가져오기 (시트세트 1 고정)

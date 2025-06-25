@@ -278,7 +278,7 @@ def 시트수정():
     global 날짜위치, 영상_행목록, 시트이름, 폴더경로, 시트링크
 
     # JSON 파일 경로 설정
-    json_file_path = os.path.join(폴더경로, 'auto-send-link-8b4593e0b963.json')
+    json_file_path = os.path.join(폴더경로, 'auto-send-link-74f62fdbda52.json')
 
     # OAuth2 인증 설정
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
@@ -387,8 +387,8 @@ def 동작():
         영상발송(page)
 
         # 두 번째 세트 동작
-        #엑셀(시트세트=1)
-        #영상발송(page)
+        엑셀(시트세트=3)
+        영상발송(page)
 
         print('모든 영상 링크 발송 완료')
         browser.close()
