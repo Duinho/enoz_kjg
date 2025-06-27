@@ -15,9 +15,9 @@ def 로그인(page):
     # 로그인 사이트 정보를 읽어옴
     global 강의날짜
     로그인사이트 = ws.cell(row=1, column=17).value
-    adminID = ws.cell(row=2, column=17).value
-    adminPW = ws.cell(row=3, column=17).value
-    수강관리링크 = ws.cell(row=4, column=17).value
+    수강관리링크 = ws.cell(row=2, column=17).value
+    adminID = ws.cell(row=3, column=17).value
+    adminPW = ws.cell(row=4, column=17).value
     강의날짜 = ws.cell(row=5, column=17).value
 
     # 로그인 프로세스
