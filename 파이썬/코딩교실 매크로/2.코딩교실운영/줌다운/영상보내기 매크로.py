@@ -77,15 +77,22 @@ def 드라이브링크복사():
     except ValueError as e:
         print(f"Error during 드라이브링크복사: {e}")  # 디버깅 메시지
 
-
-def 엑셀(시트세트):
-    global 알람받을번호, 날짜, api키, 시트링크, 시트이름, 드라이브링크, wb, ws, 요일, 멘트1, 멘트2, 문자박스링크, 문자박스아이디, 문자박스비번, 회신번호
+def 로그인정보():  
+    global 알람받을번호, api키, 멘트1, 멘트2, 문자박스링크, 문자박스아이디, 문자박스비번
     wb = openpyxl.load_workbook(excel_file_path)
     ws = wb.active
     알람받을번호 = ws.cell(row=5, column=15).value
-    날짜 = ws.cell(row=1, column=17).value    
+    api키 = ws.cell(row=2, column=17).value
+    멘트1 = ws.cell(row=6, column=15).value
+    멘트2 = ws.cell(row=7, column=15).value
+    문자박스링크 = ws.cell(row=8, column=15).value
+    문자박스아이디 = ws.cell(row=9, column=15).value
+    문자박스비번 = ws.cell(row=10, column=15).value
 
-    # 첫 번째 세트와 두 번째 세트를 구분하여 링크와 드라이브 링크 설정
+def 엑셀(시트세트,page):
+    global 날짜, 시트링크, 시트이름, 드라이브링크, wb, ws, 요일, 회신번호
+    wb = openpyxl.load_workbook(excel_file_path)
+    ws = wb.active
     if 시트세트 == 1:
         시트링크_월수 = ws.cell(row=3, column=17).value
         시트링크_화목 = ws.cell(row=4, column=17).value
@@ -102,7 +109,7 @@ def 엑셀(시트세트):
         드라이브링크 = ws.cell(row=13, column=17).value
         회신번호 = ws.cell(row=14, column=17).value
     회신번호 = f'010{회신번호}'
-
+    날짜 = ws.cell(row=1, column=17).value  
     # 요일과 시트 이름 설정
     if '월' in 날짜 or '수' in 날짜:
         시트이름 = '출석부(월/수)'
@@ -112,12 +119,6 @@ def 엑셀(시트세트):
         시트이름 = '출석부(화/목)'
         요일 = '화목'
         시트링크 = 시트링크_화목
-    api키 = ws.cell(row=2, column=17).value
-    멘트1 = ws.cell(row=6, column=15).value
-    멘트2 = ws.cell(row=7, column=15).value
-    문자박스링크 = ws.cell(row=8, column=15).value
-    문자박스아이디 = ws.cell(row=9, column=15).value
-    문자박스비번 = ws.cell(row=10, column=15).value
     kst = pytz.timezone('Asia/Seoul')
     now = datetime.now(kst)
     yesterday = now - timedelta(1)
@@ -146,7 +147,8 @@ def 엑셀(시트세트):
             시트이름 = '출석부(화/목)'
             요일 = '화목'
             시트링크 = 시트링크_화목    
-
+    시트확인(page)
+    시트수정()
 
 def 날짜검색(시트데이터, search_value):
     for col_index, value in enumerate(시트데이터[1], start=1):
@@ -372,23 +374,18 @@ def 로그인(page):
     except:
         pass 
     
-def 영상발송(page):
-    시트확인(page)
-    시트수정()    
     
 def 동작():
-    global browser
+    global browser,page
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=False, args=['--disable-popup-blocking'])
         page = browser.new_page()
         # 첫 번째 세트 동작
-        엑셀(시트세트=1)
+        로그인정보()
         로그인(page)
-        영상발송(page)
-
-        # 두 번째 세트 동작
-        엑셀(시트세트=3)
-        영상발송(page)
+        엑셀(시트세트=1,page=page)
+        엑셀(시트세트=2,page=page)
+        엑셀(시트세트=3,page=page)
 
         print('모든 영상 링크 발송 완료')
         browser.close()

@@ -118,7 +118,7 @@ def download_and_delete(meeting, token, user_email):
         region = "기타"
 
     # 폴더: BASE_DIR/region/YYYY년 M월 D일/토픽_YYYY년 M월 D일
-    folder_path = os.path.join(BASE_DIR, region, date_str, f"{topic}_{date_str}")
+    folder_path = os.path.join(BASE_DIR, region, date_str, f"{topic} _{date_str}")
     os.makedirs(folder_path, exist_ok=True)
 
     # 녹화 파일 목록 조회
