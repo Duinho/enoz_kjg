@@ -77,20 +77,8 @@ def 드라이브링크복사():
     except ValueError as e:
         print(f"Error during 드라이브링크복사: {e}")  # 디버깅 메시지
 
-def 로그인정보():  
-    global 알람받을번호, api키, 멘트1, 멘트2, 문자박스링크, 문자박스아이디, 문자박스비번
-    wb = openpyxl.load_workbook(excel_file_path)
-    ws = wb.active
-    알람받을번호 = ws.cell(row=5, column=15).value
-    api키 = ws.cell(row=2, column=17).value
-    멘트1 = ws.cell(row=6, column=15).value
-    멘트2 = ws.cell(row=7, column=15).value
-    문자박스링크 = ws.cell(row=8, column=15).value
-    문자박스아이디 = ws.cell(row=9, column=15).value
-    문자박스비번 = ws.cell(row=10, column=15).value
-
-def 엑셀(시트세트,page):
-    global 날짜, 시트링크, 시트이름, 드라이브링크, wb, ws, 요일, 회신번호
+def 엑셀(시트세트):
+    global page,날짜, 시트링크, 시트이름, 드라이브링크, wb, ws, 요일, 회신번호
     wb = openpyxl.load_workbook(excel_file_path)
     ws = wb.active
     if 시트세트 == 1:
@@ -147,7 +135,7 @@ def 엑셀(시트세트,page):
             시트이름 = '출석부(화/목)'
             요일 = '화목'
             시트링크 = 시트링크_화목    
-    시트확인(page)
+    시트확인()
     시트수정()
 
 def 날짜검색(시트데이터, search_value):
@@ -163,8 +151,8 @@ def 영상검색(시트데이터, column_index, search_value):
             rows.append(row_index)
     return rows
 
-def 특정열값검색(시트데이터, rows, page):
-    global 반번호, 학생번호, 학부모번호, 학생이름
+def 특정열값검색(시트데이터, rows):
+    global page, 반번호, 학생번호, 학부모번호, 학생이름
     for row in rows:
         # A 열에서 최초로 나오는 값을 찾기 위한 로직 추가
         반번호 = None
@@ -217,6 +205,9 @@ def 특정열값검색(시트데이터, rows, page):
         time.sleep(0.3)
         page.keyboard.press('Enter')
         print(f'{반번호} {학생이름} 학생 영상 발송 완료')
+
+def 완료():
+    global page
     page.fill('textarea#recvList', 알람받을번호)
     page.fill('textarea#msg', '영상 발송 완료')
     page.locator("a.hand.openLayer", has_text="선택").click()
@@ -233,9 +224,8 @@ def 특정열값검색(시트데이터, rows, page):
     time.sleep(0.3)
     page.keyboard.press('Enter')
 
-
-def 시트확인(page):
-    global 날짜위치, 영상_행목록, j_col_index, l_col_index, e_col_index
+def 시트확인():
+    global page,날짜위치, 영상_행목록, j_col_index, l_col_index, e_col_index
     시트아이디 = extract_spreadsheet_id(시트링크)   
     시트 = build('sheets', 'v4', developerKey=api키)
     
@@ -272,7 +262,7 @@ def 시트확인(page):
     날짜위치 = 날짜검색(시트데이터, 날짜)  # 셀 주소 찾기
     if 날짜위치:
         영상_행목록 = 영상검색(시트데이터, 날짜위치, '영상')
-        특정열값검색(시트데이터, 영상_행목록, page)
+        특정열값검색(시트데이터, 영상_행목록)
     else:
         print(f'날짜 "{날짜}" not found in the second row')
 
@@ -361,9 +351,19 @@ def 시트수정():
     else:
         print("No updates to send to Google Sheets.")
 
-        
 
-def 로그인(page):
+
+def 로그인():
+    global page, 알람받을번호, api키, 멘트1, 멘트2, 문자박스링크, 문자박스아이디, 문자박스비번
+    wb = openpyxl.load_workbook(excel_file_path)
+    ws = wb.active
+    알람받을번호 = ws.cell(row=5, column=15).value
+    api키 = ws.cell(row=2, column=17).value
+    멘트1 = ws.cell(row=6, column=15).value
+    멘트2 = ws.cell(row=7, column=15).value
+    문자박스링크 = ws.cell(row=8, column=15).value
+    문자박스아이디 = ws.cell(row=9, column=15).value
+    문자박스비번 = ws.cell(row=10, column=15).value
     page.goto(문자박스링크)
     page.fill('input[name="id"]', 문자박스아이디)
     page.fill('input[name="pwd"]', 문자박스비번)
@@ -373,20 +373,18 @@ def 로그인(page):
         page.click("button[onclick*='contentsLayerClose']")  # 닫기 버튼 클릭
     except:
         pass 
-    
-    
+     
 def 동작():
     global browser,page
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=False, args=['--disable-popup-blocking'])
         page = browser.new_page()
         # 첫 번째 세트 동작
-        로그인정보()
-        로그인(page)
-        엑셀(시트세트=1,page=page)
-        엑셀(시트세트=2,page=page)
-        엑셀(시트세트=3,page=page)
-
+        로그인()
+        엑셀(1)
+        엑셀(2)
+        엑셀(3)
+        완료()
         print('모든 영상 링크 발송 완료')
         browser.close()
 
