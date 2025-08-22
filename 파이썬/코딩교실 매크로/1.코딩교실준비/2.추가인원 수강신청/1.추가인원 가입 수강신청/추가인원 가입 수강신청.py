@@ -196,7 +196,7 @@ def 회원가입(page, sheet_name):
     이름   = random.choices(성씨, weights=weights, k=1)[0]
     아이성 = 이름
     성별   = random.randint(0, 6)
-    if 성별 < 5:
+    if 성별 < 4:
         page.select_option('select[name="ddlSex"]', value='남자')
         이름 += 남아_리스트[random.randint(0, len(남아_리스트)-1)]
     else:
