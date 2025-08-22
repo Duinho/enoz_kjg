@@ -256,7 +256,7 @@ def 회원가입(page, sheet_name):
     time.sleep(1)
     page.keyboard.press('Enter')
     time.sleep(1)
-    for _ in range(6):
+    for _ in range(2):
         page.keyboard.press('Tab')
     page.keyboard.press('Enter')
     time.sleep(1)
@@ -308,9 +308,9 @@ def 신청(page, sheet_name):
     # 3) 요일·회차 선택 (BG / PH 분기)
     if sheet_name == "BG":
         if 요일 == "월수":
-            page.locator('label.cc-cc.check[for="3_19"]').click()
+            page.locator('label.cc-cc.check[for="3_23"]').click()
         else:
-            page.locator('label.cc-cc.check[for="4_20"]').click()
+            page.locator('label.cc-cc.check[for="4_24"]').click()
     elif sheet_name == "PH":   
         if 요일 == "월수":
             page.locator('button.btn_week[data-week="2,4"]').click()
