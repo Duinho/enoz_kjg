@@ -477,6 +477,7 @@ def 회원가입(page, sheet_name):
 
 # --- 수강신청 ---------------------------------------------------------------
 def 신청(page, sheet_name):
+    time.sleep(1.0)
     page.goto(수강신청사이트, wait_until="domcontentloaded")
     time.sleep(1.0)
     if page.locator('input#q1_2').count() > 0:
