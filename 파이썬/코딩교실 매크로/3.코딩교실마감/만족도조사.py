@@ -20,6 +20,11 @@ def mj(link, repeat, evaluation_count, satisfaction_count):
 
 def process_evaluation(page, count):
     """역량 향상 평가 문항 처리"""
+    elements = page.query_selector_all('span.NPEfkd.RveJvd.snByac')
+    for element in elements:
+        if element.inner_text() == '다음':
+            element.click()
+            break 
     page.wait_for_selector('span.NPEfkd.RveJvd.snByac', timeout=10000)
     col_a = np.random.choice([5, 4, 3, 2, 1], size=count, p=[0.985, 0.009, 0.004, 0.0015, 0.0005])
     for j in range(1, len(col_a)):
