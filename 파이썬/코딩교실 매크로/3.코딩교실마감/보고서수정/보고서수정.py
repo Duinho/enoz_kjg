@@ -1,6 +1,6 @@
 import os
 import openpyxl
-import re,datetime
+import re, datetime
 import time
 import shutil
 from playwright.sync_api import sync_playwright
@@ -30,14 +30,6 @@ def process_html(path,
                  clear_fields=(),
                  education_idx=None,
                  additions=None):
-    """
-    HTML 문서 후처리 통합 함수
-      1) suffix_change: (orig_num, new_num) 튜플로 Group No/담당강사명 교체
-      2) attendance: (session_idx, cancels) 로 출결현황 + 취소자 처리
-      3) clear_fields: 비울 레이블 리스트 (예: ('출결현황','특이사항'))
-      4) education_idx: 차시 인덱스로 교육내용 삽입
-      5) additions: 추가인원 이름 리스트로 [출] 삽입
-    """
     with open(path, 'r', encoding='cp949', errors='ignore') as f:
         soup = BeautifulSoup(f, 'html.parser')
 
@@ -67,13 +59,16 @@ def process_html(path,
                 sp1 = soup.new_tag('span', lang='EN-US', style=f'color:{color}'); sp1.string = f'[{status}]'
                 new_p.append(sp0); new_p.append(sp1)
                 if i < len(students): new_p.append(', ')
-            # 누락 취소자
+            # 누락 취소자 → 이전 차시는 [출], 이후는 [결]
             for nm, cf in cancels:
-                if nm not in students and idx>=cf:
+                if nm not in students:
                     if new_p.contents and not str(new_p.contents[-1]).endswith(', '):
                         new_p.append(', ')
                     sp0 = soup.new_tag('span', **{'class':'SpellE'}); sp0.string = nm
-                    sp1 = soup.new_tag('span', lang='EN-US', style='color:#EE0000'); sp1.string = '[결]'
+                    if idx >= cf:
+                        sp1 = soup.new_tag('span', lang='EN-US', style='color:#EE0000'); sp1.string = '[결]'
+                    else:
+                        sp1 = soup.new_tag('span', lang='EN-US', style='color:blue'); sp1.string = '[출]'
                     new_p.append(sp0); new_p.append(sp1)
             td1.clear()
             td1.append(new_p)
@@ -99,35 +94,26 @@ def process_html(path,
         td0 = soup.find('td', string='출결현황')
         if td0:
             td1 = td0.find_next_sibling('td')
-            # <p class="MsoNormal"> 태그 준비
             p = td1.find('p', class_='MsoNormal')
             if not p:
                 p = soup.new_tag('p', **{'class':'MsoNormal'})
                 td1.clear()
                 td1.append(p)
 
-            # 현재 p 안의 학생 이름 리스트
             existing = [span.get_text() for span in p.find_all('span', class_='SpellE')]
-
             for nm in additions:
                 if nm not in existing:
-                    # 기존 항목 뒤에 콤마+공백
                     if p.contents:
                         p.append(', ')
-                    # 이름 span
                     sp0 = soup.new_tag('span', **{'class':'SpellE'})
                     sp0.string = nm
-                    # 상태 span
                     sp1 = soup.new_tag('span', lang='EN-US', style='color:blue')
                     sp1.string = '[출]'
                     p.append(sp0)
                     p.append(sp1)
-            # td1.append 가 아니라 p 내부에만 append 했으니 줄바꿈 파편 없음
 
-    # 결과 저장
     with open(path, 'w', encoding='cp949', errors='ignore') as f:
         f.write(str(soup))
-
 
 
 # ——————————————————————————————
@@ -157,38 +143,43 @@ def 초기화():
     name_change_map.clear()
     for o,n in wb['반이름변경'].iter_rows(min_row=1, max_col=2, values_only=True):
         if o and n:
-            name_change_map[o] = n
+            name_change_map[str(o).strip()] = str(n).strip()
 
-    # 취소자
+    # 취소자 (변경된 반이름 기준으로 저장)
     cancellation_map.clear()
-    for row in wb['취소자'].iter_rows(min_row=1, values_only=True):
-        orig = row[0]
-        if not orig: 
-            continue
-        lst = []
-        for c in row[1:]:
-            if c:
-                nm, num = c.split(',')
-                lst.append((nm.strip(), int(num)))
-        cancellation_map[orig] = lst
-
-    # 추가인원
-    additional_map.clear()
-    for row in wb['추가인원'].iter_rows(min_row=1, values_only=True):
+    ws = wb['취소자']
+    for row in ws.iter_rows(min_row=1, values_only=True):
         orig = row[0]
         if not orig:
             continue
-        additional_map[orig] = [c.strip() for c in row[1:] if c and c.strip()]
+        mapped = name_change_map.get(str(orig).strip(), str(orig).strip())
+        if mapped not in cancellation_map:
+            cancellation_map[mapped] = []
+        for c in row[1:]:
+            if c:
+                nm, num = c.split(',')
+                cancellation_map[mapped].append((nm.strip(), int(num)))
+
+    # 추가인원 (변경된 반이름 기준으로 저장, 열 구조)
+    additional_map.clear()
+    ws = wb['추가인원']
+    headers = [cell.value for cell in ws[1] if cell.value]
+    for col_idx, group in enumerate(headers, start=1):
+        if not group:
+            continue
+        mapped = name_change_map.get(str(group).strip(), str(group).strip())
+        additional_map[mapped] = []
+        for row in ws.iter_rows(min_row=2, min_col=col_idx, max_col=col_idx, values_only=True):
+            if row[0]:
+                additional_map[mapped].append(str(row[0]).strip())
 
     # 날짜 맵 초기화
     session_dates_map.clear()
 
 
-
 # ——————————————————————————————
 # 로그인
 # ——————————————————————————————
-
 def 로그인(page):
     page.goto(로그인사이트)
     page.fill('input[name="tbAdminId"]', adminID)
@@ -202,9 +193,8 @@ def 로그인(page):
 
 
 # ——————————————————————————————
-# 보고서다운: 기존 그룹 다운로드 + 취소자 처리
+# 보고서다운
 # ——————————————————————————————
-
 def 보고서다운(page):
     os.makedirs(REPORT_DIR, exist_ok=True)
     inp = 'input[name="tbKeyWord"][size="25"]'
@@ -213,8 +203,8 @@ def 보고서다운(page):
     for prefix, count in [('MW',월수반), ('TT',화목반)]:
         for i in range(1, count+1):
             orig   = f"{prefix}_{i:02d}"
-            code   = f"{지역}{orig}"
             mapped = name_change_map.get(orig, orig)
+            code   = f"{지역}{orig}"
             grp    = os.path.join(REPORT_DIR, f"{지역}{mapped}")
             os.makedirs(grp, exist_ok=True)
 
@@ -222,7 +212,6 @@ def 보고서다운(page):
             loc = page.locator(btn); loc.nth(7).wait_for(timeout=30000)
             bts = loc.all()
 
-            # 날짜 역순 수집
             dates = []
             for b in bts[::-1]:
                 href = b.get_attribute('href') or ''
@@ -246,29 +235,21 @@ def 보고서다운(page):
                 with pop.expect_download() as dl: pop.click('a.button_yellow')
                 dl.value.save_as(dst); pop.close()
 
-                # 1) suffix 교체
                 if orig in name_change_map:
                     o_n, n_n = orig.split('_')[1], mapped.split('_')[1]
                     process_html(dst, suffix_change=(o_n,n_n))
-                # 2) 취소자
-                process_html(dst, attendance=(idx, cancellation_map.get(orig, [])))
+
+                process_html(dst, attendance=(idx, cancellation_map.get(mapped, [])))
 
             if missing:
                 print(f"{code}의 {', '.join(f'[{d}]' for d in missing)}인 보고서가 작성되지 않았습니다.")
 
 
 # ——————————————————————————————
-# stub 생성: orig 기준으로 missing_orig 찾아 생성
+# stub 생성
 # ——————————————————————————————
-
 def create_stubs():
-    """
-    orig 기준으로 폴더가 없는 반만 stub 생성.
-    폴더명·파일명은 orig 그대로, HTML 내부의 Group No/강사명은 매핑(template) suffix,
-    '수업일시' 셀은 날짜와 요일만 실제 세션 날짜로 교체합니다.
-    """
     for prefix, total in [('MW', 목표월수), ('TT', 목표화목)]:
-        # 1) 템플릿용 orig 찾기 (다운로드된 mapped 폴더가 있는 첫 orig)
         template_orig = None
         for i in range(1, total+1):
             o2 = f"{prefix}_{i:02d}"
@@ -282,96 +263,66 @@ def create_stubs():
 
         dates           = session_dates_map.get(template_orig, [])
         template_mapped = name_change_map.get(template_orig, template_orig)
-        src_template    = os.path.join(
-            REPORT_DIR,
-            f"{지역}{template_mapped}",
-            f"{지역}{template_mapped}_{dates[0]}.doc"
-        )
+        src_template    = os.path.join(REPORT_DIR, f"{지역}{template_mapped}", f"{지역}{template_mapped}_{dates[0]}.doc")
         if not os.path.exists(src_template):
             print(f"[ERROR] 템플릿 파일 없음: {src_template}")
             continue
 
-        # 2) 1~total orig 순회하며 orig 폴더가 없으면 stub 생성
         for i in range(1, total+1):
             orig    = f"{prefix}_{i:02d}"
-            grp_dir = os.path.join(REPORT_DIR, f"{지역}{orig}")
+            mapped  = name_change_map.get(orig, orig)
+            grp_dir = os.path.join(REPORT_DIR, f"{지역}{mapped}")
             if os.path.isdir(grp_dir):
                 continue
 
             os.makedirs(grp_dir, exist_ok=True)
-
-            # 3) 날짜별 stub 파일 생성
             for idx, date in enumerate(dates, start=1):
-                dst = os.path.join(grp_dir, f"{지역}{orig}_{date}.doc")
+                dst = os.path.join(grp_dir, f"{지역}{mapped}_{date}.doc")
                 if os.path.exists(dst):
                     continue
                 shutil.copy(src_template, dst)
 
-                # ─── 수업일시 셀만 날짜/요일 교체 ─────────────────────
                 with open(dst, 'r', encoding='cp949', errors='ignore') as f:
                     soup = BeautifulSoup(f, 'html.parser')
                 td0 = soup.find('td', string='수업일시')
                 if td0:
                     td1 = td0.find_next_sibling('td')
                     raw = td1.get_text()
-                    # 새 날짜 포맷: "YYYY.MM.DD"
                     dt = datetime.datetime.strptime(date, "%Y-%m-%d")
                     date_str = dt.strftime("%Y.%m.%d")
-                    dow      = dt.strftime("%a").upper()    # "WED"
+                    dow      = dt.strftime("%a").upper()
                     new_prefix = f"{date_str}({dow})"
-                    # 원본 텍스트에서 앞부분 YYYY.MM.DD(DOW) 부분만 교체
-                    new_text = re.sub(
-                        r"\d{4}\.\d{2}\.\d{2}\([A-Z]{3}\)",
-                        new_prefix,
-                        raw
-                    )
+                    new_text = re.sub(r"\d{4}\.\d{2}\.\d{2}\([A-Z]{3}\)", new_prefix, raw)
                     td1.clear()
                     td1.append(new_text)
                 with open(dst, 'w', encoding='cp949', errors='ignore') as f:
                     f.write(str(soup))
-                # ───────────────────────────────────────────────────
 
-                # 4) 나머지 후처리: suffix 교체, clear_fields, 교육내용 삽입
-                process_html(
-                    dst,
-                    suffix_change=(
-                        template_orig.split('_')[1],
-                        orig.split('_')[1]
-                    ),
-                    clear_fields=('출결현황', '특이사항'),
-                    education_idx=idx
-                )
+                process_html(dst,
+                             suffix_change=(template_orig.split('_')[1], orig.split('_')[1]),
+                             clear_fields=('출결현황', '특이사항'),
+                             education_idx=idx)
 
     print("▶︎ 누락된 반 스텁 생성 완료")
 
-# ——————————————————————————————
-# 추가인원 삽입: 모든 파일에 [출] 붙임
-# ——————————————————————————————
 
+# ——————————————————————————————
+# 추가인원 삽입
+# ——————————————————————————————
 def add_additional_members():
-    for orig, names in additional_map.items():
-        # 먼저 orig 폴더부터 확인
-        dir_orig   = os.path.join(REPORT_DIR, f"{지역}{orig}")
-        if os.path.isdir(dir_orig):
-            grp_dir = dir_orig
-        else:
-            # orig 폴더 없으면 mapped 폴더
-            mapped = name_change_map.get(orig, orig)
-            grp_dir = os.path.join(REPORT_DIR, f"{지역}{mapped}")
-            if not os.path.isdir(grp_dir):
-                # 심지어 mapped 폴더도 없으면 스킵
-                continue
-
-        # grp_dir 안의 모든 .doc 파일에 추가인원 삽입
+    for mapped, names in additional_map.items():
+        grp_dir = os.path.join(REPORT_DIR, f"{지역}{mapped}")
+        if not os.path.isdir(grp_dir):
+            continue
         for fn in os.listdir(grp_dir):
             if fn.endswith('.doc'):
                 path = os.path.join(grp_dir, fn)
                 process_html(path, additions=names)
 
+
 # ——————————————————————————————
 # 메인
 # ——————————————————————————————
-
 if __name__ == '__main__':
     초기화()
     with sync_playwright() as pw:

@@ -31,84 +31,124 @@ def 헤더추가(ws): # 엑셀에 제일 위에 헤더를 미리 추가하는 �
     for col_index, header in enumerate(headers, start=1):
         ws.cell(row=1, column=col_index, value=header)
 
-def 학교받아오기(page):       # 내가 지정한 학교 종류와 시,구에 있는 학교의 명단을 리스트에 저장
-    page.goto(학교알리미주소) # 엑셀에 저장한 학교알리미주소로 접속
-    radio_buttons = page.query_selector_all('input[name="level1"]') # level1에 학교가 있는지 확인 후 클릭
+def 학교받아오기(page):       
+    # 엑셀에 저장한 학교알리미 주소로 접속
+    page.goto(학교알리미주소)
+
+    # level1: 학교급 (초/중/고)
+    radio_buttons = page.query_selector_all('input[name="level1"]')
     for radio in radio_buttons:
         label = page.query_selector(f'label[for="{radio.get_attribute("id")}"]')
         if label and 학교 in label.inner_text():
             label.click()
-            page.wait_for_load_state('load')   
+            page.wait_for_load_state('load')
             break
-    radio_buttons = page.query_selector_all('input[name="level2"]') # level2에 시도가 있는지 확인 후 클릭
+
+    # level2: 시·도
+    radio_buttons = page.query_selector_all('input[name="level2"]')
     for radio in radio_buttons:
         label = page.query_selector(f'label[for="{radio.get_attribute("id")}"]')
         if label and 시도 in label.inner_text():
             label.click()
-            page.wait_for_load_state('load')   
+            page.wait_for_load_state('load')
             break
-    radio_buttons = page.query_selector_all('input[name="level3"]') # level3에 시군구가 있는지 확인 후 클릭
+
+    # level3: 시·군·구
+    radio_buttons = page.query_selector_all('input[name="level3"]')
     for radio in radio_buttons:
         label = page.query_selector(f'label[for="{radio.get_attribute("id")}"]')
         if label and 시군구 in label.inner_text():
             label.click()
-            page.wait_for_load_state('load') 
-            break 
+            page.wait_for_load_state('load')
+            break
+
+    # 학교 목록 수집
     학교명 = []
     labels = page.query_selector_all('label[for^="shlCd"]')
     for label in labels:
-        학교명.append(label.inner_text())  # shlCd(학교이름이 저장된 클래스)가 포함된 값들을 전부 가져와서 학교명 리스트에 순차적으로 작성
+        학교명.append(label.inner_text())
+
     return 학교명
 
-def 학교정보검색(page, 학교명, 학년, ws):  # 학교 정보를 검색하고 값을 가져오는 함수
+def 학교정보검색(page, 학교명, 학년, ws):  
     row_index = 2  # 첫 번째 줄은 헤더이므로 두 번째 줄부터 시작
-    for 학교 in 학교명: # 학교받아오기에서 받아온 학교들의 리스트를 순차적으로작업
-        label = page.query_selector(f'label:has-text("{학교}")') # 각 학교의 '학년별·학급별 학생수' 필터 선택 후 검색
+
+    for 학교 in 학교명:  
+        label = page.query_selector(f'label:has-text("{학교}")')  
         if label:
-            label.click() # 학교를 클릭하고
+            # 학교 클릭 및 이동
+            label.click()
             page.wait_for_load_state('load') 
             page.click('a[data-tab-id="tabSel"]')
             page.wait_for_load_state('load')  
             page.click('a.accordian_title:has-text("학생현황")') 
             page.wait_for_load_state('load')                    
-            page.click('label[for="hangmok03"]') 
+            page.click('label[for="hangmok01"]')   # 학생현황 선택
             page.wait_for_load_state('load')   
+
+            # 검색 버튼 클릭
             page.click('#webSearchButton')                  
-            time.sleep(0.1)
-            page.wait_for_load_state('load')  
-            time.sleep(0.4)
-
-            # 학생수 가져오기
-            values = []
-            row_header = page.query_selector('th:has-text("합 계")')
-            if row_header:
-                parent_row = row_header.evaluate_handle('el => el.parentElement')
-                for grade in 학년:
-                    index = (int(grade) * 3) + 1  # 마지막에 있는 합 계라는 표에서 학년별로 합계의 셀을 선택
-                    selector = f'td:nth-child({index})'
-                    value = parent_row.query_selector(selector).inner_text()
-                    values.append(int(value.replace(',', '')))  # 값을 숫자로 변환하여 리스트에 추가
-
-            # 반 수 계산하기 (1-xx(단식))
-            class_counts = []
-            for grade in 학년:
-                class_selectors = page.query_selector_all(f'th:has-text("{grade}-")')
-                class_count = len(class_selectors)      # 해당 학년의 반 수 계산
-                class_counts.append(class_count)
-
-            
-            ws.cell(row=row_index, column=1, value=학교) # 엑셀에 데이터 저장
-            for col_index, value in enumerate(values, start=2):
-                ws.cell(row=row_index, column=col_index, value=value)  # 학생 수 저장
-            for col_index, class_count in enumerate(class_counts, start=8):  # H, I, J 열에 반 수 저장
-                ws.cell(row=row_index, column=col_index, value=class_count)
-
-            row_index += 1  # 다음 줄로 이동
-            
-            print(f'{학교} 학생수 및 반 수 저장 완료')
-            page.click('a.slidedown[href="javascript:research();"]') # 검색 완료 후 다음 학교로 이동
-            time.sleep(0.1)
             page.wait_for_load_state('load')
+
+            # "입력된 데이터가 없습니다." 체크
+            no_data = page.query_selector('p:has-text("입력된 데이터가 없습니다.")')
+            if no_data:
+                print(f'{학교} → 데이터 없음, 건너뜀')
+                # 다음 학교로 이동
+                page.click('a.slidedown[href="javascript:research();"]') 
+                page.wait_for_load_state('load')
+                continue  # 이 학교는 패스
+
+            # 데이터가 있는 경우에만 처리
+            page.wait_for_selector('xpath=//tr[th[normalize-space(.)="학급수"]]', timeout=10000)
+            page.wait_for_selector('xpath=//tr[th[normalize-space(.)="학생수"]]', timeout=10000)
+
+            # 학급수 행
+            class_counts = []
+            class_row = page.query_selector('xpath=//tr[th[normalize-space(.)="학급수"]]')
+            if class_row:
+                tds = class_row.query_selector_all('td')
+                for i, grade in enumerate(학년):
+                    if i < len(tds):
+                        raw_value = tds[i].inner_text().strip()
+                        if raw_value in ('', '-'):
+                            class_counts.append(0)
+                        else:
+                            class_counts.append(int(raw_value.split('(')[0].replace(',', '')))
+                    else:
+                        class_counts.append(0)
+
+            # 학생수 행
+            values = []
+            student_row = page.query_selector('xpath=//tr[th[normalize-space(.)="학생수"]]')
+            if student_row:
+                tds = student_row.query_selector_all('td')
+                for i, grade in enumerate(학년):
+                    if i < len(tds):
+                        raw_value = tds[i].inner_text().strip()
+                        if raw_value in ('', '-'):
+                            values.append(0)
+                        else:
+                            values.append(int(raw_value.replace(',', '').split('(')[0]))
+                    else:
+                        values.append(0)
+
+            # ----------------------------
+            # 엑셀 저장
+            # ----------------------------
+            ws.cell(row=row_index, column=1, value=학교) 
+            for col_index, value in enumerate(values, start=2):
+                ws.cell(row=row_index, column=col_index, value=value)  # 학생 수
+            for col_index, class_count in enumerate(class_counts, start=8):  
+                ws.cell(row=row_index, column=col_index, value=class_count)  # 반 수
+
+            row_index += 1  
+            print(f'{학교} 학생수 및 반 수 저장 완료')
+
+            # 다음 학교로 이동
+            page.click('a.slidedown[href="javascript:research();"]') 
+            page.wait_for_load_state('load')
+
 
 
 def 동작():
