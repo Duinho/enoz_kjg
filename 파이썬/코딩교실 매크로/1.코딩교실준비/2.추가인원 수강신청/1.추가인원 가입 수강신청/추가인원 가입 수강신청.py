@@ -486,9 +486,9 @@ def 신청(page, sheet_name):
 
     if sheet_name == "BG":
         if 요일 == "월수":
-            page.locator('label.cc-cc.check[for="3_23"]').click()
+            page.locator('label.cc-cc.check[for="3_25"]').click()
         else:
-            page.locator('label.cc-cc.check[for="4_24"]').click()
+            page.locator('label.cc-cc.check[for="4_26"]').click()
     elif sheet_name == "PH":
         if 요일 == "월수":
             page.locator('button.btn_week[data-week="2,4"]').click()
