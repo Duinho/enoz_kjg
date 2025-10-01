@@ -3,7 +3,7 @@
 import pandas as pd
 import random
 import calendar
-from datetime import datetime, timedelta
+from datetime import datetime
 import os
 
 from 이름생성기 import generate_name  # 이름 생성 모듈
@@ -87,11 +87,20 @@ def process_file(input_file="체험존 방명록 양식.xlsx", output_file="체�
                 # 만족도 점수 4문항
                 scores = [generate_score() for _ in range(4)]
 
-                records.append([timestamp, zone_name, name, gender, age_group] + scores)
+                # 개인정보 동의 + 기본정보 + 점수4개 + 자유기재(빈칸)
+                records.append([
+                    timestamp,
+                    "네, 동의합니다.",  # 개인정보 동의
+                    zone_name,          # Q1
+                    name,               # Q2
+                    gender,             # Q3
+                    age_group           # Q4
+                ] + scores + [""])      # Q5~Q8
 
-            # DataFrame 생성
+            # DataFrame 생성 (11개 컬럼)
             result_df = pd.DataFrame(records, columns=[
                 "타임스탬프",
+                "위와 같이 개인정보를 수집·이용 및 제3자 제공에 동의하시는 경우 체크 부탁드립니다.",
                 "1. 현재 방문하신 체험존은 어디인가요?",
                 "2. 성명을 작성해주세요",
                 "3. 성별을 체크해주세요",
@@ -99,7 +108,7 @@ def process_file(input_file="체험존 방명록 양식.xlsx", output_file="체�
                 "1. 디지털 기기 체험 환경이 불편없이 준비되어 있다.(체험장비, 네트워크, 시설 접근성 등)",
                 "2. 다음에 다른 체험존을 더 체험해보고 싶다.",
                 "3. 디지털체험존을 다른 사람에게 소개하고 권유할 의향이 있다.",
-                "4. 체험존 가이드가 체험 기기와 활용 방법에 대해 충분한 설명을 해주었다."
+                "4. 체험존 가이드가 체험 기기와 활용 방법에 대해 충분한 설명을 해주었다.",
                 "5. 기타 남기고 싶으신 말씀이 있다면 자유롭게 적어주세요."
             ])
 
