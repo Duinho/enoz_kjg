@@ -493,11 +493,11 @@ def 신청(page, sheet_name):
         if 요일 == "월수":
             page.locator('button.btn_week[data-week="2,4"]').click()
             time.sleep(0.4)
-            page.locator('label.cc-cc.check[for="1_53"]').click()
+            page.locator('label.cc-cc.check[for="1_55"]').click()
         else:
             page.locator('button.btn_week[data-week="3,5"]').click()
             time.sleep(0.4)
-            page.locator('label.cc-cc.check[for="2_54"]').click()
+            page.locator('label.cc-cc.check[for="2_56"]').click()
         time.sleep(0.4)
 
     page.once('dialog', handle_alert)
@@ -549,8 +549,8 @@ def 동작():
                 # 작은 재시도 1회(간헐적 로딩/레이스 대비)
                 for try_idx in range(2):
                     try:
-                        회원가입(page, "BG")
-                        신청(page, "BG")
+                        회원가입(page, "PH")
+                        신청(page, "PH")
                         break
                     except Exception as e:
                         if try_idx == 0:
