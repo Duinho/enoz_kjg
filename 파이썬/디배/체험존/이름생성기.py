@@ -81,8 +81,14 @@ name_parts = {
 }
 
 def generate_name(age_group: str, gender: str) -> str:
-    """연령대/성별에 따라 3글자 한국 이름 생성"""
+    """연령대/성별에 따라 3글자 한국 이름 생성(중간==끝 금지)"""
     surname = random.choices(surnames, weights=surname_weights, k=1)[0]
-    mid = random.choice(name_parts[age_group][gender]["중간"])
-    end = random.choice(name_parts[age_group][gender]["끝"])
+    parts = name_parts[age_group][gender]
+
+    mid = random.choice(parts["중간"])
+    # 중간 글자와 동일한 끝 글자를 제외
+    end_candidates = [ch for ch in parts["끝"] if ch != mid]
+    # 혹시나 비면(이 데이터에선 사실상 없음) 원본에서 재선택
+    end = random.choice(end_candidates) if end_candidates else random.choice(parts["끝"])
+
     return surname + mid + end
