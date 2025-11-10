@@ -5,7 +5,7 @@ import re
 import os
 from collections import defaultdict
 
-def process_teachers(filename="실시관리.xlsx", sheet_name="실시관리"):
+def process_teachers(filename="충북실시관리.xlsx", sheet_name="교육실시관리"):
     base_dir = os.path.dirname(os.path.abspath(__file__))
     input_path = os.path.join(base_dir, filename)
 
@@ -56,7 +56,7 @@ def process_teachers(filename="실시관리.xlsx", sheet_name="실시관리"):
             return ""
 
         note_clean = re.sub(
-            r"(\d{1,2}/\d{1,2})\s*(추가|불참)\s*-\s*(강사|보조강사)\s*([가-힣, ]+)",
+            r"(\d{1,2}/\d{1,2})\s*(추가|불참)\s*\s*(강사|보조강사)\s*([가-힣, ]+)",
             handle_date_match,
             note,
         )
@@ -65,7 +65,7 @@ def process_teachers(filename="실시관리.xlsx", sheet_name="실시관리"):
         # 일반 패턴 (합산 대상)
         # -------------------------------
         normal_matches = re.finditer(
-            r"(추가|불참)\s*-\s*(강사|보조강사)\s*([가-힣, ]+)", note_clean
+            r"(추가|불참)\s*\s*(강사|보조강사)\s*([가-힣, ]+)", note_clean
         )
         for m in normal_matches:
             action, role, names = m.groups()

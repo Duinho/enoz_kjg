@@ -16,35 +16,29 @@ def 초기화():
         ws = wb.active  # 메인 시트를 못 찾으면 활성 시트 사용
 
 def 메인_A_C_자동채우기():
-    """
-    - '월수'와 '화목'시트를 읽어 '메인'!A:C(반/이름/아이디)를 자동 구성합니다.
-    - 월수/화목 규칙:
-        * E=이름, F=아이디
-        * A열(병합)이 분반 번호(1→01)로 간주
-        * 시트의 Q7을 prefix로 사용(없으면 'BG')
-        * 반코드 = {prefix}_{MW|TT}_{분반번호:02d}
-    - 메인의 F~M은 수정하지 않음 (A~C만 갱신)
-    """
-    def _collect(ws_sheet, sheet_code, prefix_cell="Q7", default_prefix="BG"):
-        prefix = ws_sheet[prefix_cell].value
-        if prefix is None:
-            prefix = default_prefix
-        prefix = str(prefix).strip().strip("_")
+    ws_main = wb["메인"]
+    # 메인!Q7에서 prefix 고정 추출
+    prefix = ws_main["Q7"].value or "BG"
+    prefix = str(prefix).strip().strip("_") or "BG"
 
+    def _collect(ws_sheet, sheet_code):
         rows = []
-        last_group = None  # 병합된 A열 값(분반 번호) carry
-        # 보통 1~2행은 머리글이라 3행부터 훑음 (업로드된 샘플 기준)
+        last_group = None
         for r in range(3, ws_sheet.max_row + 1):
-            a_val = ws_sheet.cell(row=r, column=1).value  # A(분반, 병합)
+            a_val = ws_sheet.cell(row=r, column=1).value
             if a_val not in (None, ""):
                 s = str(a_val).strip()
-                last_group = int(s) if s.isdigit() else s
+                try:
+                    last_group = int(s)
+                except ValueError:
+                    last_group = s
 
-            name = ws_sheet.cell(row=r, column=5).value  # E: 이름
-            uid  = ws_sheet.cell(row=r, column=6).value  # F: 아이디
-            # 아이디가 없으면 배정 함수가 멈추므로 스킵
-            if (name is None and uid is None) or (uid is None or str(uid).strip() == ""):
+            name = ws_sheet.cell(row=r, column=5).value  # E
+            uid  = ws_sheet.cell(row=r, column=6).value  # F
+            if not uid or str(uid).strip() == "":
                 continue
+            if last_group is None:
+                last_group = 1
 
             try:
                 num_str = f"{int(last_group):02d}"
@@ -52,29 +46,28 @@ def 메인_A_C_자동채우기():
                 num_str = str(last_group)
 
             group_code = f"{prefix}_{sheet_code}_{num_str}"
-            rows.append((group_code, str(name).strip(), str(uid).strip()))
+            rows.append((group_code, str(name).strip() if name else "", str(uid).strip()))
         return rows
 
-    ws_main = wb["메인"]
-    ws_mw   = wb["월수"]
-    ws_tt   = wb["화목"]
+    ws_mw = wb["월수"] if "월수" in wb.sheetnames else None
+    ws_tt = wb["화목"] if "화목" in wb.sheetnames else None
 
-    # 월수(MW) → 화목(TT) 순으로 합치기
-    rows = _collect(ws_mw, "MW") + _collect(ws_tt, "TT")
+    rows = []
+    if ws_mw: rows += _collect(ws_mw, "MW")
+    if ws_tt: rows += _collect(ws_tt, "TT")
 
-    # 메인!A:C 초기화(헤더 유지), F~M은 건드리지 않음
+    # 메인!A:C 초기화 후 쓰기
     for r in range(2, ws_main.max_row + 1):
-        ws_main.cell(row=r, column=1).value = None  # A
-        ws_main.cell(row=r, column=2).value = None  # B
-        ws_main.cell(row=r, column=3).value = None  # C
+        for c in (1, 2, 3):
+            ws_main.cell(row=r, column=c).value = None
 
-    # 메인!A:C 쓰기
     write_row = 2
     for klass, name, uid in rows:
-        ws_main.cell(row=write_row, column=1, value=klass)  # A: 반
-        ws_main.cell(row=write_row, column=2, value=name)   # B: 이름
-        ws_main.cell(row=write_row, column=3, value=uid)    # C: 아이디
+        ws_main.cell(row=write_row, column=1, value=klass)
+        ws_main.cell(row=write_row, column=2, value=name)
+        ws_main.cell(row=write_row, column=3, value=uid)
         write_row += 1
+
 
 def 로그인(page):
     """메인(Q열)에 적힌 접속정보로 로그인 후 검색 조건 세팅"""
@@ -177,8 +170,8 @@ def 동작():
         # 3) 로그인 및 배정
         로그인(page)
         #반배정(page, '망령출동')
-        #반배정(page, '학생배정')
-        반배정(page, '망령퇴장')
+        반배정(page, '학생배정')
+        #반배정(page, '망령퇴장')
 
         browser.close()
 
