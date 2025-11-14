@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os, re, datetime, shutil
 import openpyxl
-from bs4 import BeautifulSoup, Comment
+from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 
 # ──────────────────────────────────────────────────────────
@@ -10,6 +10,7 @@ from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeo
 BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
 EXCEL_PATH = os.path.join(BASE_DIR, '보고서수정.xlsx')
 REPORT_DIR = os.path.join(BASE_DIR, '보고서')
+BACKUP_DIR = os.path.join(REPORT_DIR, '__BACKUP__')
 
 # ──────────────────────────────────────────────────────────
 # 전역 상태
@@ -39,6 +40,22 @@ def _coerce_int(val):
     s = str(val).strip()
     m = re.search(r'\d+', s)
     return int(m.group(0)) if m else None
+
+def _backup_move(path:str):
+    """
+    path(결과 폴더 내 파일)를 __BACKUP__/ 동일한 하위 구조로 이동.
+    """
+    rel = os.path.relpath(path, REPORT_DIR)
+    dst = os.path.join(BACKUP_DIR, rel)
+    _ensure_dir(os.path.dirname(dst))
+    if os.path.exists(dst):
+        # 백업 대상도 충돌하면 타임스탬프 덧붙임
+        base, ext = os.path.splitext(dst)
+        n = 1
+        while os.path.exists(f"{base}_{n}{ext}"):
+            n += 1
+        dst = f"{base}_{n}{ext}"
+    shutil.move(path, dst)
 
 def _suffix_change_in_html(path:str, old_num:str, new_num:str):
     """문서 내부 Group No/담당강사명의 접미사 _old → _new 교체"""
@@ -78,7 +95,7 @@ def _set_datetime_in_html(path:str, ymd:str):
 def _rewrite_attendance_html(path: str, attendance_list, education_idx=None, *, mode="attendance_only"):
     """
     mode:
-      - "attendance_only": 출결만 덮어씀. 교육내용/특이사항은 보존.
+      - "attendance_only": 출결만 덮어씀 + 특이사항 비움. 교육내용은 보존.
       - "stub_init": 스텁 생성용. 출결칸 비우고, 특이사항 비우며, 교육내용만 세팅.
     """
     with open(path, 'r', encoding='cp949', errors='ignore') as f:
@@ -91,7 +108,6 @@ def _rewrite_attendance_html(path: str, attendance_list, education_idx=None, *, 
         if td1:
             td1.clear()
             if mode == "attendance_only":
-                # 출결만 작성
                 p = soup.new_tag('p', **{'class': 'MsoNormal'})
                 for i, (nm, status) in enumerate(sorted(attendance_list, key=lambda x: x[0])):
                     if i:
@@ -102,30 +118,26 @@ def _rewrite_attendance_html(path: str, attendance_list, education_idx=None, *, 
                     s_stat.string = f'[{status}]'
                     p.append(s_name); p.append(s_stat)
                 td1.append(p)
-            else:
-                # stub_init: 출결은 비워둠
-                pass
+            # stub_init: 출결은 비워둠
 
-    # 2) 특이사항/교육내용
-    if mode == "stub_init":
-        # 특이사항은 비움
-        nk = soup.find('td', string=lambda s: s and s.strip() == '특이사항')
-        if nk:
-            nv = nk.find_next_sibling('td')
-            if nv:
-                nv.clear()
-        # 교육내용은 세팅
-        if education_idx:
-            ek = soup.find('td', string='교육내용')
-            if ek:
-                ev = ek.find_next_sibling('td')
-                if ev:
-                    ev.clear()
-                    p = soup.new_tag('p', **{'class':'MsoNormal'})
-                    text = session_descriptions[education_idx-1] if 1 <= education_idx <= len(session_descriptions) else ''
-                    p.string = text or ''
-                    ev.append(p)
-    # attendance_only: 교육내용/특이사항은 건드리지 않음
+    # 2) 특이사항
+    nk = soup.find('td', string=lambda s: s and s.strip() == '특이사항')
+    if nk:
+        nv = nk.find_next_sibling('td')
+        if nv:
+            nv.clear()  # 두 모드 공통으로 '특이사항' 비움
+
+    # 3) 교육내용
+    if mode == "stub_init" and education_idx:
+        ek = soup.find('td', string='교육내용')
+        if ek:
+            ev = ek.find_next_sibling('td')
+            if ev:
+                ev.clear()
+                p = soup.new_tag('p', **{'class':'MsoNormal'})
+                text = session_descriptions[education_idx-1] if 1 <= education_idx <= len(session_descriptions) else ''
+                p.string = text or ''
+                ev.append(p)
 
     with open(path, 'w', encoding='cp949', errors='ignore') as f:
         f.write(str(soup))
@@ -169,9 +181,9 @@ def 초기화():
     cfg['admin_id']    = ws.cell(3,17).value
     cfg['admin_pw']    = ws.cell(4,17).value
 
-    # ★ 다운로드 반수 저장: Q5/Q6
-    cfg['mw_download_count'] = int(ws.cell(5,17).value or 0)  # 월수 몇 반까지 사이트에서 받는다
-    cfg['tt_download_count'] = int(ws.cell(6,17).value or 0)  # 화목 몇 반까지 사이트에서 받는다
+    # 다운로드 반수: Q5/Q6
+    cfg['mw_download_count'] = int(ws.cell(5,17).value or 0)
+    cfg['tt_download_count'] = int(ws.cell(6,17).value or 0)
 
     # 교육내용
     session_descriptions[:] = [(ws.cell(i,19).value or '').strip() for i in range(1,9)]
@@ -185,7 +197,6 @@ def 초기화():
 
     # 로스터 구축(출결 덮어쓰기에 사용)
     build_full_roster(wb)
-
 
 def build_full_roster(wb):
     """시트 값이 단일 진실. MW/TT 각각 A,E,M~T 읽어 roster 채움."""
@@ -237,7 +248,7 @@ def _merge_roster(part):
             roster[g]["students"].setdefault(nm, {}).update(sess)
 
 # ──────────────────────────────────────────────────────────
-# 로그인·수집·다운로드(로스터 기반 모든 반)
+# 로그인·수집·다운로드(Q5/Q6 기반)
 # ──────────────────────────────────────────────────────────
 def 로그인(page):
     page.goto(cfg['login_url'])
@@ -272,7 +283,7 @@ def download_all_originals():
     """
     사이트 스케쥴 관리에서 Q5/Q6에 지정된 반수만큼 전부 시도해 받는다.
     - MW_01..MW_{Q5}, TT_01..TT_{Q6}
-    - 버튼이 빨간색(미작성)·결과 없음이면 건너뛰고, 나중에 스텁으로 보충
+    - 빨간 버튼/결과 없음은 건너뛰고 스텁으로 보충
     """
     _ensure_dir(REPORT_DIR)
 
@@ -294,7 +305,6 @@ def download_all_originals():
 
         browser.close()
 
-
 def _download_group_to_folder(page, orig:str):
     """원본명 폴더(지역+orig)에 다운로드 또는 그대로 두기(이미 있으면 스킵)"""
     grp_dir = os.path.join(REPORT_DIR, f"{cfg['region']}{orig}")
@@ -309,7 +319,6 @@ def _download_group_to_folder(page, orig:str):
         dst  = os.path.join(grp_dir, f"{cfg['region']}{orig}_{date}.doc")
         cls = b.get_attribute('class') or ''
         if 'button_red_small' in cls:
-            # 사이트에 보고서가 없으면 스킵. 이후 스텁 단계에서 템플릿 복사로 보장.
             continue
         if not os.path.exists(dst):
             with page.expect_popup() as pp: b.click()
@@ -319,13 +328,9 @@ def _download_group_to_folder(page, orig:str):
             dl.value.save_as(dst); pop.close()
 
 # ──────────────────────────────────────────────────────────
-# 일괄 이관(체인 해소, 충돌 방지)
+# 일괄 이관(체인 해소, 충돌 → 기존본은 BACKUP으로 이동)
 # ──────────────────────────────────────────────────────────
 def _resolve_final_mapping(mapping:dict):
-    """
-    체인 해소. ex) TT_01→TT_02, TT_02→TT_10 이면
-    final_targets['TT_01']='TT_10', final_targets['TT_02']='TT_10'
-    """
     keys = set(mapping.keys())
     finals = {}
     for k in list(keys):
@@ -339,12 +344,13 @@ def _resolve_final_mapping(mapping:dict):
 
 def migrate_all_by_mapping():
     """
-    원본 폴더(region+orig)들을 임시명으로 먼저 이동 → 최종 대상 폴더(region+final)로 병합.
-    파일 내부 접미사도 old→new로 치환. 파일 충돌은 _dupN으로 보존.
+    temp 폴더로 먼저 이동 후 최종 폴더로 병합.
+    동일 파일명이 있으면 기존 파일을 BACKUP으로 이동하고 새 파일을 정식 파일로 둠.
     """
     if not name_change_map:
         return
 
+    _ensure_dir(BACKUP_DIR)
     finals = _resolve_final_mapping(name_change_map)
 
     # 1) 임시로 rename
@@ -368,26 +374,20 @@ def migrate_all_by_mapping():
         for fn in os.listdir(tmp_dir):
             if not fn.endswith('.doc'):
                 continue
-            # 파일명 접두를 최종명으로 교체
             new_fn = re.sub(rf'^{re.escape(cfg["region"])}{re.escape(orig)}_', f'{cfg["region"]}{final}_', fn)
             src = os.path.join(tmp_dir, fn)
             dst = os.path.join(dst_dir, new_fn)
 
-            cand = dst
-            if os.path.exists(cand):
-                base, ext = os.path.splitext(dst)
-                n = 1
-                while os.path.exists(f"{base}_dup{n}{ext}"):
-                    n += 1
-                cand = f"{base}_dup{n}{ext}"
-            shutil.move(src, cand)
+            if os.path.exists(dst):
+                _backup_move(dst)  # 기존본 백업으로 이동
+            shutil.move(src, dst)
 
             # 내부 접미사 old→new
-            _suffix_change_in_html(cand, orig.split('_')[1], final.split('_')[1])
+            _suffix_change_in_html(dst, orig.split('_')[1], final.split('_')[1])
 
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
-    # 혹시 남은 빈 원본 폴더 정리
+    # 남은 빈 원본 폴더 정리
     for orig in list(finals.keys()):
         d = os.path.join(REPORT_DIR, f"{cfg['region']}{orig}")
         if os.path.isdir(d):
@@ -397,7 +397,6 @@ def migrate_all_by_mapping():
 # 템플릿 복사 방식 스텁 생성(로스터 기반, 8회차 보장)
 # ──────────────────────────────────────────────────────────
 def _find_template_group(prefix: str):
-    """다운로드된 폴더 중 같은 접두사(prefix)의 템플릿 반 하나 찾기"""
     root = REPORT_DIR
     cand = []
     for fn in os.listdir(root):
@@ -418,12 +417,6 @@ def _first_doc_of(group: str):
     return os.path.join(grp_dir, docs[0]) if docs else None
 
 def _target_dates_for_group(group: str, template_dates: list, total_sessions: int = 8):
-    """
-    그룹의 목표 날짜 목록.
-    1) 이미 수집된 날짜(session_dates_map[group]) 우선
-    2) 부족하면 템플릿 날짜로 보충
-    3) 중복 제거, 순서 보존
-    """
     seen, result = set(), []
     for d in session_dates_map.get(group, []):
         if d and d not in seen:
@@ -438,12 +431,9 @@ def _target_dates_for_group(group: str, template_dates: list, total_sessions: in
 def create_stubs_from_template():
     """
     시트(roster)에 존재하는 반만 스텁 생성.
-    접두사(MW/TT)별 템플릿 반 하나를 찾아 복사본으로 생성하고,
-    각 반의 누락 회차는 템플릿 날짜로 보충해 최대 8회차 보장.
-    스텁 파일은: 날짜 반영 + 교육내용만 세팅 + 특이사항 비우기 + 출결칸 비워둠.
+    날짜 반영 + 교육내용만 세팅 + 특이사항 비움 + 출결칸 비워둠.
     """
     for prefix in ('MW', 'TT'):
-        # 템플릿 반 찾기
         template_group = _find_template_group(prefix)
         if not template_group:
             print(f"[WARN] {prefix} 템플릿 반을 찾지 못했습니다. 스텁 생성 생략.")
@@ -453,7 +443,6 @@ def create_stubs_from_template():
             print(f"[ERROR] 템플릿 파일 없음: {base_doc}")
             continue
 
-        # 템플릿 반 날짜 확보
         template_dates = session_dates_map.get(template_group, [])
         if not template_dates:
             tdir = os.path.join(REPORT_DIR, f"{cfg['region']}{template_group}")
@@ -462,7 +451,6 @@ def create_stubs_from_template():
                 m = re.search(r'_(\d{4}-\d{2}-\d{2})\.doc$', fn)
                 if m: template_dates.append(m.group(1))
 
-        # 시트에 실제 존재하는 반만 대상
         groups = sorted([g for g in roster.keys() if g.startswith(prefix + '_')])
         for group in groups:
             grp_dir = os.path.join(REPORT_DIR, f"{cfg['region']}{group}")
@@ -474,7 +462,6 @@ def create_stubs_from_template():
                 if os.path.exists(dst):
                     continue
                 shutil.copy(base_doc, dst)
-                # 접미사 교체(템플릿 → 대상)
                 try:
                     t_num = template_group.split('_')[1]
                     g_num = group.split('_')[1]
@@ -482,15 +469,13 @@ def create_stubs_from_template():
                 except Exception:
                     pass
                 _set_datetime_in_html(dst, date)
-                # 스텁 초기화: 출결 비워두고, 특이사항 비우고, 교육내용만 세팅
                 _rewrite_attendance_html(dst, [], education_idx=idx, mode="stub_init")
     print("▶ 템플릿 기반 스텁 생성 완료")
 
 # ──────────────────────────────────────────────────────────
-# 출결 전면 재작성
+# 출결 전면 재작성(모든 파일에서 특이사항도 비움)
 # ──────────────────────────────────────────────────────────
 def rewrite_all_attendance():
-    """모든 파일에 대해 시트 진실(roster)로 출결란만 전면 재작성. 교육내용/특이사항은 보존."""
     for group in sorted(roster.keys()):
         grp_dir = os.path.join(REPORT_DIR, f"{cfg['region']}{group}")
         if not os.path.isdir(grp_dir):
@@ -507,21 +492,40 @@ def rewrite_all_attendance():
             path = os.path.join(grp_dir, f"{cfg['region']}{group}_{date}.doc")
             if not os.path.exists(path):
                 continue
-            # 날짜는 항상 동기화
             _set_datetime_in_html(path, date)
-            # 출결만 덮어쓰기
             att = _attendance_list_for(group, idx)
-            _rewrite_attendance_html(path, att, mode="attendance_only")
+            _rewrite_attendance_html(path, att, mode="attendance_only")  # 특이사항 자동 비움
+
+# ──────────────────────────────────────────────────────────
+# 중복(과거 *_dupN) 정리 → BACKUP 이관
+# ──────────────────────────────────────────────────────────
+def cleanup_old_dups():
+    """
+    과거 실행에서 생성된 *_dupN.doc 파일들을 모두 BACKUP으로 이동.
+    """
+    _ensure_dir(BACKUP_DIR)
+    for root, _, files in os.walk(REPORT_DIR):
+        # BACKUP 폴더는 스킵
+        if BACKUP_DIR in os.path.abspath(root):
+            continue
+        for fn in files:
+            if fn.endswith('.doc') and re.search(r'_dup\d+\.doc$', fn):
+                src = os.path.join(root, fn)
+                _backup_move(src)
 
 # ──────────────────────────────────────────────────────────
 # 메인
 # ──────────────────────────────────────────────────────────
 def main():
+    _ensure_dir(REPORT_DIR)
+    _ensure_dir(BACKUP_DIR)
+
     초기화()
-    download_all_originals()      # 1) 로스터 기반 전체 원본 다운로드
-    migrate_all_by_mapping()      # 2) 반이름변경 체인 이관
+    download_all_originals()      # 1) Q5/Q6 범위 다운로드
+    migrate_all_by_mapping()      # 2) 반이름변경 체인 이관(충돌은 BACKUP으로 이관)
     create_stubs_from_template()  # 3) 누락 회차 템플릿 스텁 보충(최대 8회차)
-    rewrite_all_attendance()      # 4) 모든 파일의 '출결'만 덮어쓰기
+    rewrite_all_attendance()      # 4) 모든 파일의 출결 갱신 + 특이사항 비우기
+    cleanup_old_dups()            # 5) 과거 *_dupN 정리 → BACKUP 폴더로 이동
 
 if __name__ == '__main__':
     main()
