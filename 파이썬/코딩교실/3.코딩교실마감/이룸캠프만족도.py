@@ -8,7 +8,7 @@ import os
 
 # 점수 순서: 5점, 4점, 3점, 2점, 1점
 SCORES = [5, 4, 3, 2, 1]
-DELAY_BETWEEN_SUBMITS = 0.05  # 제출 간 최소 지연(기존 0.2 → 0.05로 단축)
+DELAY_BETWEEN_SUBMITS = 0.05  # 제출 간 최소 지연
 
 
 # =========================
@@ -18,7 +18,9 @@ DELAY_BETWEEN_SUBMITS = 0.05  # 제출 간 최소 지연(기존 0.2 → 0.05로 
 def download_template_iloom():
     """
     이룸캠프 만족도 설문 자동화를 위한 양식을 저장합니다.
-    A1: 구분, B1~F1: 1번~5번, A2: 학생, A7: 선생님, K1: 링크, L1: (사용자가 링크 입력)
+    A1: 구분, B1~F1: 1번~5번,
+    A2: 유형1, A7: 유형2 (사용자가 나중에 '학생', '선생님' 등으로 직접 수정)
+    K1: 링크, L1: (사용자가 링크 입력)
     """
     from tkinter import filedialog, messagebox
 
@@ -31,14 +33,14 @@ def download_template_iloom():
     if not filepath:
         return
 
-    # 학생(행 2~6), 선생님(행 7~11) 구조 만들기
+    # 유형1(행 2~6), 유형2(행 7~11) 구조
     data = [
-        ["학생",   0, 0, 0, 0, 0],  # A2, B2~F2 : 5점 개수
+        ["유형1", 0, 0, 0, 0, 0],  # A2, B2~F2 : 5점 개수 (나중에 '학생' 등으로 수정)
         ["",      0, 0, 0, 0, 0],  # A3        : 4점 개수
         ["",      0, 0, 0, 0, 0],  # A4        : 3점 개수
         ["",      0, 0, 0, 0, 0],  # A5        : 2점 개수
         ["",      0, 0, 0, 0, 0],  # A6        : 1점 개수
-        ["선생님", 0, 0, 0, 0, 0],  # A7, B7~F7 : 5점 개수
+        ["유형2", 0, 0, 0, 0, 0],  # A7, B7~F7 : 5점 개수 (나중에 '선생님' 등으로 수정)
         ["",      0, 0, 0, 0, 0],  # A8        : 4점 개수
         ["",      0, 0, 0, 0, 0],  # A9        : 3점 개수
         ["",      0, 0, 0, 0, 0],  # A10       : 2점 개수
@@ -55,14 +57,15 @@ def download_template_iloom():
         ws.write("K1", "링크")
         ws.write("L1", "")
 
-        # 간단 안내
-        ws.write("K2", "B2~F2 : 5점 응답 수")
-        ws.write("K3", "B3~F3 : 4점 응답 수")
-        ws.write("K4", "B4~F4 : 3점 응답 수")
-        ws.write("K5", "B5~F5 : 2점 응답 수")
-        ws.write("K6", "B6~F6 : 1점 응답 수")
-        ws.write("K7", "학생/선생님 블록 모두 같은 방식")
-        ws.write("K8", "L1 셀에 구글폼 링크 입력")
+        # 안내 문구
+        ws.write("K2", "A2/A7 셀에 구글폼 참여 유형 텍스트를 적으세요")
+        ws.write("K3", "(예: '학생', '선생님' 그대로 입력)")
+        ws.write("K4", "B2~F2 : 5점 응답 수")
+        ws.write("K5", "B3~F3 : 4점 응답 수")
+        ws.write("K6", "B4~F4 : 3점 응답 수")
+        ws.write("K7", "B5~F5 : 2점 응답 수")
+        ws.write("K8", "B6~F6 : 1점 응답 수 (유형2도 동일)")
+        ws.write("K9", "L1 셀에 구글폼 링크 입력")
 
     messagebox.showinfo("저장 완료", f"양식 파일이 저장되었습니다:\n{filepath}")
     try:
@@ -94,7 +97,7 @@ def _read_link(ws):
 
 def _read_group(ws, start_row: int):
     """
-    한 그룹(학생 또는 선생님)의 분포를 읽습니다.
+    한 그룹(유형1 또는 유형2)의 분포를 읽습니다.
     start_row 기준:
       start_row     : 5점 개수 행
       start_row + 1 : 4점 개수 행
@@ -145,6 +148,17 @@ def _read_group(ws, start_row: int):
         )
 
     return questions, totals[0]
+
+
+def _read_group_label(ws, row: int, fallback: str) -> str:
+    """
+    A열(row행)에서 그룹 라벨을 읽습니다.
+    비어 있으면 fallback 사용.
+    """
+    val = ws.cell(row=row, column=1).value
+    if isinstance(val, str) and val.strip():
+        return val.strip()
+    return fallback
 
 
 def _build_schedules(questions, total_n: int):
@@ -245,7 +259,7 @@ def _submit_once(page, link: str, group_label: str, scores_per_question):
     """
     한 응답(한 사람분)을 실제로 제출.
     - link: 구글폼 링크
-    - group_label: '학생' 또는 '선생님'
+    - group_label: 폼에 표시되는 참여 유형 텍스트 (예: '학생', '선생님')
     - scores_per_question: [문항1점수, 문항2점수, ...]
     """
     page.goto(link)
@@ -254,12 +268,8 @@ def _submit_once(page, link: str, group_label: str, scores_per_question):
     # 1페이지: 설명만 있는 페이지 → '다음'
     _click_by_text(page, "다음")
 
-    # 2페이지: 참여자 확인(선생님/학생)
-    if group_label == "학생":
-        _click_by_text(page, "학생")
-    else:
-        _click_by_text(page, "선생님")
-
+    # 2페이지: 참여자 확인(유형 선택)
+    _click_by_text(page, group_label)  # A2/A7에서 읽은 텍스트 그대로 사용
     _click_by_text(page, "다음")
 
     # 3페이지: 실제 1~5번 만족도 문항
@@ -268,13 +278,13 @@ def _submit_once(page, link: str, group_label: str, scores_per_question):
     # 제출
     _click_by_text(page, "제출")
 
-    # 서버/폼에 너무 과도하게 부하를 주지 않도록 약간의 지연
+    # 너무 과도한 연속 제출 방지용 약간의 지연
     time.sleep(DELAY_BETWEEN_SUBMITS)
 
 
 def _run_group(page, link: str, group_label: str, questions, total_n: int):
     """
-    한 그룹(학생 또는 선생님)에 대해 total_n개의 응답을 제출.
+    한 그룹(유형1 또는 유형2)에 대해 total_n개의 응답을 제출.
     """
     if total_n <= 0:
         return
@@ -294,29 +304,32 @@ def _run_group(page, link: str, group_label: str, questions, total_n: int):
 def run_from_excel(filepath: str):
     """
     엑셀 파일(이룸캠프 만족도 양식)에 맞춰
-    학생/선생님 응답을 구글폼에 정확히 입력합니다.
+    유형1/유형2(예: 학생/선생님) 응답을 구글폼에 정확히 입력합니다.
     """
     wb = load_workbook(filepath, data_only=True)
     ws = wb.active
 
     link = _read_link(ws)
 
-    # 학생: A2 블록 (B2~F6)
+    # 그룹1: 행 2~6, 라벨은 A2
+    student_label = _read_group_label(ws, row=2, fallback="학생")
     student_questions, student_total = _read_group(ws, start_row=2)
-    # 선생님: A7 블록 (B7~F11)
+
+    # 그룹2: 행 7~11, 라벨은 A7
+    teacher_label = _read_group_label(ws, row=7, fallback="선생님")
     teacher_questions, teacher_total = _read_group(ws, start_row=7)
 
     if student_total == 0 and teacher_total == 0:
-        raise ValueError("학생/선생님 모두 응답 개수가 0입니다. 최소 한 명 이상 응답 수를 입력해 주세요.")
+        raise ValueError("두 그룹 모두 응답 개수가 0입니다. 최소 한 명 이상 응답 수를 입력해 주세요.")
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
         page = browser.new_page()
 
         if student_total > 0:
-            _run_group(page, link, "학생", student_questions, student_total)
+            _run_group(page, link, student_label, student_questions, student_total)
 
         if teacher_total > 0:
-            _run_group(page, link, "선생님", teacher_questions, teacher_total)
+            _run_group(page, link, teacher_label, teacher_questions, teacher_total)
 
         browser.close()
