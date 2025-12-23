@@ -1,0 +1,7 @@
+tunnel: 320dfdbb-6ce4-4069-9e73-da4982936c2f
+credentials-file: C:\Users\KJG\.cloudflared\320dfdbb-6ce4-4069-9e73-da4982936c2f.json
+
+ingress:
+  - hostname: kjgmacro.com
+    service: http://localhost:5000
+  - service: http_status:404

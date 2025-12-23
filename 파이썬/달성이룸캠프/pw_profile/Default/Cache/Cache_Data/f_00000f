@@ -1,0 +1,664 @@
+/*--------------------------------------------------------------------------
+
+※ Ctrl + F 키워드 검색해서 찾아주세요.※
+
+* 메인 공통
+* main_visual
+01 고객센터 [고객센터, 후기, 게시판]
+02 best 추천강의
+03 강사진, 교재, 이벤트
+
+--------------------------------------------------------------------------*/
+.mobile_box{display: none;}
+.p_box{display:block;}
+
+@media screen and (max-width:768px) {
+    .none_mobile_box{display: none;}
+    .mobile_box{display: block;}
+    .p_box{display:none;}
+}
+
+
+/*--------------------------------------------------------------------------
+ * 메인 공통
+--------------------------------------------------------------------------*/
+.indexLayout{letter-spacing: -1px; max-width: 2560px; margin: auto; /*margin: 0 20px !important;*/}
+.indexLayout h2.page-title{font-size: 26px; color: #111; text-align: left; font-weight: 500;}
+.indexLayout .sec_exp{margin-top:10px; font-size: 18px; color:#666;line-height: 1.3;}
+.indexLayout .lectureList{margin-top: 20px; }
+.indexLayout button {border:none; z-index: 100; /*width: 7px; height: 13px;*/}
+.section{padding: 40px 0;}
+@media screen and (max-width: 990px) {
+    .section{padding: 30px 0;}
+}
+@media screen and (max-width: 768px) {
+    .indexLayout h2.page-title{font-size: 24px;}
+    .moblie_m{margin: 0 20px !important;}
+}
+
+@media screen and (max-width: 460px) {
+    .indexLayout h2.page-title{font-size: 22px; line-height: 26px;}
+    .indexLayout .sec_exp{font-size: 16px; line-height: 1.2;}
+}
+
+.indexLayout .owl-dots{width:100%; margin-top:10px; z-index:9}
+.indexLayout .owl-dots{text-align:center;}
+.indexLayout .owl-dots .owl-dot {margin:0 5px;}
+.indexLayout .owl-dots .owl-dot.active{}
+.indexLayout .owl-dots .owl-dot span{width:10px;height:10px; border-radius:50px;background:var(--keyrgba10); display:inline-block;}
+.indexLayout .owl-dots .owl-dot.active span{background:var(--keycolor);}
+/*--------------------------------------------------------------------------
+ * main_visual
+--------------------------------------------------------------------------*/
+.slideSection{height:540px; position:relative;overflow: hidden}
+.mobile_visual{display: none !important;}
+
+
+.slideSection .swiper-slide{
+    height: 540px;
+}
+.mobile_visual{display:none;}
+
+.slideSection .swiper-slide {
+    height: 540px;
+}
+.slideSection .swiper-container {
+    width: 100%;
+    height: 100%;
+}
+
+.slideSection .swiper-slide {
+
+}
+
+.slideSection .swiper-slide img {
+    display: block;
+    width: 100%;
+
+
+}
+
+.slideSection .swiper-slide_box {
+    height: 540px;
+}
+.slideSection .swiper-slide_box > a{
+    height: 540px;
+    width: 100%;
+    display: inline-block;
+}
+.slideSection .swiper-slide_box .slide_visual{
+    height: 540px;
+}
+
+.slideSection .swiper-button-prev,
+.slideSection .swiper-button-next{
+    position:absolute;
+    top:50%;
+    margin-top:-35px;
+    width: 32px;
+    height: 59px;
+    text-indent:-9999px;
+    display:inline-block;
+
+}
+
+.slideSection .swiper-button-prev{
+    background:url('/skin/images/template/type7/PREVfff.svg')no-repeat center center;
+    background-size: 32px;
+    z-index: 10;
+    left:50px;
+}
+.slideSection .swiper-button-next{
+    background: url('/skin/images/template/type7/NEXTfff.svg') no-repeat center;
+    background-size: 32px;
+    z-index: 10;
+    right: 50px;
+}
+.slideSection .swiper-button-prev{
+    z-index: 9;
+
+}
+
+/* 슬라이더 dots */
+.slideSection .mainSliderSwiper > .swiper-pagination{
+    position: absolute;
+    bottom: 30px;
+    display: block;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    text-align: center;
+}
+.slideSection .swiper-pagination-bullet{
+    width: 10px;
+    height: 10px;
+    background: #ddd;
+    border-radius: 50px;
+    display: inline-block;
+    padding: 0;
+    transition: all 1s ease;
+    opacity: 0.4;
+}
+.slideSection .swiper-pagination-bullet-active{
+    background: #fff;
+    opacity: 1;
+}
+
+@media screen and (max-width: 1200px){
+    .slideSection,
+    .slideSection .swiper-slide{
+        height: 480px;
+    }
+}
+
+
+@media screen and (max-width: 1450px){
+    .slideSection .swiper-slides .imgArea {height: 550px;}
+}
+
+@media screen and (max-width: 1300px){
+    .slideSection .swiper-slides .imgArea {height: 450px;}
+    .bnrArea .visualSlider .slick-prev{left: 40px; width: 24px; height: 48px; background-size: 24px;}
+    .bnrArea .visualSlider .slick-next{right: 40px; width: 24px; height: 48px; background-size: 24px;}
+}
+
+@media screen and (max-width: 1050px){
+    .slideSection .swiper-slides .imgArea {height: 400px;}
+    .bnrArea .visualSlider .slick-prev{left: 30px;}
+    .bnrArea .visualSlider .slick-next{right: 30px;}
+}
+
+
+@media screen and (max-width: 990px){
+    .slideSection,
+    .slideSection .swiper-slide{
+        height: 360px;
+    }
+    .slideSection .swiper-button-prev, .slideSection .swiper-button-next{
+        margin-top: -11px;
+    }
+    .slideSection .swiper-button-prev{
+        left:30px;
+        background-size: 22px;
+        width: 22px;
+        height: 40px;
+    }
+    .slideSection .swiper-button-next{
+        right: 30px;
+        background-size: 22px;
+        width: 22px;
+        height: 40px;
+    }
+}
+
+@media screen and (max-width: 965px){
+    .slideSection .swiper-slides .imgArea {height: 360px;}
+}
+@media screen and (max-width: 840px){
+    .slideSection .swiper-slides .imgArea {height: 320px;}
+}
+
+@media screen and (min-width: 768px){
+    .mobile_visual{display: none;}
+}
+
+@media screen and (max-width: 767px){
+    .slideSection {
+        height: auto;
+    }
+    .slideSection .swiper-slide{
+        height: auto;
+    }
+    .slideSection .swiper-slide .mobile_visual img{
+        width: 100%;
+    }
+    .pc_visual{display:none !important;}
+    .mobile_visual{display:block !important;}
+    .slideSection .swiper-slides .imgArea {height: auto;}
+    .slideSection .swiper-button-prev,
+    .slideSection .swiper-button-next{
+        display: none !important;
+    }
+    .slideSection .mainSliderSwiper > .swiper-pagination {
+        position: absolute;
+        bottom: 20px;
+    }
+}
+
+
+
+/*--------------------------------------------------------------------------
+ 01 추천강의
+--------------------------------------------------------------------------*/
+.section01{}
+.section01 .section{
+    padding-left:40px;
+    padding-right:40px;
+    padding-bottom: 0;
+}
+.section01_m .section{
+    padding-left:20px;
+    padding-right:20px;
+    padding-bottom: 0;
+}
+.section01 .max_width{}
+
+.lectureList .content_top{margin-bottom: 18px;}
+.lectureList .content_top .thumbnail-wrapper{
+    border: 1px solid #ddd;
+}
+.lectureList .info_top_cont{margin-bottom: 5px;}
+/*.lectureList .info_top_cont > div:first-child{margin-left: 0;padding-left: 0;}
+.lectureList .info_top_cont > div:first-child:after{display: none;}*/
+.lectureList .info_top_cont > .prof_name{
+    position: relative;
+    /* padding-left: 6px; */
+    /* margin-left: 3px; */
+    /* display: inline-block; */
+    font-size: 14px;
+}
+/*.lectureList .info_top_cont > div:after{
+    content: '';
+    width: 1px;
+    height: 12px;
+    background: #777;
+    position: absolute;
+    left: 0;
+    top: 1px;
+}*/
+.lectureList .content_bottom .cate{
+    font-size: 13px;
+    padding: 5px 11px;
+    color: var(--keycolor);
+    border: 1px solid var(--keycolor);
+    margin-bottom: 10px;
+    display: inline-block;
+}
+.lectureList .content_bottom .subject{
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 24px;
+    color: #111;
+    height: 49px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.lectureList .content_bottom .classInfo,
+.lectureList .content_bottom .icon{
+    display: none;
+}
+
+
+.lectureList .content_bottom .price {
+    line-height: 1;
+    margin-top: 5px;
+}
+.lectureList .content_bottom .price em {
+    font-size: 15px;
+}
+
+.lectureList .content_bottom .price em span {
+    display: inline-block;
+    font-size: 15px;
+    color: #222222;
+    vertical-align: bottom;
+    font-weight: 400;
+}
+
+.lectureList .content_bottom .price .cost-sale {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    height:17px;
+    margin-bottom:10px;
+}
+.lectureList .content_bottom .price .cost-sale em{
+    display: inline-block;
+    color: #999;
+    font-size: 15px;
+    position: relative;
+    font-weight: 500;
+}
+.lectureList .content_bottom .price .cost-sale em span {
+    color: #999;
+    font-size: 15px;
+    vertical-align: baseline;
+}
+.lectureList .content_bottom .price .cost-sale .rate{
+    display: inline-block;
+    font-size: 15px;
+}
+.lectureList .content_bottom .price .cost-sale em:before {
+    content: '';
+    width: 100%;
+    height: 1px;
+    background: #999;
+    position: absolute;
+    top: 50%;
+}
+.lectureList .content_bottom .price .lec_price{
+    display: inline-block;
+    width: 100%;
+}
+.lectureList .content_bottom .price .lec_price em{}
+
+
+.lecture-slider{position: relative;}
+.lecture-slider .owl-dots{position: absolute; right: 0; top: -43px;width: auto}
+.lecture-slider .owl-dots .owl-dot{}
+.lecture-slider .owl-dots .owl-dot:last-child{margin-right: 0;}
+.lecture-slider .owl-dots .active{}
+
+
+@media screen and (max-width: 1023px) {
+    .lectureList .content_bottom .price .cost-sale{
+        margin-bottom:5px;
+    }
+    .lectureList .content_bottom .price em span,
+    .lectureList .content_bottom .price em{
+        font-size: 16px;
+    }
+    .lectureList .content_bottom .price .cost-sale em span,
+    .lectureList .content_bottom .price .cost-sale em,
+    .lectureList .content_bottom .price .cost-sale .rate{
+        font-size:14px;
+    }
+}
+@media screen and (max-width: 990px) {
+    .lectureList .content_bottom .subject{
+        height: 24px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        white-space: nowrap;
+    }
+}
+
+@media screen and (min-width: 600px){
+    .lecture_m, .lectureList .slider-counter{display: none;}
+}
+@media screen and (max-width: 599px) {
+    .section01 .section{
+        padding-left:20px;
+        padding-right:20px;
+    }
+    .section01 .lecture-slider, .section01 .slider-counter, .lecture-slider .owl-dots{display: none;}
+    .lecture_m > a{
+        margin-bottom: 35px;
+        width: 100%;
+        display: inline-block;
+    }
+    .lecture_m > a:last-child{margin-bottom: 0px;}
+    .lectureList .content_top{margin-bottom: 15px;}
+
+    .lectureList .content_bottom .price .cost-sale,
+    .lecture_m .content_bottom .price .cost-sale{
+        font-size:11px;
+        height:14px;
+        margin-bottom:3px;
+    }
+    .lectureList .content_bottom .price .cost-sale em span,
+    .lectureList .content_bottom .price .cost-sale em,
+    .lecture_m .content_bottom .price .cost-sale em span,
+    .lecture_m .content_bottom .price .cost-sale em{
+        font-size:11px;
+    }
+    .lectureList .content_bottom .price .cost-sale .rate,
+    .lecture_m .content_bottom .price .cost-sale .rate{
+        font-size:11px;
+    }
+    .lectureList .content_bottom .price .lec_price{}
+    .lectureList .content_bottom .price .lec_price em span,
+    .lectureList .content_bottom .price .lec_price em,
+    .lecture_m .content_bottom .price .lec_price em span,
+    .lecture_m .content_bottom .price .lec_price em{
+        font-size: 13px;
+    }
+}
+
+
+/*--------------------------------------------------------------------------
+ 02 중간배너
+--------------------------------------------------------------------------*/
+.section02{}
+.section02 .section{
+    padding-left:40px;
+    padding-right:40px;
+}
+.section02 .section li .pc_visual{    padding-top: 23.763%;}
+@media screen and (max-width: 768px){
+    .section02 .max_width{width: 100%;}
+    .section02 .containRow .row li.col-6 {width: 100%; margin-bottom: 10px;}
+    .section02 .containRow .row li:last-child{margin-bottom: 0;}
+    .section02 .section .mobile_visual img{
+        max-width: 100%;
+        width: 100%;
+    }
+}
+@media screen and (max-width: 599px) {
+    .section02 .section {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+
+/*--------------------------------------------------------------------------
+ 03 신규강의
+--------------------------------------------------------------------------*/
+.section03{background-color: #f8f8f8;}
+.section03 .section{
+    padding-left:40px;
+    padding-right:40px;
+}
+
+@media screen and (max-width: 768px) {
+    .section03 .max_width{position: relative;}
+    .lectureList .slider-counter{
+        position: absolute;
+        top: 2px;
+        right: 0px;
+        font-size: 14px;
+        color:#fff;
+        padding: 5px 13px 7px;
+        background-color: #ccc;
+        border-radius: 50px;
+        box-shadow: 0px 0px 1px 3px rgba(0, 0, 0, 0.01);
+    }
+    .lectureList .slider-counter .count{color: #fff; font-weight: 500;}
+}
+@media screen and (max-width: 599px) {
+    .section03 .section{
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+
+
+/*--------------------------------------------------------------------------
+ 04 공지사항, 고객센터
+--------------------------------------------------------------------------*/
+.section04{border-top: 1px solid #ddd;}
+.section04 .section{padding: 0 40px 0;}
+.section04 .row .col-6{padding: 50px 0}
+.section04 .row .col-6 .sec-title{font-size: 20px; font-weight: 500; position: relative; margin-bottom: 16px; color: #111;}
+.section04 .row span{font-size: 14px; color: #777; font-weight: 300;}
+
+.section04 .row .notice{padding-left: 12px; padding-right: 30px; position: relative;}
+.section04 .row .notice a{cursor: pointer;}
+.section04 .row .notice .sec-title{margin-bottom: 18px;}
+.section04 .row .notice img{
+    position: absolute;
+    right:30px;
+    top: 50px;
+    width: 22px;
+    height: 22px;
+}
+.section04 .row .notice p{
+    font-size: 17px;
+    color: #333;
+    margin-bottom: 21px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.section04 .row .cs{padding-left: 30px; padding-right:12px; position: relative;border-left: 1px solid #ddd;}
+.section04 .row .cs .num{font-size: 30px; color: var(--keycolor); font-weight: 500; margin-bottom: 10px;}
+.section04 .row .cs .time{padding-right: 6px;}
+.section04 .row .cs .lunch{position: relative; padding-left: 7px;}
+.section04 .row .cs .lunch:before{
+    content: '';
+    width: 1px;
+    height: 12px;
+    background-color: #999;
+    position: absolute;
+    left: 0;
+    top:4px;
+}
+.section04 .row .cs .btn{position: absolute; right: 12px; bottom: 51px;}
+.section04 .row .cs .btn li{
+    display: inline-block;
+    font-size: 13px;
+    color: #333;
+    width: 120px;
+    line-height: 0.5;
+    background-color: #fff;
+    border: 1px solid #777;
+    padding: 13px 0;
+    text-align: center;
+}
+.section04 .row .cs .btn .question{margin-right: -4px;}
+
+@media screen and (max-width: 1150px){
+    .section04 .row .cs .btn .question{position: absolute; top: -33px; margin-right: 0;}
+}
+
+@media screen and (max-width: 900px){
+    .section04 .row .col-6{padding: 30px 0;}
+    .section04 .row .col-6 .sec-title{margin-bottom: 20px;}
+    .section04 .row .notice{padding-right: 20px; padding-left: 5px;}
+    .section04 .row .notice p{
+        font-size: 16px;
+        line-height: 22px;
+        height: 42px;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        white-space: unset;
+        margin-bottom: 46px;
+    }
+    .section04 .row .notice img{right:20px; top: 30px;}
+
+
+    .section04 .row .cs{padding-left: 20px;    padding-right: 10px;}
+    .section04 .row .cs .num{font-size: 28px;}
+    .section04 .row .cs .btn{position: static; margin-top: 16px;}
+    .section04 .row .cs .btn li{width: 50%;}
+    .section04 .row .cs .btn .question{position: static; margin-right: -4px;}
+}
+
+@media screen and (max-width: 768px){
+}
+
+@media screen and (max-width: 599px){
+    .section04 .section{padding: 0 20px 0;}
+    .section04 .max_width{width: 100%;}
+    .section04 .row .col-6{width: 100%;}
+    .section04 .row .notice, .section04 .row .cs{padding-right:10px; padding-left: 10px;}
+    .section04 .row .notice p{margin-bottom: 18px;}
+    .section04 .row .cs{border-left: unset; border-top: 1px solid #ddd;}
+    .section04 .row .cs .num{font-size: 24px;}
+
+
+}
+
+
+
+
+/*--------------------------------------------------------------------------
+ 05 상담신청
+--------------------------------------------------------------------------*/
+.section05{border-top: 1px solid #ddd;}
+.section05 .section{padding: 30px 40px;}
+.section05 .request{position: relative; vertical-align: middle;}
+.section05 .request li{display: inline-block;}
+.section05 .request li img{
+    width: 27px;
+    height: 27px;
+    margin-right: 15px;
+}
+.section05 .request li.text{
+    position:relative;
+    font-size: 17px;
+    font-weight: 500;
+    color: #111;
+    display: inline-block;
+}
+.section05 .request li.btn{
+    padding: 12px 29px;
+    font-size: 13px;
+    background-color: var(--keycolor);
+    float: right;
+}
+.section05 .request li.btn a{color: #fff;}
+
+
+@media screen and (max-width: 768px){
+    .section05 .section{padding: 30px 20px;}
+}
+@media screen and (max-width: 600px){
+    .section05 .request{text-align: center; vertical-align: text-top;}
+    .section05 .request li img{margin-top: -2px; margin-right: 10px; width: 22px; height: 22px;}
+    .section05 .request li.text{font-size: 15px; margin-bottom: 20px;}
+    .section05 .request li.btn{margin: 0 auto; width: 150px; display: block; float: none;}
+}
+
+
+
+.indexLayout .mylecture_list{
+    padding:40px 40px 0;
+}
+@media all and (max-width:990px) {
+    .indexLayout .mylecture_list{
+        padding:30px 40px 0px;
+    }
+}
+@media all and (max-width:599px) {
+    .indexLayout .mylecture_list{
+        padding:30px 20px 0px;
+    }
+}
+
+
+
+/* 강의 일정 */
+.indexLayout .calendar_section{
+    width: 100%;
+    padding: 70px 40px 70px;
+}
+.indexLayout .calendar_section  .sec_exp{
+    margin-bottom: 20px;
+}
+.indexLayout .calendar_section .calendar_wrap{
+    padding:0;
+}
+.indexLayout .calendar_section .btn_wrap{
+    text-align: right;
+    margin-top: 0px;
+}
+.indexLayout .calendar_section .btn_wrap a{
+    display: inline-block;
+    padding: 15px 0px;
+    font-size: 14px;
+    color: #666;
+}
+@media all and (max-width:1023px){
+    .indexLayout .calendar_section{
+        padding: 70px 20px 70px;
+    }
+}

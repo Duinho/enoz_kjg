@@ -1,0 +1,2819 @@
+var reg_uid = /^[a-zA-Z0-9]{5,12}$/;
+var reg_upw = /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{6,16}$/;
+// 회원가입 약관 및 개인정보처리방침 동의
+function joinCheck(){
+	var form = document.join_form;
+	if(form.agree1.checked==false){
+		alert("약관에 동의해주세요.");
+		form.agree1.focus();
+	} else if(form.agree2.checked==false){
+		alert("개인정보처리방침에 동의해주세요.");
+		form.agree2.focus();
+	} else {
+		form.submit();
+	}
+}
+
+// 모두 동의 체크
+$(document).ready(function(){
+	$('#agreeAll').change(function(){
+		if(this.checked){
+			$('#agree1').attr('checked', true);
+			$('#agree2').attr('checked', true);
+		} else {
+			$('#agree1').attr('checked', false);
+			$('#agree2').attr('checked', false);
+		}
+	});
+});
+
+// 아이디중복검색
+function idCheck(){
+	var form = document.writeForm;
+	// var reg_uid = /([a-zA-Z0-9!,@,#,$,%,^,&,*,?,_,~)|(!,@,#,$,%,^,&,*,?,_,~a-zA-Z0-9]){4,10}$/;
+	if(form.userid.value=="") {
+		alert("아이디를 입력해 주세요.");
+		form.userid.focus();
+	} else if(!reg_uid.test(form.userid.value)) {
+		alert("아이디는 영문, 숫자 4~12자 이내로 입력해주세요.");
+		form.userid.focus();
+	} else {
+		$.ajax({
+			url:'./id_check.php',
+			type:'GET',
+			data:'method=1&userid='+$('#userid').val(),
+			success:function(data){
+				$('#id_chk').html(data);
+			}
+		})
+	}
+}
+
+function idSearch2(){
+	var form = document.writeForm;
+	if(form.recomid.value=="") {
+		alert("추천인 아이디를 입력해 주세요.");
+		form.recomid.focus();
+	} else if(form.recomid.value.length < 4 || form.recomid.value.length > 21) {
+		alert("추천인 아이디는 최소 4자 이상 입력 주세요.");
+		form.recomid.focus();
+	} else {
+		$.ajax({
+			url:'./id_search.php',
+			type:'GET',
+			//recomid:$('#recomid').val(),
+			data:'method=2&userid='+$('#recomid').val(),
+			success:function(data){
+				$('#recomid_chk').html(data);
+			}
+		})
+	}
+
+}
+
+//아이디 저장
+/*
+$(document).ready(function(){
+    // 저장된 쿠키값을 가져와서 ID 칸에 넣어준다. 없으면 공백으로 들어감.
+    var userInputId = getCookie("userInputId");
+    $("input[name='uid']").val(userInputId);  
+    if($("input[name='uid']").val() != ""){ // 그 전에 ID를 저장해서 처음 페이지 로딩 시, 입력 칸에 저장된 ID가 표시된 상태라면,
+        $("#idSaveCheck").attr("checked", true); // ID 저장하기를 체크 상태로 두기.
+    }
+    $("#idSaveCheck").change(function(){ // 체크박스에 변화가 있다면,
+        if($("#idSaveCheck").is(":checked")){ // ID 저장하기 체크했을 때,
+            var userInputId = $("input[name='uid']").val();
+            setCookie("userInputId", userInputId, 7); // 7일 동안 쿠키 보관
+        }else{ // ID 저장하기 체크 해제 시,
+            deleteCookie("userInputId");
+        }
+    });
+
+    // ID 저장하기를 체크한 상태에서 ID를 입력하는 경우, 이럴 때도 쿠키 저장.
+    $("input[name='uid']").keyup(function(){ // ID 입력 칸에 ID를 입력할 때,
+        if($("#idSaveCheck").is(":checked")){ // ID 저장하기를 체크한 상태라면,
+            var userInputId = $("input[name='uid']").val();
+            setCookie("userInputId", userInputId, 7); // 7일 동안 쿠키 보관
+        }
+    });
+});
+
+*/
+
+function setCookie(cookieName, value, exdays){
+	var exdate = new Date();
+	exdate.setDate(exdate.getDate() + exdays);
+	var cookieValue = escape(value) + ((exdays==null) ? "" : "; expires=" + exdate.toGMTString());
+	document.cookie = cookieName + "=" + cookieValue;
+}
+
+function deleteCookie(cookieName){
+	var expireDate = new Date();
+	expireDate.setDate(expireDate.getDate() - 1);
+	document.cookie = cookieName + "= " + "; expires=" + expireDate.toGMTString();
+}
+
+function getCookie(cookieName) {
+	cookieName = cookieName + '=';
+	var cookieData = document.cookie;
+	var start = cookieData.indexOf(cookieName);
+	var cookieValue = '';
+	if(start != -1){
+		start += cookieName.length;
+		var end = cookieData.indexOf(';', start);
+		if(end == -1)end = cookieData.length;
+		cookieValue = cookieData.substring(start, end);
+	}
+	return unescape(cookieValue);
+}
+
+
+// 이메일중복검색
+function emailWinOpen() {
+	var form=document.writeForm;
+
+	if(form.email.value=="") {
+		alert("이메일을 입력해 주세요.");
+		form.email.focus();
+	} else if(form.email2.value=="") {
+		alert("이메일을 입력해 주세요.");
+		form.email2.focus();
+	} else {
+		window.open("email_search_pop.php?email="+form.email.value+"&email2="+form.email2.value, "","scrollbars=no, width=400, height=250");
+	}
+
+}
+
+// 휴대폰 인증번호 전송
+function authNumberSend(){
+	var form = document.writeForm;
+	if(form.hp1.value==""){
+		alert("휴대폰번호를 입력해주세요.");
+		form.hp1.focus();
+	} else if(form.hp2.value==""){
+		alert("휴대폰번호를 입력해주세요.");
+		form.hp2.focus();
+	} else if(form.hp3.value==""){
+		alert("휴대폰번호를 입력해주세요.");
+		form.hp3.focus();
+	} else {
+		$.ajax({
+			url:'send_auth_num.php',
+			type:'GET',
+			data:'sendauth=1&auth_number='+$('#hidden_auth_number').val()+'&auth_gubun=w&hp1='+$('#hp1').val()+'&hp2='+$('#hp2').val()+'&hp3='+$('#hp3').val(),
+			success:function(data){
+				$('#authSend').html(data);
+			}
+		})
+	}
+}
+
+// 휴대폰 인증
+function authNumberCheck(){
+	var form = document.writeForm;
+	if(form.auth_number.value==""){
+		alert("인증번호를 입력해주세요.");
+		form.auth_number.focus();
+	} else {
+		$.ajax({
+			url:'auth_number_check.php',
+			type:'GET',
+			data:'auth_number='+$('#auth_number').val()+'&hidden_auth_number='+$('#hidden_auth_number').val(),
+			success:function(data){
+				$('#authSend').html(data);
+			}
+		})
+	}
+}
+
+
+
+
+// 이메일 인증번호 전송
+function emailAuth(){
+	if($("#email3").val()==""){
+		alert("이메일을 입력해주세요!");
+		$("#email3").focus();
+	} else if($("#email4").val()==""){
+		alert("이메일을 입력해주세요.");
+		$("#email4").focus();
+	} else {
+		var email = $("#email3").val()+"@"+$("#email4").val();
+		$.ajax({
+			url:'./auth_email_send2.php',
+			type:'GET',
+			data:'auth_number='+$('#hidden_auth_number').val()+'&auth=1&email='+email,
+			success:function(data){
+				$('#msg').html(data);
+			}
+		})
+	}
+}
+
+// 이메일 인증
+function authNumberCheck2(){
+	var form = document.writeForm;
+	if(form.auth_number2.value==""){
+		alert("인증번호를 입력해주세요.");
+		form.auth_number2.focus();
+	} else {
+		$.ajax({
+			url:'auth_number_check.php',
+			type:'GET',
+			data:'auth_number='+$('#auth_number2').val()+'&hidden_auth_number='+$('#hidden_auth_number').val(),
+			success:function(data){
+				$('#authSend2').html(data);
+			}
+		})
+	}
+}
+
+//이메일 
+function selectEmail(value){
+	var form = document.writeForm;
+	if(value=="a"){
+		form.email2.readOnly= false;
+		form.email2.value="";
+		form.email2.focus();
+	}else if(value=="b"){
+		form.email2.readOnly= false;
+		form.email2.value="";
+	}else{
+		form.email2.readOnly= false;
+		form.email2.value=value;
+	}
+}
+
+function emailSelect(value){
+	var form = document.writeForm;
+	if(value=="a"){
+		form.email4.readOnly= false;
+		form.email4.value="";
+		form.email4.focus();
+	}else if(value=="b"){
+		form.email4.readOnly= false;
+		form.email4.value="";
+	}else{
+		form.email4.readOnly= false;
+		form.email4.value=value;
+	}
+}
+
+//구매자 이메일 
+function selectOrderEmail(value){
+	var form = document.orderForm;
+	if(value=="a"){
+		form.order_email2.readOnly= false;
+		form.order_email2.value="";
+		form.order_email2.focus();
+	}else if(value=="b"){
+		form.order_email2.readOnly= false;
+		form.order_email2.value="";
+	}else{
+		form.order_email2.readOnly= false;
+		form.order_email2.value=value;
+	}
+}
+
+//배송지 이메일 
+function selectDelivEmail(value){
+	var form = document.orderForm;
+	if(value=="a"){
+		form.deliv_email2.readOnly= false;
+		form.deliv_email2.value="";
+		form.deliv_email2.focus();
+	}else if(value=="b"){
+		form.deliv_email2.readOnly= false;
+		form.deliv_email2.value="";
+	}else{
+		form.deliv_email2.readOnly= false;
+		form.deliv_email2.value=value;
+	}
+}
+
+//한글입력 안되게 처리
+function hanChk(){
+	var form = document.writeForm;
+	check = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+	if(check.test(form.userid.value)) {
+		alert("영문, 숫자, 특수문자만 입력 가능합니다.");
+		form.userid.value="";
+	}
+
+}
+
+/*
+$(document).ready(function(){
+  $("input[name=userid]").keyup(function(event){ 
+   if (!(event.keyCode >=37 && event.keyCode<=40)) {
+	var inputVal = $(this).val();
+    $(this).val(inputVal.replace(/[^a-z0-9]/gi,''));
+   }
+  });
+});
+*/
+
+
+function certiSelect(n){
+	if(n==1){
+		$(".number").removeClass("blind");
+		$(".mail").addClass("blind");
+	} else if(n==2){
+		$(".number").addClass("blind");
+		$(".mail").removeClass("blind");
+	}
+}
+
+
+
+// 회원가입
+function joinSendit() {
+	var form=document.writeForm;
+	// var reg_uid = /([a-zA-Z0-9!,@,#,$,%,^,&,*,?,_,~)|(!,@,#,$,%,^,&,*,?,_,~a-zA-Z0-9]){4,12}$/;
+	// var reg_upw = /^(?=.*[a-zA-Z])(?=.*[0-9]).{4,12}$/;
+
+	if(form.userid.value=="") {
+		alert("아이디를 입력해주세요.");
+		form.userid.focus();
+	} else if(!reg_uid.test(form.userid.value)) {
+		alert("아이디는 영문, 숫자 4~12자 이내로 입력해주세요. ");
+		form.userid.focus();
+	} else if(form.id_check.value==""){
+		alert("아이디 중복확인을 해주세요");
+		return;
+	} else if(form.passwd.value=="") {
+		alert("비밀번호를 입력해주세요.");
+		form.passwd.focus();
+	} else if(!reg_upw.test(form.passwd.value)) {
+		alert("비밀번호는 영문,숫자,특수문자 조합 6~16자 이내로 입력해주세요.");
+		form.passwd.focus();
+	} else if(form.passwd_check.value=="") {
+		alert("비밀번호확인을 입력해주세요.");
+		form.passwd_check.focus();
+	} else if(form.passwd.value != form.passwd_check.value) {
+		alert("비밀번호가 일치하지 않습니다. 다시 확인해 주세요.");
+		form.passwd_check.focus();
+	} else if(form.name.value=="") {
+		alert("성명을 입력해주세요.");
+		form.name.focus();
+	} else if(form.b_year.value=="") {
+		alert("생년월일을 입력해 주세요.");
+		form.b_year.focus();
+	} else if(form.b_month.value=="") {
+		alert("생년월일을 입력해 주세요.");
+		form.b_month.focus();
+	} else if(form.b_day.value=="") {
+		alert("생년월일을 입력해 주세요.");
+		form.b_day.focus();
+	} else if(form.email1.value=="") {
+		alert("이메일을 입력해 주세요.");
+		form.email1.focus();
+	} else if(form.email2.value=="") {
+		alert("이메일을 입력해 주세요.");
+		form.email2.focus();
+	} else if(form.hp1.value=="") {
+		alert("휴대전화 번호를 입력해주세요.");
+		form.hp1.focus();
+	} else if(form.hp2.value=="") {
+		alert("휴대전화 번호를 입력해주세요.");
+		form.hp2.focus();
+	} else if(form.hp3.value=="") {
+		alert("휴대전화 번호를 입력해주세요.");
+		form.hp3.focus();
+	} else if(form.auth_check.value=="") {
+		alert("휴대폰인증을 진행해주세요.");
+		form.auth_number.focus();
+		return;
+		/*
+        } else if(form.agree1.checked==false) {
+            alert("이용약관에 동의해주세요.");
+            form.agree1.focus();
+            return;
+        } else if(form.agree2.checked==false) {
+            alert("개인정보처리방침에 동의해주세요.");
+            form.agree2.focus();
+            return;
+        */
+	} else {
+		form.submit();
+	}
+}
+
+function joinSendit2() {
+	var form=document.writeForm;
+	// var reg_uid = /([a-zA-Z0-9!,@,#,$,%,^,&,*,?,_,~)|(!,@,#,$,%,^,&,*,?,_,~a-zA-Z0-9]){4,12}$/;
+	// var reg_upw = /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,16}$/;
+
+	if ($("#snsid").val() == "")
+	{
+		if(form.userid.value=="") {
+			alert("아이디를 입력해주세요.");
+			form.userid.focus();
+			return false;
+		}
+
+		if(form.id_check.value==""){
+			alert("아이디 중복확인을 해주세요");
+			return false;
+		}
+
+		if(form.passwd.value=="") {
+			alert("비밀번호를 입력해주세요.");
+			form.passwd.focus();
+			return false;
+		}
+
+		if(!reg_upw.test(form.passwd.value)) {
+			// checkPassword($('#passwd').val(),$('#userid').val());
+			alert('비밀번호는 영문,숫자,특수문자 조합 6~16자 이내로 입력해주세요.');
+			return false;
+		}
+
+		if(form.passwd_check.value=="") {
+			alert("비밀번호확인을 입력해주세요.");
+			form.passwd_check.focus();
+			return false;
+		}
+
+		if(form.passwd.value != form.passwd_check.value) {
+			alert("비밀번호가 일치하지 않습니다. 다시 확인해 주세요.");
+			form.passwd_check.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="hp" && form.hp1.value=="") {
+			alert("휴대전화 번호를 입력해주세요.");
+			form.hp1.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="hp" && form.hp2.value=="") {
+			alert("휴대전화 번호를 입력해주세요.");
+			form.hp2.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="hp" && form.hp3.value=="") {
+			alert("휴대전화 번호를 입력해주세요.");
+			form.hp3.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="hp" && form.auth_check.value=="") {
+			alert("휴대폰인증을 진행해주세요.");
+			form.auth_number.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="hp" && form.email1.value=="") {
+			alert("이메일을 입력해 주세요.");
+			form.email1.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="hp" && form.email2.value=="") {
+			alert("이메일을 입력해 주세요.");
+			form.email2.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="email" && form.email3.value=="") {
+			alert("이메일을 입력해 주세요.");
+			form.email3.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="email" && form.email4.value=="") {
+			alert("이메일을 입력해 주세요.");
+			form.email4.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="email" && form.auth_check.value=="") {
+			alert("이메일인증을 진행해주세요.");
+			form.auth_number.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="email" && form.hp11.value=="") {
+			alert("휴대전화 번호를 입력해주세요.");
+			form.hp11.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="email" && form.hp22.value=="") {
+			alert("휴대전화 번호를 입력해주세요.");
+			form.hp22.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="email" && form.hp33.value=="") {
+			alert("휴대전화 번호를 입력해주세요.");
+			form.hp33.focus();
+			return false;
+		}
+
+		if(form.name.value=="")
+		{
+			alert("이름을 입력해주세요.");
+			form.name.focus();
+			return false;
+		}
+
+		form.submit();
+	}
+	else
+	{
+		if(form.userid.value=="") {
+			alert("이메일을 입력해주세요.");
+			form.userid.focus();
+			return false;
+		}
+
+		if(form.id_check.value==""){
+			alert("아이디 중복확인을 해주세요");
+			return false;
+		}
+
+		if(form.auth_method.value=="hp" && form.hp1.value=="") {
+			alert("휴대전화 번호를 입력해주세요.");
+			form.hp1.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="hp" && form.hp2.value=="") {
+			alert("휴대전화 번호를 입력해주세요.");
+			form.hp2.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="hp" && form.hp3.value=="") {
+			alert("휴대전화 번호를 입력해주세요.");
+			form.hp3.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="hp" && form.auth_check.value=="") {
+			alert("휴대폰인증을 진행해주세요.");
+			form.auth_number.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="hp" && form.email1.value=="") {
+			alert("이메일을 입력해 주세요.");
+			form.email1.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="hp" && form.email2.value=="") {
+			alert("이메일을 입력해 주세요.");
+			form.email2.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="email" && form.email3.value=="") {
+			alert("이메일을 입력해 주세요.");
+			form.email3.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="email" && form.email4.value=="") {
+			alert("이메일을 입력해 주세요.");
+			form.email4.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="email" && form.auth_check.value=="") {
+			alert("이메일인증을 진행해주세요.");
+			form.auth_number.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="email" && form.hp11.value=="") {
+			alert("휴대전화 번호를 입력해주세요.");
+			form.hp11.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="email" && form.hp22.value=="") {
+			alert("휴대전화 번호를 입력해주세요.");
+			form.hp22.focus();
+			return false;
+		}
+
+		if(form.auth_method.value=="email" && form.hp33.value=="") {
+			alert("휴대전화 번호를 입력해주세요.");
+			form.hp33.focus();
+			return false;
+		}
+
+		if(form.name.value=="") {
+			alert("이름을 입력해주세요.");
+			form.name.focus();
+			return false;
+
+
+		}
+
+		form.submit();
+	}
+}
+
+function checkPassword(password,id){
+
+	// if(!/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,25}$/.test(password)){
+	// if( !reg_uid.test(password) ){
+	// 	alert('비밀번호는 영문,숫자,특수문자 조합 6~16자 이내로 입력해주세요.');
+	// 	$('#password').val('').focus();
+	// 	return false;
+	// }
+	var checkNumber = password.search(/[0-9]/g);
+	var checkEnglish = password.search(/[a-z]/ig);
+	if(checkNumber <0 || checkEnglish <0){
+		alert("숫자와 영문자를 혼용하여야 합니다.");
+		$('#password').val('').focus();
+		return false;
+	}
+	if(/(\w)\1\1\1/.test(password)){
+		alert('같은 문자를 4번 이상 사용하실 수 없습니다.');
+		$('#password').val('').focus();
+		return false;
+	}
+
+	if(password.search(id) > -1){
+		alert("비밀번호에 아이디가 포함되었습니다.");
+		$('#password').val('').focus();
+		return false;
+	}
+	// return true;
+}
+
+
+$(document).ready(function(){
+	function readPetimg(input) {
+		if (input.files && input.files[0]) {
+			var reader = new FileReader(); //파일을 읽기 위한 FileReader객체 생성
+			reader.onload = function (e) {
+				//파일 읽어들이기를 성공했을때 호출되는 이벤트 핸들러
+				$('#petImg').attr('src', e.target.result);
+				//이미지 Tag의 SRC속성에 읽어들인 File내용을 지정
+				//(아래 코드에서 읽어들인 dataURL형식)
+			}
+			reader.readAsDataURL(input.files[0]);
+			//File내용을 읽어 dataURL형식의 문자열로 저장
+		}
+
+	}//readPetimg()--
+
+	function readProfileimg(input) {
+		if (input.files && input.files[0]) {
+			var reader = new FileReader(); //파일을 읽기 위한 FileReader객체 생성
+			reader.onload = function (e) {
+				//파일 읽어들이기를 성공했을때 호출되는 이벤트 핸들러
+				$('#profileImg').attr('src', e.target.result);
+				//이미지 Tag의 SRC속성에 읽어들인 File내용을 지정
+				//(아래 코드에서 읽어들인 dataURL형식)
+			}
+			reader.readAsDataURL(input.files[0]);
+			//File내용을 읽어 dataURL형식의 문자열로 저장
+		}
+
+	}//readProfileimg()--
+
+	//file 양식으로 이미지를 선택(값이 변경) 되었을때 처리하는 코드
+	$("#petImages").change(function(){
+		readPetimg(this);
+	});
+
+	$("#profileImages").change(function(){
+		readProfileimg(this);
+	});
+});
+
+
+// 로그인
+function loginSend() {
+	var form=document.writeForm;
+	// var reg_uid = /([a-zA-Z0-9!,@,#,$,%,^,&,*,?,_,~)|(!,@,#,$,%,^,&,*,?,_,~a-zA-Z0-9]){4,10}$/;
+	// var reg_upw = /^(?=.*[a-z])(?=.*[0-9]).{4,20}$/;
+
+	if(form.userid.value.trim()=="") {
+		alert("아이디를 입력해주세요.");
+		form.userid.focus();
+	} /*else if(!reg_uid.test(form.userid.value)) {
+			alert("아이디는 영문,숫자 5~12자 이내로 입력해 주세요.");
+			form.userid.value="";
+			form.userid.focus();
+		}*/ else if(form.passwd.value.trim()=="") {
+		alert("비밀번호를 입력해주세요.");
+		form.passwd.focus();
+	} /*else if(!reg_upw.test(form.userid.value)) {
+			alert("비밀번호는 영문,숫자,특수문자 조합 6~16자 이내로 입력해주세요.");
+			form.passwd.focus();
+		}*/ else {
+		form.submit();
+	}
+}
+
+function loginSend2() {
+	// var form=document.writeForm;
+
+	if($("#userid").val().trim()=="") {
+		alert("아이디를 입력해주세요.");
+		$("#userid").focus();
+		return false;
+	} else if($("#passwd").val().trim()=="") {
+		alert("비밀번호를 입력해주세요.");
+		$("#passwd").focus();
+		return false;
+	}
+
+	if($("#auto_login").is(":checked")){ // ID 저장하기 체크했을 때,
+		var autoCheck = 1;
+	}else{ // ID 저장하기 체크 해제 시,
+		var autoCheck = 2;
+	}
+
+	var data = new FormData();
+	data.append("type", "userCheck");
+	data.append("userID", $("#userid").val());
+	data.append("userPasswd", $("#passwd").val());
+
+	$.ajax({
+		url: $(location).attr('protocol') + "//" + $(location).attr('hostname') + "/ajaxProc.php",
+		type: 'post',
+		data: data,
+		dataType: 'json',
+		processData: false,
+		contentType: false,
+		success: function (data) {
+			if (data.code == "200") {
+				if ($("#post_login").length == 0) {
+					$('body').append(`
+                    <form action="/member/login_ok.php" method="post" id="post_login">                            
+                            <input type="hidden" name="etc" value="${data.msg}">
+                            <input type="hidden" name="login" value="5">
+                            <input type="hidden" name="auto_login">
+                            <input type="hidden" name="login_go">
+                    </form>
+                    `);
+				}
+				$("#post_login input[name=etc]").val(data.msg);
+				$("#post_login input[name=auto_login]").val(autoCheck);
+				$("#post_login input[name=login_go]").val($("#login_go2").val());
+				$("#post_login").submit();
+
+				// location.href = $(location).attr('protocol') + "//" + $(location).attr('hostname') +
+				//     "/member/login_ok.php?uid=" + $("#lUserID").val() + "&passwd=" + encodeURIComponent($("#lPasswd").val()) + "&login=5&auto_login=" + autoCheck + "&login_go=" + encodeURIComponent($("#login_go").val());
+			} else {
+				deleteCookie("key");
+				$("#userid").val("");
+				$("#passwd").val("");
+			}
+		},
+		error: function (e) {
+			alert("에러 : " + e.responseText);
+		}
+	});
+}
+
+function inputSendit() {
+	if(event.keyCode==13) {
+		loginSend();
+	}
+}
+
+// Header 로그인
+function loginHeader() {
+	var form=document.writeForm;
+	if(form.userid.value=="") {
+		alert("아이디를 입력해주세요.");
+		form.userid.focus();
+	} else if(form.userid.value.length < 4) {
+		alert("아이디는 영문,숫자 5~12자 이내로 입력해 주세요.");
+		form.userid.focus();
+	} else if(form.passwd.value=="") {
+		alert("패스워드를 입력해주세요.");
+		form.passwd.focus();
+	} else if(form.passwd.value.length < 5 || form.passwd.value.length > 20) {
+		alert("패스워드는 5~20자로 입력해 주세요.");
+		form.passwd.focus();
+	} else {
+		form.submit();
+	}
+}
+
+function inputHeader() {
+	if(event.keyCode==13) {
+		loginHeader();
+	}
+}
+
+
+// 아이디 저장
+/*
+$(document).ready(function(){
+    // 저장된 쿠키값을 가져와서 ID 칸에 넣어준다. 없으면 공백으로 들어감.
+    var userInputId = getCookie("userInputId");
+    $("input[name='userid']").val(userInputId);  
+    if($("input[name='userid']").val() != ""){ // 그 전에 ID를 저장해서 처음 페이지 로딩 시, 입력 칸에 저장된 ID가 표시된 상태라면,
+        $("#idSaveCheck").attr("checked", true); // ID 저장하기를 체크 상태로 두기.
+    }
+
+    $("#idSaveCheck").change(function(){ // 체크박스에 변화가 있다면,
+        if($("#idSaveCheck").is(":checked")){ // ID 저장하기 체크했을 때,
+            var userInputId = $("input[name='userid']").val();
+            setCookie("userInputId", userInputId, 7); // 7일 동안 쿠키 보관
+        }else{ // ID 저장하기 체크 해제 시,
+            deleteCookie("userInputId");
+        }
+    });
+
+    // ID 저장하기를 체크한 상태에서 ID를 입력하는 경우, 이럴 때도 쿠키 저장.
+   $("input[name='userid']").keyup(function(){ // ID 입력 칸에 ID를 입력할 때,
+        if($("#idSaveCheck").is(":checked")){ // ID 저장하기를 체크한 상태라면,
+            var userInputId = $("input[name='userid']").val();
+            setCookie("userInputId", userInputId, 7); // 7일 동안 쿠키 보관
+        }
+    });
+});
+*/
+
+
+function setCookie(cookieName, value, exdays){
+	var exdate = new Date();
+	exdate.setDate(exdate.getDate() + exdays);
+	var cookieValue = escape(value) + ((exdays==null) ? "" : "; expires=" + exdate.toGMTString());
+	document.cookie = cookieName + "=" + cookieValue;
+}
+
+function deleteCookie(cookieName){
+	var expireDate = new Date();
+	expireDate.setDate(expireDate.getDate() - 1);
+	document.cookie = cookieName + "= " + "; expires=" + expireDate.toGMTString();
+}
+
+function getCookie(cookieName) {
+	cookieName = cookieName + '=';
+	var cookieData = document.cookie;
+	var start = cookieData.indexOf(cookieName);
+	var cookieValue = '';
+	if(start != -1){
+		start += cookieName.length;
+		var end = cookieData.indexOf(';', start);
+		if(end == -1)end = cookieData.length;
+		cookieValue = cookieData.substring(start, end);
+	}
+	return unescape(cookieValue);
+}
+
+
+// 아이디 찾기
+function id_search1(){
+	var form = document.search_id_form;
+	if(form.name.value=="") {
+		alert("이름을 입력해 주세요.");
+		form.name.focus();
+	} else if(form.email.value=="") {
+		alert("이메일을 입력해 주세요.");
+		form.email.focus();
+	} else if(form.email2.value=="") {
+		alert("이메일을 입력해 주세요.");
+		form.email2.focus();
+	} else {
+		$.ajax({
+			url:'./search_id.php',
+			type:'GET',
+			//recomid:$('#recomid').val(),
+			data:'gubun=1&name='+encodeURI($('#id_name').val())+'&email='+encodeURI($('#id_email1').val())+'&email2='+encodeURI($('#id_email2').val()),
+			success:function(data){
+				$('#search_id').html(data);
+			}
+		})
+	}
+}
+
+function id_search2(){
+	var form = document.search_id_form2;
+	if(form.name.value=="") {
+		alert("이름을 입력해 주세요.");
+		form.name.focus();
+	} else if(form.hp1.value=="") {
+		alert("전화번호를 입력해 주세요.");
+		form.hp1.focus();
+	} else if(form.hp2.value=="") {
+		alert("전화번호를 입력해 주세요.");
+		form.hp2.focus();
+	} else if(form.hp3.value=="") {
+		alert("전화번호를 입력해 주세요.");
+		form.hp3.focus();
+	} else {
+		$.ajax({
+			url:'./search_id.php',
+			type:'GET',
+			//recomid:$('#recomid').val(),
+			data:'gubun=2&name='+encodeURI($('#id_name2').val())+'&hp1='+$('#id_hp1').val()+'&hp2='+$('#id_hp2').val()+'&hp3='+$('#id_hp3').val(),
+			success:function(data){
+				$('#search_id2').html(data);
+			}
+		})
+	}
+}
+
+// 비밀번호 찾기
+function pw_search(){
+	var form = document.search_pw_form;
+
+	if(form.email.value=="") {
+		alert("이메일을 입력하세요.");
+		form.email.focus();
+		return false;
+	}
+
+	if ($("select[name='user_email3']").val() == "b")
+	{
+		if(form.email2.value=="") {
+			alert("이메일을 입력하세요.");
+			form.email2.focus();
+			return false;
+		}
+	}
+
+	if(form.name.value=="") {
+		alert("이름을 입력하세요.");
+		form.name.focus();
+		return false;
+	}
+
+	if(form.hp2.value=="") {
+		alert("전화번호를 입력해 주세요.");
+		form.hp2.focus();
+		return false;
+	}
+
+	if(form.hp3.value=="") {
+		alert("전화번호를 입력해 주세요.");
+		form.hp3.focus();
+		return false;
+	}
+	console.log("email = "+$('#pw_email1').val()+ "@"+$('#pw_email2').val()+"| name = "+$('#pw_name').val()+ " | hp = " + $('#pw_hp1').val() + "-" + $('#pw_hp2').val()  + "-" + $('#pw_hp3').val());
+	$.ajax({
+		url:'./search_pw.php',
+		data:'userid='+$('#pw_userid').val()+'&name='+encodeURI($('#pw_name').val())+'&hp1='+$('#pw_hp1').val()+'&hp2='+$('#pw_hp2').val()+'&hp3='+$('#pw_hp3').val()+'&email='+$('#pw_email1').val()+'&email2='+$('#pw_email2').val(),
+		success:function(data){
+			$('#search_pw').html(data);
+		}
+	});
+
+
+}
+
+//아이디찾기 이메일 
+function selectEmail2(value){
+	var form = document.search_id_form;
+	if(value=="a"){
+		form.email2.readOnly= false;
+		form.email2.value="";
+		form.email2.focus();
+	}else if(value=="b"){
+		form.email2.readOnly= false;
+		form.email2.value="";
+	}else{
+		form.email2.readOnly= false;
+		form.email2.value=value;
+	}
+}
+
+//비번찾기 이메일 
+function selectEmail3(value){
+	var form = document.search_pw_form;
+	if(value=="a"){
+		form.email2.readOnly= false;
+		form.email2.value="";
+		form.email2.focus();
+	}else if(value=="b"){
+		form.email2.readOnly= false;
+		form.email2.value="";
+	}else{
+		form.email2.readOnly= false;
+		form.email2.value=value;
+	}
+}
+
+
+// 회원 확인
+function memberCheck(){
+	var form = document.memberForm;
+
+	if(form.passwd.value==""){
+		alert("비밀번호를 입력해주세요.");
+		form.passwd.focus();
+		return false;
+	}
+
+	var frm = new FormData();
+	frm.append("type", "userCheck");
+	frm.append("userID", $("#userID").val());
+	frm.append("passwd", $("#passwd").val());
+
+	$.ajax({
+		url: "ajaxProc.php",
+		data: frm,
+		dataType: 'json',
+		processData: false,
+		contentType: false,
+		type: 'POST',
+		success: function (data) {
+			if (data.code == 200)
+			{
+				location.href = "confirm_join.php?userid=" + $("#userID").val();
+			}
+			else
+			{
+				alert(data.msg);
+				stop();
+			}
+		}
+		// ,error: function (e) {
+		// 	alert("에러 : " + e.responseText);
+		// }
+	});
+}
+
+// 정보변경
+function modifySendit() {
+	var form=document.writeForm;
+	var reg_upw = /^(?=.*[a-zA-Z])(?=.*[0-9]).{4,16}$/;
+
+	if(form.passwd.value=="") {
+		alert("비밀번호를 입력해 주세요.");
+		form.passwd.focus();
+	} else if(!reg_upw.test(form.passwd.value)) {
+		alert("비밀번호는 영문,숫자,특수문자 조합 6~16자 이내로 입력해주세요.");
+		form.passwd.focus();
+	} else if(form.passwd_check.value=="") {
+		alert("비밀번호확인을 입력해주세요.");
+		form.passwd_check.focus();
+	} else if(form.passwd.value != form.passwd_check.value) {
+		alert("비밀번호가 일치하지 않습니다. 다시 확인해 주세요.");
+		form.passwd_check.focus();
+		// } else if(form.b_year.value=="") {
+		// 	alert("생년월일을 입력해 주세요.");
+		// 	form.b_year.focus();
+		// } else if(form.b_month.value=="") {
+		// 	alert("생년월일을 입력해 주세요.");
+		// 	form.b_month.focus();
+		// } else if(form.b_day.value=="") {
+		// 	alert("생년월일을 입력해 주세요.");
+		// 	form.b_day.focus();
+	} else if(form.email1.value=="") {
+		alert("이메일을 입력해 주세요.");
+		form.email1.focus();
+	} else if(form.email2.value=="") {
+		alert("이메일을 입력해 주세요.");
+		form.email2.focus();
+	} else if(form.hp1.value=="") {
+		alert("휴대전화 번호를 입력해주세요.");
+		form.hp1.focus();
+	} else if(form.hp2.value=="") {
+		alert("휴대전화 번호를 입력해주세요.");
+		form.hp2.focus();
+	} else if(form.hp3.value=="") {
+		alert("휴대전화 번호를 입력해주세요.");
+		form.hp3.focus();
+	} else {
+		form.submit();
+	}
+}
+
+function modifySendit2() {
+	var form=document.writeForm;
+	// var reg_upw = /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,16}$/;
+
+	if( form.passwd.value ){
+		if(!reg_upw.test(form.passwd.value)) {
+			// checkPassword($('#passwd').val(),$('#userid').val());
+			alert('비밀번호는 영문,숫자,특수문자 조합 6~16자 이내로 입력해주세요.');
+			return false;
+		}
+
+		if(form.passwd_check.value=="") {
+			alert("비밀번호확인을 입력해주세요.");
+			form.passwd_check.focus();
+			return false;
+		}
+
+		if(form.passwd.value != form.passwd_check.value) {
+			alert("비밀번호가 일치하지 않습니다. 다시 확인해 주세요.");
+			form.passwd_check.focus();
+			return false;
+		}
+	}
+
+	if(form.email1.value=="") {
+		alert("이메일을 입력해 주세요.");
+		form.email1.focus();
+		return false;
+	}
+
+	if(form.email2.value=="") {
+		alert("이메일을 입력해 주세요.");
+		form.email2.focus();
+		return false;
+	}
+
+	if(form.hp.value=="") {
+		alert("휴대전화 번호를 입력해주세요.");
+		form.hp.focus();
+		return false;
+	}
+
+	form.submit();
+}
+
+// 회원탈퇴
+function withdrawSendit() {
+	var form=document.writeForm;
+
+	if(form.reason[0].checked==false && form.reason[1].checked==false && form.reason[2].checked==false && form.reason[3].checked==false && form.reason[4].checked==false && form.reason[5].checked==false && form.reason[6].checked==false && form.reason[7].checked==false) {
+		alert("탈퇴사유를 선택해주세요.");
+		form.reason[0].focus();
+	} else if(form.reason[7].checked && form.reason_etc.value=="") {
+		alert("기타 탈퇴사유를 입력해주세요.");
+		form.form.reason_etc.focus();
+	} else {
+		form.submit();
+	}
+}
+
+// 비밀번호 관리
+function passwordSendit(){
+	var form = document.memberForm;
+	var reg_upw = /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{5,20}$/;
+
+	if(form.now_passwd.value==""){
+		alert("현재 비밀번호를 입력해주세요.");
+		form.now_passwd.focus();
+	} else if(form.passwd.value==""){
+		alert("변경 비밀번호를 입력해주세요.");
+		form.passwd.focus();
+	} else if(!reg_upw.test(form.passwd.value)) {
+		alert("비밀번호는 영문,숫자,특수문자 조합 6~16자 이내로 입력해주세요.");
+		form.passwd.focus();
+	} else if(form.passwd_check.value==""){
+		alert("비밀번호 확인을 입력해주세요.");
+		form.passwd_check.focus();
+	} else if(form.passwd.value!=form.passwd_check.value){
+		alert("비밀번호가 일치하지 않습니다. 정확하게 입력해주세요.");
+		form.passwd_check.focus();
+	} else {
+		form.submit();
+	}
+}
+
+// 교수 샘플강좌
+function professorSampleView(professor_idx){
+	window.open("/player/professorSamplePlayer.php?professor_idx="+professor_idx,"preview","width=1046,height=647,scrollbars=0");
+}
+
+// 동영상 미리보기
+function sampleView(gubun,idx){
+	window.open("/player/samplePlayer.php?gubun="+gubun+"&idx="+idx,"preview","width=1046,height=634,scrollbars=0,scrolling=no");
+}
+function isBrowserCheck(){
+	const agt = navigator.userAgent.toLowerCase();
+	if (agt.indexOf("chrome") != -1) return 'Chrome';
+	if (agt.indexOf("opera") != -1) return 'Opera';
+	if (agt.indexOf("staroffice") != -1) return 'Star Office';
+	if (agt.indexOf("webtv") != -1) return 'WebTV';
+	if (agt.indexOf("beonex") != -1) return 'Beonex';
+	if (agt.indexOf("chimera") != -1) return 'Chimera';
+	if (agt.indexOf("netpositive") != -1) return 'NetPositive';
+	if (agt.indexOf("phoenix") != -1) return 'Phoenix';
+	if (agt.indexOf("firefox") != -1) return 'Firefox';
+	if (agt.indexOf("safari") != -1) return 'Safari';
+	if (agt.indexOf("skipstone") != -1) return 'SkipStone';
+	if (agt.indexOf("netscape") != -1) return 'Netscape';
+	if (agt.indexOf("mozilla/5.0") != -1) return 'Mozilla';
+	if (agt.indexOf("msie") != -1) {
+		let rv = -1;
+		if (navigator.appName == 'Microsoft Internet Explorer') {
+			let ua = navigator.userAgent; var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+			if (re.exec(ua) != null)
+				rv = parseFloat(RegExp.$1);
+		}
+		return 'Internet Explorer '+rv;
+	}
+}
+// 동영상 강좌보기
+function lectureView(trade_goods_idx,lecture_idx,idx){
+	var browser = isBrowserCheck();
+	var win_height = 642;
+
+	// 사파리나 체크
+	if (browser == "Safari") {
+		win_height = 663;
+	}
+
+	myExternalWindow = window.open("/player/lecturePlayer.php?trade_goods_idx="+trade_goods_idx+"&lecture_idx="+lecture_idx+"&idx="+idx+"&purge_cache","lecture","resizable=yes,location=0,width=1062,height="+win_height+",scrollbars=0");
+	// myExternalWindow.resizeTo(1046,642); //resize window to 500x500
+	// myExternalWindow.resizeBy(-100,-100); //make it smaller relatively => to 400x400
+}
+
+// 동영상 강좌보기 모바일
+function lectureViewMobile(trade_goods_idx,package_idx,lecture_idx,idx,method){
+	window.open("/player/lecturePlayerMobile.php?trade_goods_idx="+trade_goods_idx+"&package_idx="+package_idx+"&lecture_idx="+lecture_idx+"&idx="+idx+"&method="+method,"lecture","width=1046,height=643");
+}
+
+// 모의고사 해설영상보기
+function mocktestView(mocktest_idx){
+	window.open("/player/mocktestPlayer.php?mocktest_idx="+mocktest_idx,"mocktest","width=1046,height=643");
+}
+
+// 동영상 미리보기(체크용)
+function CheckView(lecture_idx,idx){
+	window.open("/player/checkPlayer.php?lecture_idx="+lecture_idx+"&idx="+idx,"preview","width=1046,height=652,scrollbars=0,scrolling=no");
+}
+
+
+
+
+// 1:1 문의
+function oneLearning(){
+	opener.location.href='/order/one_learning.php';
+	self.close();
+}
+
+// 미결제시 안내
+function usePayment(){
+	alert("결제 후 이용하실 수 있습니다.");
+}
+
+// 비회원 안내
+function noMember(login_go){
+	// alert("회원 로그인 후 이용하실 수 있습니다.");
+	// if(login_go){
+	// 	location.href='/member/login.php?login_go='+login_go;
+	// }
+	// $(".login_btn").trigger('click');
+	$("#loginArea").removeClass("blind");
+	$(".right_wsmain").removeClass("on");
+}
+
+// 관심강좌
+function bookmarkLecture(userid,id,idx){
+	$.ajax({
+		url:'/lecture/bookmark_lecture.php',
+		type:'GET',
+		data:'userid='+userid+'&id='+id+'&lecture_idx='+idx,
+		success:function(data){
+			$('#favorite_'+id).html(data);
+		}
+	});
+}
+
+// 관심교재
+function bookmarkTextbook(userid,id,idx){
+	$.ajax({
+		url:'./bookmark_textbook.php',
+		type:'GET',
+		data:'userid='+userid+'&id='+id+'&textbook_idx='+idx,
+		success:function(data){
+			$('#favorite_'+id).html(data);
+		}
+	});
+}
+
+// 관심패키지
+function bookmarkPackage(userid,id,idx){
+	$.ajax({
+		url:'/lecture/bookmark_package.php',
+		type:'GET',
+		data:'userid='+userid+'&id='+id+'&package_idx='+idx,
+		success:function(data){
+			$('#favorite_'+id).html(data);
+		}
+	});
+}
+
+// 공감하기
+function addLike(userid,idx){
+	$.ajax({
+		url:'/plus/add_like.php',
+		type:'GET',
+		data:'userid='+userid+'&bbs_idx='+idx,
+		success:function(data){
+			$('#likeBtn').html(data);
+		}
+	});
+}
+
+
+/*
+$(document).ready(function(){
+    //최상단 체크박스 클릭
+    $("#checkall").click(function(){
+        //클릭되었으면
+        if($("#checkall").prop("checked")){
+            //input태그의 name이 chk인 태그들을 찾아서 checked옵션을 true로 정의
+            $("input[name=chk]").prop("checked",true);
+            //클릭이 안되있으면
+        }else{
+            //input태그의 name이 chk인 태그들을 찾아서 checked옵션을 false로 정의
+            $("input[name=chk]").prop("checked",false);
+        }
+    })
+})
+*/
+
+function allCheck(){
+
+	//클릭되었으면
+	if($(".checkall").prop("checked")){
+		$("input[name=cart_list]").prop("checked",true);
+		//클릭이 안되있으면
+	}else{
+		$("input[name=cart_list]").prop("checked",false);
+	}
+
+	cartCalculate(); //장바구니 계산
+
+	/*
+	var f = document.forms['listform'];
+	if(typeof(f.cart_list) == 'object') {
+		if(f.allchk.checked) {
+			alert();
+			if(f.cart_list.length) for (var i=0;i<f.cart_list.length;i++) f.cart_list[i].checked=true;
+			else f.cart_list.checked=true
+		} else {
+			if(f.cart_list.length) for (var i=0;i<f.cart_list.length;i++) f.cart_list[i].checked=false;
+			else  f.cart_list.checked=false;
+		}
+
+		cartCalculate(); //장바구니 계산
+
+	} else {
+		if(f.allchk.checked) {
+			alert('선택할 상품이 없습니다.');f.allchk.checked = false;return;
+		} else return;
+	}
+*/
+
+}
+
+// 장바구니 선택 계산
+function cartCalculate(){
+	var f = document.forms['listform'];
+	var goods_price = 0;
+	var goods_price2 = 0;
+	var goods_cnt = 0;
+	var goods_price_total = 0;
+	var goods_price_total2 = "";
+	var express_free = f.express_free.value;
+	var deliv_price = f.deliv_price.value;
+	var express_money = f.express_money.value;
+	var deliv_goods_price = 0;
+	var deliv_goods_price_total = 0;
+	var deliv_price2 = "";
+	var total_price = 0;
+	var total_price2 = "";
+	var goods_deliv_price = 0;
+	var goods_deliv_price_total = 0;
+
+	var count = 0;
+
+	if(f.cart_list.length) { // 장바구니 상품이 2개 이상일때
+		for (var i=0;i<f.cart_list.length;i++) {
+			if(f.cart_list[i].checked==true){
+				count++;
+				goods_price = f.cart_list_price[i].value;
+				goods_cnt = f.goods_cnt[i].value;
+				goods_price2 = goods_price * goods_cnt;
+				goods_price_total += Number(goods_price2);
+				//goods_deliv_price = f.goods_deliv_price[i].value;
+				//goods_deliv_price_total += Number(goods_deliv_price);
+
+				if(f.cart_goods_gubun[i].value=="textbook"){ // 배송상품 합계
+					deliv_goods_price = goods_price2;
+					deliv_goods_price_total += Number(deliv_goods_price);
+				}
+			}
+		}
+	} else { // 장바구니 상품이 1개일때
+		if(f.cart_list.checked==true){
+			count = 1;
+			goods_price = f.cart_list_price.value;
+			goods_cnt = f.goods_cnt.value;
+			goods_price2 = goods_price * goods_cnt;
+			goods_price_total += Number(goods_price2);
+			//goods_deliv_price = f.goods_deliv_price.value;
+			//goods_deliv_price_total += Number(goods_deliv_price);
+
+			if(f.cart_goods_gubun.value=="textbook"){ // 배송상품 합계
+				deliv_goods_price = goods_price2;
+				deliv_goods_price_total += Number(deliv_goods_price);
+			}
+		}
+	}
+
+	// 총 상품금액
+	goods_price_total2 = comma(goods_price_total)+"원";
+	if(deliv_goods_price_total>0){
+		if(Number(deliv_goods_price_total)<Number(express_free) && Number(goods_price_total)<Number(express_free)){
+			deliv_price = express_money;
+		} else {
+			deliv_price = 0;
+		}
+	} else {
+		deliv_price = 0;
+	}
+
+	// 배송비 
+	deliv_price2 = comma(deliv_price)+"<span>원</span>";
+	$("#deliv_price").html(deliv_price2);
+
+	// 상품금액
+	total_price = Number(goods_price_total);
+	total_price = comma(total_price)+"<span>원</span>";
+	$("#tot_goods_price").html(total_price);
+
+	// 총 결제금액
+	total_price = Number(goods_price_total) + Number(deliv_price);
+	total_price = comma(total_price)+"<span>원</span>";
+	$("#total_price").html(total_price);
+
+}
+
+// 장바구니 선택 삭제
+function delSelect() {
+	var f = document.forms['listform'];
+	var arr_cart_list = new Array();
+	var i,j;
+	if(typeof(f.cart_list) == 'object') {
+		if(f.cart_list.length) {
+			for (i=0,j=0;i<f.cart_list.length;i++) { if(f.cart_list[i].checked) { arr_cart_list[i] = f.cart_list[i].value;j++; }}
+			if(!j) { alert('상품을 선택하여 주세요.');return; }
+			else f.arr_cart_list.value = arr_cart_list.join('@');
+		} else {
+			if(!f.cart_list.checked) { alert('상품을 선택하여 주세요.');return; }
+		}
+		if(j==1) f.arr_cart_list.value = '';
+		if(confirm('선택한 상품을 삭제하시겠습니까?')) f.submit();
+	} else {
+		alert('선택할 상품이 없습니다.');	return;
+	}
+}
+
+//장바구니 선택 구매
+function orderSelect() {
+	var fm = document.forms['listform'];
+	var arr_cart_list = new Array();
+	fm.action='order_insert.php';
+	var i,j;
+	if(typeof(fm.cart_list) == 'object') {
+		if(fm.cart_list.length) {
+			for (i=0,j=0;i<fm.cart_list.length;i++) { if(fm.cart_list[i].checked) { arr_cart_list[i] = fm.cart_list[i].value;j++; }}
+			if(!j) { alert('상품을 선택하여 주세요.');return; }
+			else fm.arr_cart_list.value = arr_cart_list.join('@');
+		} else {
+			if(!fm.cart_list.checked) { alert('상품을 선택하여 주세요.');return; }
+		}
+		if(j==1) fm.arr_cart_list.value = '';
+		if(confirm('선택한 상품을 주문하시겠습니까?')) fm.submit();
+	} else {
+		alert('선택할 상품이 없습니다.');	return;
+	}
+}
+
+
+function actSelect3()
+{
+	var f = document.forms['listform'];
+	var arr_del_list = new Array();
+	var i,j;
+	if(typeof(f.del_list) == 'object') {
+		if(f.del_list.length) {
+			for (i=0,j=0;i<f.del_list.length;i++) { if(f.del_list[i].checked) { arr_del_list[i] = f.del_list[i].value;j++; }}
+			if(!j) { alert('상품을 선택해주세요.');return; }
+			else f.arr_del_list.value = arr_del_list.join('@');
+		} else {
+			if(!f.del_list.checked) { alert('상품을 선택해주세요.');return; }
+		}
+		if(j==1) f.arr_del_list.value = '';
+		if(confirm('선택한 상품을 장바구니에 저장하시겠습니까?')) f.submit();
+	} else {
+		alert('선택할 상품이 없습니다.');	return;
+	}
+}
+
+// 패키지상품 선택 교재 가격 계산
+function caltextBook(){
+	var f = document.forms['listform'];
+	var arr_del_list = new Array();
+	var i,j;
+	var package_price = f.package_price.value;
+	var price;
+	var price1;
+	var price2;
+	var price3 = 0;
+	var price4;
+	var total_price=0;
+
+	if(typeof(f.del_list) == 'object') {
+		if(f.del_list.length) {
+			for (i=0;i<f.del_list.length;i++) {
+				if(f.del_list[i].checked) {
+					price = f.del_list[i].value;
+					price1 = price.split("&");
+					price2 = Number(price1[1]);
+					price3 += price2;
+				}
+			}
+			price4 = comma(price3)+"원";
+			total_price = price3+Number(package_price);
+			total_price = comma(total_price)+"원";
+			$("#priceTB").html(price4);
+			$("#priceTotal").html(total_price);
+			//alert(total_price);
+		}
+	}
+}
+
+//콤마찍기
+function comma(str) {
+	str = String(str);
+	return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+}
+
+// 패키지 결제하기
+function orderPackage(){
+	var f = document.forms['listform'];
+	var arr_del_list = new Array();
+	var i,j;
+	if(typeof(f.del_list) == 'object') {
+		if(f.del_list.length) {
+			for (i=0,j=0;i<f.del_list.length;i++) { if(f.del_list[i].checked) { arr_del_list[i] = f.del_list[i].value;j++; }}
+			if(!j) {
+			}
+			else f.arr_del_list.value = arr_del_list.join('@');
+		}
+		if(j==1) f.arr_del_list.value = '';
+	}
+	f.action='/mypage/mypage02_order_insert.php';
+	if(confirm('패키지 상품을 결제하시겠습니까?')) f.submit();
+}
+
+// 패키지 장바구니 담기
+function cartPackage(){
+	var f = document.forms['listform'];
+
+	var arr_del_list = new Array();
+	var i,j;
+	if(typeof(f.del_list) == 'object') {
+		if(f.del_list.length) {
+			for (i=0,j=0;i<f.del_list.length;i++) { if(f.del_list[i].checked) { arr_del_list[i] = f.del_list[i].value;j++; }}
+			if(!j) {
+			}
+			else f.arr_del_list.value = arr_del_list.join('@');
+		}
+		if(j==1) f.arr_del_list.value = '';
+	}
+
+	if(confirm('패키지 상품을 장바구니에 담으시겠습니까?')) f.submit();
+}
+
+// 교재 주문하기
+function orderTextbook(idx){
+	location.href="/mypage/mypage02_order_insert.php?trade_method=5&idx="+idx;
+}
+
+// 교재 장바구니 담기
+function cartTextbook(idx){
+	location.href="/mypage/addcart.php?gubun=textbook&idx="+idx;
+}
+
+// 주문정보입력
+function orderSendit(){
+	var form = document.orderForm;
+	if(form.name.value=="") {
+		alert("이름을 입력해 주세요.");
+		form.name.focus();
+	} else if(form.deliv_name.value==""){
+		alert("받으시는분의 이름을 입력해 주세요.");
+		form.deliv_name.focus();
+	} else if(form.deliv_email.value==""){
+		alert("받으시는분의 이메일을 입력해 주세요.");
+		form.deliv_email.focus();
+	} else if(form.deliv_phone.value==""){
+		alert("받으시는분의 휴대전화를 입력해 주세요.");
+		form.deliv_phone.focus();
+	} else if(form.postcode.value==""){
+		alert("우편번호를 입력해 주세요.");
+		form.postcode.focus();
+	} else if(form.addr1.value==""){
+		alert("주소를 입력해 주세요.");
+		form.addr1.focus();
+	} else if(form.addr2.value==""){
+		alert("상세주소를 입력해 주세요.");
+		form.addr2.focus();
+		/*
+        } else if(form.trade_method[2].checked && form.depositor.value==""){
+            alert("입금자명을 입력해주세요.");
+            form.depositor.focus();
+        */
+	} else {
+		form.submit();
+	}
+}
+
+// 토글전역변수
+function toggleCheck(n) {
+	if($("input:checkbox[id='deliver']").is(":checked") == true) {
+		$(".deliver input").each(function(){
+			if( $(this).attr('mem_data') ){
+				$(this).val($(this).attr('mem_data'));
+			}
+		});
+	} else {
+		$(".deliver input").each(function(){
+			if( $(this).attr('mem_data') ){
+				$(this).val('');
+			}
+		});
+	}
+}
+
+// 실시간 수정 토글전역변수
+function toggleCheck1(n) {
+	var form = document.orderForm;
+
+	if($("input:checkbox[id='deliver']").is(":checked") == true) {
+		form.deliv_name.value = form.ordererName.value;
+		form.deliv_email.value = form.email.value;
+		form.deliv_phone.value = form.ordererPhn.value;
+		form.deliv_tel.value = form.tel.value;
+		form.postcode.value = form.hidden_postcode.value;
+		form.addr1.value = form.hidden_addr1.value;
+		form.addr2.value = form.hidden_addr2.value;
+	} else {
+		form.deliv_name.value = "";
+		form.deliv_email.value = "";
+		form.deliv_phone.value = "";
+		form.deliv_tel.value = "";
+		form.postcode.value = "";
+		form.addr1.value = "";
+		form.addr2.value = "";
+	}
+}
+
+// 배송료 재계산하기
+function delivAccount(){
+	var postcode = $("#postcode").val();
+	$.ajax({
+		url:'delivAccount.php',
+		type:'get',
+		data:'postcode='+postcode,
+		success:function(data){
+			$('#delivAccountWrap').html(data);
+		}
+	});
+}
+
+// 배송비 계산
+function accountDelivPrice(){
+	var form = document.orderForm;
+	var trade_deliv_base_price = form.trade_deliv_base_price.value;
+	var trade_deliv_add_price = form.trade_deliv_add_price.value;
+	var goods_deliv_price = form.goods_deliv_price.value;
+	var deliv_cnt_total = form.deliv_cnt_total.value;
+
+	if(trade_deliv_base_price=="") trade_deliv_base_price=0;
+	if(trade_deliv_add_price=="") trade_deliv_add_price=0;
+	var trade_deliv_price1 = parseInt(trade_deliv_base_price)+ parseInt(goods_deliv_price);
+	var trade_deliv_price2 = parseInt(trade_deliv_add_price * deliv_cnt_total);
+	var trade_deliv_price = parseInt(trade_deliv_base_price) + parseInt(trade_deliv_add_price * deliv_cnt_total) + parseInt(goods_deliv_price);
+
+	$("#hidden_trade_deliv_price").val(trade_deliv_price);
+	$("#trade_deliv_add_price_total").val(trade_deliv_price2);
+	$("#deliv_price").html(commaSplit(trade_deliv_price1));
+	$("#deliv_price2").html(commaSplit(trade_deliv_price2));
+	$("#trade_deliv_add_price_total").html(commaSplit(trade_deliv_price2));
+}
+
+// 무료배송 쿠폰 클릭시
+function delivery_coupon(id){
+	var form = document.orderForm;
+	var check_cnt = $("input:checkbox[class=free]:checked").length;
+	if(document.getElementById(id).checked == true || check_cnt){
+		form.trade_deliv_price.value = 0;
+		form.free_deliv_coupon.value = id;
+		$("#deliv_price").html("0<span>원</span>");
+		//$("#deliv_price2").html(0);
+		$("#deliv_coupon_use").val(1); //쿠폰 사용 여부 체크를 사용으로 변경
+	} else {
+		var trade_deliv_base_price_total = form.trade_deliv_base_price_total.value;
+		var trade_deliv_add_price_total = form.trade_deliv_add_price_total.value;
+		var trade_deliv_price = parseInt(trade_deliv_base_price_total) + parseInt(trade_deliv_add_price_total);
+
+		form.trade_deliv_price.value = trade_deliv_price;
+		form.free_deliv_coupon.value = "";
+		$("#deliv_price").html(addCommas(form.trade_deliv_base_price_total.value));
+		//$("#deliv_price2").html(addCommas(form.trade_deliv_add_price_total.value));
+		$("#deliv_coupon_use").val(""); //쿠폰 사용 여부 체크를 미사용으로 변경
+	}
+	discount(); //할인금액 계산
+
+}
+
+function use_coupon(){  //쿠폰사용
+	var form = document.orderForm;
+	var trade_price =  $("#trade_goods_price").val();
+	var trade_use_coupon = 0;
+	//var trade_deliv_price_temp = form.trade_deliv_price_temp.value;
+
+	var coupon_cnt = $("#coupon_cnt").val();
+	var totalCouponPrice = 0;
+	var freeCouponIncluded = "N";
+	var trade_use_coupon_idx = new Array();
+	var trade_use_coupon_goods = new Array();
+	var coupon_price = new Array();
+
+	for (var ct = 0; ct < coupon_cnt; ct++) {
+		if (document.getElementById("use_coupon[" + ct + "]").checked == true) {
+
+			var cArr = document.getElementById("use_coupon[" + ct + "]").value.split("||", 5);
+
+			var disAmount = 0;
+			trade_use_coupon_idx[ct] = cArr[0];
+			trade_use_coupon_idx.join(',');
+
+			var use_goods = document.getElementById("use_goods[" + ct + "]").value;
+			var use_goods_Arr = use_goods.split("||");
+			var dc_rate = use_goods_Arr[1];
+			var goods_idx = use_goods_Arr[0];
+			var goods_price = use_goods_Arr[3];
+			trade_use_coupon_goods[ct] = use_goods;
+			trade_use_coupon_goods.join(',');
+
+			//alert(cArr[4]);
+			/*
+			if (cArr[1] == "free") {
+				disAmount = parseInt(form.trade_goods_total_price.value);
+				freeCouponIncluded = "Y";
+			} else
+			*/
+
+			if(cArr[1] == "delivery"){
+				//disAmount = parseInt(form.trade_deliv_price.value);
+				//form.trade_deliv_price.value = form.trade_deliv_price_temp.value;
+				//alert(disAmount);
+			} else {
+				if (cArr[4] == "rate") disAmount = parseInt(goods_price) * parseInt(dc_rate) / 100;
+				else disAmount = parseInt(cArr[3]);
+				if( typeof coupon_price[ goods_idx ] == "undefined" ){
+					coupon_price[ goods_idx ] = 0;
+				}
+				let tmp_price = disAmount + coupon_price[ goods_idx ];
+				if( tmp_price > goods_price ){
+					disAmount = goods_price - coupon_price[ goods_idx ];
+				}
+				coupon_price[ goods_idx ] += disAmount;
+				//form.trade_deliv_price.value = form.trade_deliv_price_temp.value;
+			}
+			totalCouponPrice += disAmount;
+		}
+	}
+
+	if (freeCouponIncluded == "N") {
+		//alert(totalCouponPrice);
+		if (totalCouponPrice > parseInt(form.trade_goods_price.value)) {
+			form.trade_use_coupon.value = form.trade_goods_price.value;
+		} else {
+			form.trade_use_coupon.value = totalCouponPrice;
+		}
+	} else {
+		form.trade_use_coupon.value = form.trade_goods_price.value; // 강좌 전액적용
+	}
+
+	$("#trade_use_coupon").html(addCommas(parseInt(form.trade_use_coupon.value)));
+	$("#trade_use_coupon_idx").val(trade_use_coupon_idx);
+	$("#trade_use_coupon_goods").val(trade_use_coupon_goods);
+
+	if(totalCouponPrice  >= parseInt(form.trade_goods_price.value)){ // 쿠폰 전액 구매시 적립포인트 0
+		form.trade_save_point.value=0;
+	} else {
+		form.trade_save_point.value=form.trade_save_point_temp.value;
+	}
+
+	discount(); //할인금액 계산
+
+}
+
+
+function discount(){ // 할인금액 계산
+	var form = document.orderForm;
+	var coupon_price = form.trade_use_coupon.value;
+	var point_price;
+	if(form.trade_use_point.value==""){
+		var point_price = 0;
+	} else {
+		var point_price = form.trade_use_point.value;
+	}
+	var trade_dc_price = form.trade_dc_price.value;
+	var trade_goods_price = form.trade_goods_price.value;
+	var deliv_price = form.trade_deliv_price.value;
+	var total_price_temp = form.total_price_temp.value;
+
+	var dc_price = parseInt(coupon_price) + parseInt(point_price);
+
+	if(dc_price >= trade_goods_price){
+		dc_price = trade_goods_price;
+	}
+
+	var total_price = parseInt(trade_goods_price) + parseInt(deliv_price) - dc_price ;
+
+	dc_price = String(dc_price);
+	total_price = String(total_price);
+
+	if(dc_price < parseInt(trade_goods_price)){
+		form.trade_save_point.value=form.trade_save_point_temp.value;
+	} else {
+		form.trade_save_point.value = 0;
+	}
+
+	form.trade_dc_price.value = dc_price;
+	form.trade_price.value = total_price;
+
+	if(total_price==0){
+		$(".method1").removeClass("blind");
+		$(".method2").addClass("blind");
+		$(".bank_tr").addClass("blind");
+		$("#trade_method1").attr("checked",false);
+		$("#trade_method2").attr("checked",false);
+		$("#trade_method3").attr("checked",false);
+		$("#trade_method").val("9");
+	} else {
+		$(".method1").addClass("blind");
+		$(".method2").removeClass("blind");
+		$(".bank_tr").removeClass("blind");
+	}
+
+	$("#trade_dc_price").val(dc_price);
+	$("#trade_price").val(total_price);
+	$("#total_price2").html(number_format(total_price)+"<span>원</span>");
+}
+
+// 숫자에서 3자리마다 콤마 넣기
+function commaSplit(srcNumber) {
+	var txtNumber = '' + srcNumber;
+	if(isNaN(txtNumber) || txtNumber == "") {
+		//alert("숫자만 입력 하세요");
+		//fieldName.select();
+		//fieldName.focus();
+	}else {
+		var rxSplit = new RegExp('([0-9])([0-9][0-9][0-9][,.])');
+		var arrNumber = txtNumber.split('.');
+		arrNumber[0] += '.';
+
+		do {
+			arrNumber[0] = arrNumber[0].replace(rxSplit, '$1,$2');
+		} while (rxSplit.test(arrNumber[0]));
+
+		if (arrNumber.length > 1) {
+			return arrNumber.join('');
+		}else {
+			return arrNumber[0].split('.')[0];
+		}
+	}
+}
+
+// 무통장 결제하기
+function paySendit(){
+	var form = document.tradeForm;
+	form.submit();
+}
+
+
+// 교재검색
+function searchTextbook(){
+	var form = document.searchForm;
+	form.submit();
+}
+
+//부메랑 게시판 질문유형 선택
+function selectType(n){
+	if(n==1){
+		$(".type01").addClass("on");
+		$(".type02").removeClass("on");
+		$("#type01").removeClass("blind");
+		$("#type02").addClass("blind");
+	} else if(n==2){
+		$(".type01").removeClass("on");
+		$(".type02").addClass("on");
+		$("#type01").addClass("blind");
+		$("#type02").removeClass("blind");
+	}
+}
+
+// 1:1학습질문 강좌 선택
+function selectLecture(goods_name){
+	var gubun = goods_name.split("|");
+	if(gubun[2]=="package"){
+		$("#lecture_num").removeClass("blind");
+	} else {
+		$("#lecture_num").addClass("blind");
+	}
+	$("#professor_idx").val("");
+	$("#professor_name").html("");
+	$.ajax({
+		url:'select_lecture.php',
+		type:'GET',
+		data:'goods_name='+encodeURI(goods_name),
+		success:function(data){
+			$('#lecture_num').html(data);
+		}
+	});
+}
+
+// 편비서 신청
+function writeSecretary(){
+	var form = document.form1;
+	if(form.kakaoid.value==""){
+		alert("카카오톨 아이디를 입력해주세요.");
+		form.kakaoid.focus();
+	} else if(form.stime.value==""){
+		alert("시간대를 선택해주세요.");
+		form.stime.focus();
+	} else {
+		form.submit();
+	}
+}
+
+// 교육신청
+function movieBuySendit(check){
+	var form=document.goodsForm;
+
+	if(check==1) { // 장바구니추가
+		form.action="/common_ui/order/addcart.php";
+		form.submit();
+	} else if(check==2) { // 즉시 구매
+		form.action="order_once_ok.php?trade_method=2&goods_data=<?=$goods_data;?>";
+		form.submit();
+	} else if(check==3) { // withlist 추가
+		form.action="interest_product.php?wishlist_method=1&goods_data=<?=$goods_data;?>";
+		form.submit();
+	}
+
+}
+
+
+/* SHOOPPING */
+
+// 상품검색
+function searchProduct(n){
+	if(n==1){
+		var form = document.prdSearchform1;
+	} else if(n==2){
+		var form = document.prdSearchform2;
+	}
+	if(form.search_order.value==""){
+		alert("검색할 상품명을 입력해주세요.");
+		form.search_order.focus();
+	} else {
+		form.submit();
+	}
+}
+
+// 검색 시 날짜 선택
+function selectSearchday(n){
+	var now = new Date();
+	var year = now.getFullYear();
+	var mon = (now.getMonth()+1)>9 ? ''+(now.getMonth()+1) : '0'+(now.getMonth()+1);
+	var day = now.getDate()>9 ? ''+now.getDate() : '0'+now.getDate();
+	var today = year + '-' + mon + '-' + day;
+
+	var myDate = new Date(today);
+
+	if(n==1){
+		myDate.setDate (myDate.getDate());
+	} else if(n==2){
+		myDate.setDate (myDate.getDate() - 7);
+	} else if(n==3){
+		myDate.setDate (myDate.getDate() - 30);
+	} else if(n==4){
+		myDate.setDate (myDate.getDate() - 90);
+	} else if(n==5){
+		myDate.setDate (myDate.getDate() - 180);
+	}
+
+	var year1 = myDate.getFullYear();
+	var mon1 = (myDate.getMonth()+1)>9 ? ''+(myDate.getMonth()+1) : '0'+(myDate.getMonth()+1);;
+	var day1 = myDate.getDate()>9 ? ''+myDate.getDate() : '0'+myDate.getDate();
+	var sday = year1 + '-' + mon1 + '-' + day1;
+	$("#minDatePick").val(sday);
+
+	$('a').removeClass("on");
+}
+
+
+// 게시판
+//코멘트 등록
+function comentSendit() {
+	var form=document.bbs_coment_form;
+	if(form.userid.value=="") {
+		alert("아이디를 입력해 주십시오.");
+		form.userid.focus();
+	} else if(form.coment.value=="") {
+		alert("댓글을 입력해주세요.");
+		form.coment.focus();
+	} else {
+		form.submit();
+	}
+}
+
+function comentSendit2(n) {
+	var form=document.comentForm;
+	if($("#coment"+n).val()==""){
+		alert("댓글을 입력해주세요.");
+		$("#coment"+n).focus();
+	} else {
+		var co_idx = $("#co_idx"+n).val();
+		var ref = $("#ref"+n).val();
+		var re_step = $("#re_step"+n).val();
+		var re_level = $("#re_level"+n).val();
+		var coment = $("#coment"+n).val();
+		form.co_idx.value=co_idx;
+		form.ref.value=ref;
+		form.re_step.value=re_step;
+		form.re_level.value=re_level;
+		form.coment.value=coment;
+		form.submit();
+	}
+}
+
+function cmtWrite(n){
+	$(".reply").addClass("blind");
+	$("#cmt"+n).removeClass("blind");
+}
+
+// SNS 연동
+function twitter_click(u,t) {
+	window.open('http://www.twitter.com/intent/tweet?original_referer='+encodeURIComponent(u)+'&url='+encodeURIComponent(u)+'&text='+encodeURIComponent(t),'sharer','toolbar=0,status=0,width=626,height=436');
+	return false;
+}
+
+function facebook_click(u,t) {
+	window.open('http://www.facebook.com/sharer/sharer.php?&u='+encodeURIComponent(u)+'&t='+encodeURIComponent(t),'sharer','toolbar=0,status=0,width=626,height=436');
+	return false;
+}
+
+function naver_click(u,t) {
+	window.open('http://blog.naver.com/openapi/share?&url='+encodeURIComponent(u)+'&title='+encodeURIComponent(t),'sharer','toolbar=0,status=0,width=626,height=436');
+	return false;
+}
+
+//카카오스토리
+// Kakao.init('363addb2b34be152d073d62778003423');
+function shareStory(u,t) {
+	Kakao.Story.share({
+		url: u,
+		text: t
+	});
+}
+
+
+function returnNull () {
+	//	
+}
+
+function bannerTop() {
+	$( ".gnb-bnr.pc-tabletVer" ).animate({
+		top: "-=98",
+		height: "toggle"
+	}, 300, function() {
+		// Animation complete.
+	});
+}
+
+function closeBanner(){
+	$("#close").prop("checked",true);
+	if ( document.banner_form.today_close.checked ) {
+		setCookie( 'bannerTopEdu', 'NO', 1 );//쿠기 저장 기간은 1일로 한다.
+	}
+	bannerTop();
+}
+
+function closeBanner2(){
+	$("#close").prop("checked",true);
+	if ( document.banner_form.today_close.checked ) {
+		setCookie( 'bannerTopShop', 'NO', 1 );//쿠기 저장 기간은 1일로 한다.
+	}
+	bannerTop();
+}
+
+// 비회원 주문 조회
+function orderGuestView(){
+	var form = document.writeForm;
+	if(form.name.value==""){
+		alert("주문자명을 입력해주세요.");
+		form.name.focus();
+	} else if(form.trade_code.value==""){
+		alert("주문번호를 입력해주세요.");
+		form.trade_code.focus();
+	} else if(form.passwd.value==""){
+		alert("주문비밀번호를 입력해주세요.");
+		form.passwd.focus();
+	} else {
+		form.submit();
+	}
+}
+
+// 휴강신청 팝업
+function pauseRequest(idx){
+	var frm = new FormData();
+	frm.append("trade_goods_idx", idx);
+	$.ajax({
+		url: "./get_pauseCount.php",
+		data: frm,
+		dataType: 'json',
+		processData: false,
+		contentType: false,
+		type: 'POST',
+		success: function (data) {
+			if (data.code == 200)
+			{
+				$(".btn").before(data.msg);
+				$("#stopPopup").removeClass("blind");
+			}
+			else
+			{
+				alert("에러 : " + e.responseText);
+			}
+		}
+		// ,error: function (e) {
+		// 	alert("에러 : " + e.responseText);
+		// }
+	});
+}
+
+
+// 온라인 휴강신청 적용
+function pause(){
+	var form = document.pauseForm;
+	var idx = $("#pause_idx").val();
+	var userid = $("#userid").val();
+	var passwd = $("#passwd").val();
+	var left_day = $("#left_day").val();
+	if(form.pause_idx.value==""){
+		alert("강좌정보가 비정상적으로 선택되었습니다. 다시 시도해주세요.");
+		return;
+	} else if(form.passwd.value==""){
+		alert("비밀번호를 입력해주세요.");
+		form.passwd.focus();
+		return;
+	}
+	var choice = confirm("휴강신청 하시겠습니까?(휴강: 2회에 한하여 최대 30일 가능)");
+	if(choice){
+		$.ajax({
+			url:'pause_ok.php',
+			type:'GET',
+			data:'idx='+idx+'&left_day='+left_day+'&userid='+userid+'&passwd='+passwd,
+			success:function(data){
+				$('#pause_info').html(data);
+			}
+		});
+	} else {
+		return;
+	}
+}
+
+// 수강재개하기
+function restart(idx){
+	var choice = confirm("강의를 재개하시겠습니까?\n중간에 재개 하신 경우도 휴강신청사용으로 간주합니다.");
+	if(choice){
+		$.ajax({
+			url:'restart_ok.php',
+			type:'GET',
+			data:'idx='+idx,
+			success:function(data){
+				$('#pause_info').html(data);
+			}
+		});
+
+	} else {
+		return;
+	}
+}
+
+//결제페이지 회원주소 적용
+function applyAddr() {
+	if($("input:checkbox[id='checkOne']").is(":checked") == true) {
+		var postcode = $("#postcode").val();
+		var addr1 = $("#addr1").val();
+		var addr2 = $("#addr2").val();
+		var userid = $("#userid").val();;
+		$.ajax({
+			url:'mem_addr_update.php',
+			type:'POST',
+			data: {"postcode":postcode,"addr1":addr1,"addr2":addr2,"userid":userid},
+			success:function(data){
+				$('#addr_info').html(data);
+			}
+		});
+	}
+}
+
+// 상품검색
+function goodsSearch(){
+	var form = document.searchForm;
+	if(form.search_order.value==""){
+		alert("검색어를 입력해주세요.");
+		form.search_order.focus();
+	} else {
+		form.submit();
+	}
+}
+
+// 정책 동의
+function agreeSendit(){
+	var form = document.agreeForm;
+	if(form.agree1.checked==false) {
+		alert("이용약관에 동의해주세요.");
+		form.agree1.focus();
+		return;
+	} else if(form.agree2.checked==false) {
+		alert("개인정보처리방침에 동의해주세요.");
+		form.agree2.focus();
+		return;
+	} else if(form.agree3.checked==false) {
+		alert("미성년자 이용계약의 특칙에 동의해주세요.");
+		form.agree3.focus();
+		return;
+	} else {
+		form.submit();
+	}
+}
+
+function noAgree(){
+	var choose = confirm( '정책동의 하셔야 사이트 이용이 가능합니다. \n동의하지 않으시겠습니까?');
+	if(choose) {	location.href='/'; }
+	else { return; }
+}
+
+//최근본상품 페이징
+function goRecentPage(PageNumber){
+	$.ajax({
+		url:'recentGoods.php',
+		type:'GET',
+		data:'PageNumber='+PageNumber,
+		success:function(data){
+			$('#recentWrap').html(data);
+		}
+	});
+}
+
+function msgFirst(){
+	alert("첫번째 페이지입니다.");
+}
+
+function msgLast(){
+	alert("마지막 페이지입니다.");
+}
+
+// 옵션 2개시 2차 선택
+function optionSelect(code,depth,id,option){
+	$.ajax({
+		url:'optionSelect.php',
+		type:'GET',
+		data:'code='+code+'&depth='+depth+'&option='+encodeURIComponent(option),
+		success:function(data){
+			$('#option'+id).html(data);
+		}
+	});
+}
+
+// 옵션 3개시 2차 선택
+function optionSelect2(code,depth,id,option){
+	$.ajax({
+		url:'optionSelect2.php',
+		type:'GET',
+		data:'code='+code+'&depth='+depth+'&option='+encodeURIComponent(option),
+		success:function(data){
+			$('#option'+id).html(data);
+		}
+	});
+}
+
+// 옵션 선택 3차
+function optionSelect3(code,depth,id,option1,option2){
+	$.ajax({
+		url:'optionSelect3.php',
+		type:'GET',
+		data:'code='+code+'&depth='+depth+'&option1='+encodeURIComponent(option1)+'&option2='+encodeURIComponent(option2),
+		success:function(data){
+			$('#option'+id).html(data);
+		}
+	});
+}
+
+
+// 상품이 모두 선택되면 상품정보를 임시 저장한다
+function temp_insert(){
+	var formData = $("#goods_form").serialize();
+	//alert(formData);
+	$.ajax({
+		type : 'POST',                                    // post 타입 전송
+		url : 'insert_cart.php?cart_method=1',   // 전송 url
+		data : formData,   // 전송 파라미터
+		success : function(data){          // 콜백 성공 응답시 실행
+			$("#cart_list").html(data);
+		},
+
+		error : function(){                              // Ajax 전송 에러 발생시 실행
+			alert("선택한 상품을 입력하지 못하였습니다. 다시 시도해주세요.");
+		},
+
+	});
+
+}
+
+function disabled(n){
+	$("#optionName"+n).attr('disabled',true);
+}
+
+// 임시저장 데이터 삭제
+function cart_del(idx,goods_idx){
+	var choose = confirm( '선택 상품을 삭제 하시겠습니까?');
+	var session_cart = $("#session_cart").val();
+	var part_idx = $("#part_idx").val();
+	if(choose) {
+		$.ajax({
+			type : 'GET',                                    // post 타입 전송
+			url : 'insert_cart.php',   // 전송 url
+			data : 'cart_method=3&session_cart='+session_cart+'&cart_del_idx='+idx+'&goods_idx='+goods_idx+'&part_idx='+part_idx,   // 전송 파라미터
+			success : function(data){                   // 콜백 성공 응답시 실행
+				$("#cart_list").html(data);
+			},
+			error : function(){                              // Ajax 전송 에러 발생시 실행
+				alert("선택한 상품을 삭제하지 못했습니다. 다시 시도해주세요.");
+			},
+		});
+
+	}
+}
+
+// 임시저장 데이터 수량 수정
+function change_cnt(idx, goods_cnt) {
+	var form = document.goods_form;
+	var session_cart = $("#session_cart").val();
+	var part_idx = $("#part_idx").val();
+	var goods_idx = $("#goods_idx").val();
+
+	$.ajax({
+		type : 'GET',                                    // post 타입 전송
+		url : 'insert_cart.php',   // 전송 url
+		data : 'cart_method=2&session_cart='+session_cart+'&cart_edit_idx='+idx+'&edit_goods_cnt='+goods_cnt+'&goods_idx='+goods_idx,   // 전송 파라미터
+		success : function(data){                   // 콜백 성공 응답시 실행
+			$("#cart_list").html(data);
+		},
+		error : function(){                              // Ajax 전송 에러 발생시 실행
+			alert("선택한 상품을 입력하지 못핬였습니다. 다시 시도해주세요.");
+		},
+	});
+
+}
+
+
+// 자동으로 콤마 넣기
+function number_format(num) {
+	num = num.replace(/,/g, "")
+	var num_str = num.toString()
+	var result = ''
+
+	for(var i=0; i<num_str.length; i++) {
+		var tmp = num_str.length-(i+1)
+		if(i%3==0 && i!=0) result = ',' + result
+		result = num_str.charAt(tmp) + result
+	}
+
+	return result
+}
+
+
+function count_change(cnt) {
+	var form = document.goods_form;
+	var buy_goods_cnt = cnt;
+
+	form.buy_goods_cnt.value = buy_goods_cnt;
+
+	base_price = form.hidden_shop_price.value;
+
+	op1 = form.hidden_option_price1.value;
+	op2 = form.hidden_option_price2.value;
+	op3 = form.hidden_option_price3.value;
+	//op4 = form.hidden_option_price4.value;
+	//op5 = form.hidden_option_price5.value;
+	//op6 = form.hidden_option_price6.value;
+
+	shop_price = parseInt(base_price) + parseInt(op1) + parseInt(op2) + parseInt(op3);
+	//shop_price = parseInt(base_price) + parseInt(op1) + parseInt(op2) + parseInt(op3) + parseInt(op4) + parseInt(op5) + parseInt(op6);
+	shop_price = shop_price*buy_goods_cnt;
+	shop_price = String(shop_price);
+
+	form.hidden_tot_shop_price.value = shop_price;
+	document.getElementById ( "money" ).innerHTML = number_format(shop_price) ;
+
+	var point ;
+
+	point = goods_form.point_js.value ;
+	point_format = (shop_price * point );
+	point_format = point_format
+	point_format_temp = Math.round(point_format)
+
+	$("#goods_point").val(point_format_temp);
+	$("#point").html(point_format_temp  +"원");
+
+}
+
+// 품절상품 선택
+function disableCheck(obj) {
+	if (obj[obj.selectedIndex].className=='disabled2') {
+		obj.selectedIndex = 0; return;
+	} else if (obj[obj.selectedIndex].className=='disabled') {
+		alert("선택하신 품목은 현재 품절입니다.");
+		for (var i=0; obj[i].className=="disabled"; i++); obj.selectedIndex = i; return;
+	} else {
+		temp_insert();
+	}
+}
+
+// 체크박스 체크여부 확인
+function check_box(e){
+	var num = 0;
+	for(var i=0; i<e.length; i++){
+		if(e[i].checked == true){
+			num++;
+		}
+	}
+	return num;
+}
+
+// 체크박스 체크 연결
+function check_sum(arr, e){
+	var sum_str = "";
+	for(var i=0; i<arr.length; i++){
+		if(arr[i].checked == true){
+			if(sum_str){ sum_str += "|"; }
+			sum_str += arr[i].value;
+		}
+	}
+	e.value = sum_str;
+}
+
+// 메인 1:1 무료상담신청
+function counselSendit() {
+	var form=document.writeForm;
+	if( form.content.value=="") {
+		alert("상담내용을 입력해주세요.");
+		form.content.focus();
+	} else if( form.name.value=="") {
+		alert("이름을 입력해주세요.");
+		form.name.focus();
+	} else if( form.tel2.value=="") {
+		alert("전화번호를 입력해주세요.");
+		form.tel2.focus();
+	} else if( form.tel3.value=="") {
+		alert("전화번호를 입력해주세요.");
+		form.tel3.focus();
+	} else if( form.agree.checked==false) {
+		alert("개인정보처리방침에 체크해주세요.");
+		form.agree.focus();
+	} else {
+		var formData = $("#writeForm").serialize();
+		$.ajax({
+			url:'../board/counsel_write_ok.php',
+			type:'POST',
+			data : formData,
+			success:function(data){
+				$('#popup1').addClass('on');
+				form.reset();
+			},
+			error : function(){ // Ajax 전송 에러 발생시 실행
+				alert("상담신청정보를 입력하지 못하였습니다. 다시 시도해주세요.");
+			}
+		});
+	}
+}
+
+// 쿠폰등록
+function couponRegist(){
+	var form = document.writeForm;
+	if(form.coupon_code.value==""){
+		alert("등록하실 쿠폰코드를 입력해주세요.");
+		form.coupon_code.focus();
+	} else {
+		form.submit();
+	}
+}
+
+// 휴강신청 취소버튼
+function PauseCancel(){
+	$('#pauseForm').remove();
+	$('#stopPopup').addClass('blind');
+	$('#stopPopup').addClass('blind');
+	$('#passwd').val('');
+}
+
+// 단과강좌 선택 계산
+function lecuterCalculate(){
+	var form = document.writeForm;
+	var goods_price = form.goods_price.value;
+	var textbook_price = 0;
+	var totalPrice = 0;
+	// if(form.lecture_idx.checked==true){
+	// 	lecture_price = lecture_price;
+	// } else {
+	// 	lecture_price = 0;
+	// }
+	$(".lec_textbook input[type=checkbox]:checked").each(function(){
+		textbook_price += Number($(this).attr('price'));
+	});
+	totalPrice = Number(goods_price) + Number(textbook_price);
+	totalPrice = comma(totalPrice);
+	$(".totalPrice").html(totalPrice);
+}
+
+// 모의고사 응시
+function mocktestExam(idx, trade_goods_idx){
+	window.open('mock_test_popup.php?idx='+idx+'&trade_goods_idx='+trade_goods_idx,'mocktest','width=900,height=725');
+}
+
+// 모의고사 확인
+function mocktestCheck(idx,userid){
+	window.open('mock_test_popup_grade.php?idx='+idx+'&userid='+userid,'mocktest','width=900,height=725');
+}
+
+// 숫자만 입력 / 영어만 입력
+$(document).ready(function() {
+	$(".onlynum").keyup(function(){$(this).val( $(this).val().replace(/[^0-9]/g,"") );} ); // 숫자만 입력
+	$(".onlyeng").keyup(function(){$(this).val( $(this).val().replace(/[^\!-z]/g,"") );} ); // 영어만 입력
+});
+
+// 배송조회 팝업
+function delivCheck(link_url){
+	window.open(link_url,"delivCheck","width=1000,height=800, scrollbars=yes");
+}
+
+function accountTextbook2(){
+	var form = document.writeForm;
+	var lecture_price = $("#lecture_price").val();
+	var lecture_old_price = $("#lecture_old_price").val();
+	var textbook_price = 0;
+	var textoldbook_price = 0;
+	var totalPrice = 0;
+	var textbook = $("input:checkbox[name=textbook]").length;
+
+	for (var i = 0; i < textbook; i++) {
+
+		if ($("input:checkbox[id='textbook" + i + "']").is(":checked") == true) {
+			var textbookArr = $("#textbook"+i).val().split("||");
+			var bookPrice = Number(textbookArr[2]);
+			var bookOldPrice = Number(textbookArr[3]);
+			textbook_price += bookPrice;
+			textoldbook_price += bookOldPrice;
+		}
+	}
+
+	$("#textbook_price").val(textbook_price);
+	$("#textbook_old_price").val(textoldbook_price);
+	totalPrice = Number(lecture_price) + Number(textbook_price);
+	totalPrice = comma(totalPrice);
+
+	totalOldPrice = Number(lecture_old_price) + Number(textoldbook_price);
+	totalOldPrice = comma(totalOldPrice);
+
+	textoldbook_price = comma(textoldbook_price);
+	$("#totalPrice").html(totalPrice);
+	$("#totalOldPrice").html(totalOldPrice);
+	$("#trade_price").val(totalPrice);
+	$("#trade_old_price").val(totalOldPrice);
+}
+
+function maplayer( addr ){
+	window.open('https://map.naver.com/v5/search/' + addr, '_blank');
+}
+
+/**********************************************************************************
+ 거래내역  영수증 팝업
+ ***********************************************************************************/
+function receipt(controlNo, payment, comp)
+{
+	var url = '';
+
+	if ( comp == "1" ){
+		url = _EASYPAY_RECEIPT + "?controlNo=" + controlNo + "&payment=" + payment;
+	}
+	else if ( comp == "2" ) {
+		url = "https://npg.nicepay.co.kr/issue/IssueLoader.do?TID=" + controlNo + "&type=0";
+	}
+	else if( comp == '5' ){
+		url = "https://agent.payjoa.co.kr/util/selectCmmnTradePrintCard.do?DAOUTRX=" + controlNo + "&STATUS=11&VAT=null";
+	}
+	else{
+		alert('결제정보가 없습니다.');
+		return;
+	}
+	window.open(url,"MEMB_POP_RECEIPT", 'toolbar=0,scroll=1,menubar=0,status=0,resizable=0,width=380,height=700');
+}
+
+function receipt2(idx){
+	window.open('/order/receipt.php?idx=' + idx,"receipt","width=500,height=800,scrollbars=yes");
+}
+
+function checkbox_click(){
+	var idx_list = "";
+	$(".refund_data").each(function(idx, val){
+		var chk_dom = $("#refund_checked_" + $(this).val());
+		if ( $(this).is(":checked") ){
+			$(chk_dom).removeClass('blind');
+			if ( idx_list != "" )   idx_list += ',';
+			if ( $(this).val() ){
+				idx_list += $(this).val();
+			}
+		}
+		else{
+			$(chk_dom).addClass('blind');
+		}
+	});
+	$("input[name=refund_goods_idx]").val(idx_list);
+}
+
+
+
+$.fn.layer_popup = function( options ){
+
+	var this_el = $(this);
+
+	// 옵션에 기본값을 주는 간단한 방법입니다.
+	var settings = {
+		open_id : $(this).attr('btn') == undefined ? "" : $(this).attr('btn'),
+		close_btn : this_el.find(".close_btn"),
+		popup_box : this_el.find(".lay_box"),
+		left : 0,               // 좌측위치
+		top : 0,                // 우측위치
+		width : 0,              // 넓이
+		height : 0,             // 높이/
+		center : true,          // 중간정렬( true경우 left, top는 무시 )
+		_close : function(){},
+		_open : function(){},
+		_init : function(){},
+	};
+
+	if( typeof options !== "undefined" ){
+		$.extend(settings, options );
+	}
+
+	$(settings.close_btn).click(function(){
+		settings._close();
+		$(this_el).removeClass('on');
+	});
+
+	$(settings.open_id).click(function(){
+		$(this_el).addClass('on');
+		if( settings.width ){
+			$(settings.popup_box).css("width" , settings.width);
+		}
+		if( settings.height ){
+			$(settings.popup_box).css("top" , settings.height);
+		}
+		if( settings.center ){
+			$(settings.popup_box).css({
+				"marginTop": ((-$(settings.popup_box).outerHeight())/2)+"px",
+				"marginLeft": ((-$(settings.popup_box).outerWidth())/2)+"px"
+				//팝업창을 가운데로 띄우기 위해 현재 화면의 가운데 값과 스크롤 값을 계산하여 팝업창 CSS 설정
+			});
+		}else{
+			$(settings.popup_box).css("left" , settings.left);
+			$(settings.popup_box).css("top" , settings.top);
+
+		}
+		settings._open();
+	});
+}
+
+function toggleInterest( gubun, idx, el ){
+	var frm = new FormData();
+
+	event.preventDefault();
+
+	frm.append("GUBUN", gubun);
+	frm.append("LECTURE_IDX", idx);
+	send_ajax(frm,function(data){
+		alertify.set('notifier','position', 'bottom-center');
+		if(data.code == '1'){
+			$(el).addClass('on');
+			if( data.etc.sms != "1" ){
+				openInterest(data.etc.phone);
+			}else{
+				alertify.success('관심강의로 설정되었습니다.');
+			}
+		}else if( data.code == '2' ){
+			var parent = $(el).parents("li");
+			if( $(parent).parent().hasClass('removeList') ){
+				if(gubun == "textbook") {
+					alertify.error('관심교재가 해제되었습니다.');
+				}else {
+					alertify.error('관심강의가 해제되었습니다.');
+				}
+				$(parent).remove();
+			}else{
+				$(el).removeClass('on');
+				alertify.error('관심강의가 해제되었습니다.');
+			}
+		}
+	}, "/plugin/Api/lecture/interest.php");
+}
+
+function setInterestSMS( phone ){
+	var frm = new FormData();
+
+	frm.append("hp", phone);
+	send_ajax(frm,function(data){
+		alertify.set('notifier','position', 'top-center');
+		if(data.code == '1'){
+			$('#notifyPopup').removeClass('on');
+		}else {
+			alertify.error(data.msg);
+		}
+	}, "/plugin/Api/lecture/member.php");
+}
+
+
+$('#mask').click(function(){
+	$('.pop_pwChange').hide();
+	$('body').css({overflow: 'scroll'});
+});
+function wrapWindowByMask() {
+	//화면의 높이와 너비를 구한다.
+	var maskHeight = $(document).height();
+	var maskWidth = $(window).width();
+
+	//마스크의 높이와 너비를 화면 것으로 만들어 전체 화면을 채운다.
+	$('#mask').css({
+		'width' : maskWidth,
+		'height' : maskHeight
+	});
+}
+
+function popupClose() {
+	var frm = new FormData();
+	frm.append("type", "close_popup");
+	$.ajax({
+		url: "/member/ajaxProc.php",
+		enctype: "multipart/form-data",
+		data: frm,
+		dataType: 'json',
+		processData: false,
+		contentType: false,
+		type: 'POST',
+		success: function (data) {
+			if (data.code == 200)
+			{
+				$('.pop_pwChange').hide();
+				$('body').css({overflow: 'scroll'});
+			}
+			else
+			{
+				alert(data.msg);
+			}
+		}
+	});
+}
+
+
+
+function save_change_popup_date(){
+	var frm = new FormData();
+	frm.append("type", "change_popup_date");
+	$.ajax({
+		url: "/member/ajaxProc.php",
+		enctype: "multipart/form-data",
+		data: frm,
+		dataType: 'json',
+		processData: false,
+		contentType: false,
+		type: 'POST',
+		success: function (data) {
+			if (data.code == 200)
+			{
+				popupClose();
+			}
+			else
+			{
+				alert(data.msg);
+			}
+		}
+	});
+	$('.pop_pwChange').hide();
+}
+

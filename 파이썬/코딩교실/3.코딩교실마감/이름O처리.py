@@ -1,16 +1,24 @@
 # -*- coding: utf-8 -*-
 from openpyxl import load_workbook
 import os
-import pandas as pd
+import shutil
+from tkinter import filedialog, messagebox
+
 
 def process_names_in_excel(filepath, 저장_경로):
     """
     엑셀 파일의 B열 이름을 규칙에 따라 변경한 뒤 저장합니다.
-    - 이름이 2글자: 두 번째 글자를 'O'로 변경 (ex. 김수 -> 김O)
-    - 이름이 3글자 이상: 마지막에서 두 번째 글자를 'O'로 변경 (ex. 제갈재균 -> 제갈O균)
+    - A열: 순번(1,2,3,...) 자동 채우기 (비어 있을 때만)
+    - C열: 원래 이름 백업 (비어 있을 때만)
+    - B열: 마스킹
+        * 이름이 2글자: 두 번째 글자를 'O'로 변경 (ex. 김수 -> 김O)
+        * 이름이 3글자 이상: 마지막에서 두 번째 글자를 'O'로 변경 (ex. 제갈재균 -> 제갈O균)
     """
     wb = load_workbook(filepath)
     ws = wb.active
+
+    # A열 자동 번호를 위해 시작 번호
+    seq = 1
 
     # B열(B column)만 처리 (2열)
     for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=2, max_col=2):
@@ -18,8 +26,19 @@ def process_names_in_excel(filepath, 저장_경로):
         name = cell.value
 
         if name and isinstance(name, str) and len(name) > 1:
-            length = len(name)
+            # --- 1) A열: 순번 자동 채우기 (비어 있을 때만) ---
+            a_cell = ws.cell(row=cell.row, column=1)  # A열
+            if a_cell.value in (None, ""):
+                a_cell.value = seq
+                seq += 1
 
+            # --- 2) C열: 원래 이름 백업 (비어 있을 때만) ---
+            c_cell = ws.cell(row=cell.row, column=3)  # C열
+            if c_cell.value in (None, ""):
+                c_cell.value = name
+
+            # --- 3) B열: 이름 마스킹 ---
+            length = len(name)
             if length == 2:
                 # 2글자 이름: 두 번째 글자를 'O'
                 idx = 1
@@ -27,41 +46,52 @@ def process_names_in_excel(filepath, 저장_경로):
                 # 3글자 이상: 마지막에서 두 번째 글자를 'O'
                 idx = length - 2
 
-            # 이름 변경
             cell.value = name[:idx] + 'O' + name[idx+1:]
 
     wb.save(저장_경로)
     os.startfile(저장_경로)
 
+
+# ===== 템플릿 복사용 설정 =====
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATE_DIR = os.path.join(BASE_DIR, "엑셀양식")
+
+# 실제 템플릿 파일명에 맞게 수정해서 사용하세요.
+TEMPLATE_FILENAME_NOC = "이름 O 처리 양식.xlsx"  # 예: 엑셀양식\이름O처리_양식.xlsx
+
+
 def download_template_noc():
     """
-    사용자가 저장할 위치를 선택하고,
-    기본 양식의 엑셀 파일을 저장한 후 자동으로 엽니다.
-    (B열에 이름을 넣고, process_names_in_excel로 처리해서 사용)
+    엑셀양식 폴더에 있는 '이름O처리_양식.xlsx' 파일을
+    사용자가 지정한 위치에 복사(저장)해 주는 함수.
+    원본 템플릿은 항상 깨끗하게 유지됩니다.
     """
-    from tkinter import filedialog, messagebox
+    src = os.path.join(TEMPLATE_DIR, TEMPLATE_FILENAME_NOC)
 
-    filepath = filedialog.asksaveasfilename(
+    if not os.path.exists(src):
+        messagebox.showerror(
+            "오류",
+            f"이름 O 처리 템플릿 파일을 찾을 수 없습니다.\n\n"
+            f"경로: {src}\n\n"
+            f"※ '엑셀양식' 폴더 안에 '{TEMPLATE_FILENAME_NOC}' 파일이 있는지 확인해 주세요."
+        )
+        return
+
+    dest = filedialog.asksaveasfilename(
+        title="이름 O 처리 양식 저장 위치 선택",
         defaultextension=".xlsx",
-        filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")],
-        initialfile="이름 O 처리 양식.xlsx"
+        initialfile=TEMPLATE_FILENAME_NOC,
+        filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")]
     )
+    if not dest:
+        return
 
-    if filepath:
-        # 샘플 데이터프레임 생성
-        df = pd.DataFrame({
-            'No.': [1, 2, 3],
-            'Name': ['홍길동', '김철수', '제갈재균']  # 예시 이름
-        })
-
-        # ExcelWriter를 사용하여 엑셀 파일 저장 및 K열에 안내 텍스트 추가
-        with pd.ExcelWriter(filepath, engine='xlsxwriter') as writer:
-            df.to_excel(writer, index=False, sheet_name='Sheet1')
-            workbook = writer.book
-            worksheet = writer.sheets['Sheet1']
-            worksheet.write('K1', 'B열에 학생 이름 나열')
-            worksheet.write('K2', '이름이 2글자면 마지막 글자를 O로,')
-            worksheet.write('K3', '3글자 이상이면 마지막에서 두 번째 글자를 O로 변경')
-
-        messagebox.showinfo("저장 완료", f"양식 파일이 저장되었습니다:\n {filepath}")
-        os.startfile(filepath)  # 저장된 파일을 자동으로 엽니다
+    try:
+        shutil.copy2(src, dest)
+        messagebox.showinfo("완료", f"양식 파일이 저장되었습니다:\n{dest}")
+        try:
+            os.startfile(dest)
+        except Exception:
+            pass
+    except Exception as e:
+        messagebox.showerror("오류", f"양식 복사 중 오류가 발생했습니다:\n{e}")

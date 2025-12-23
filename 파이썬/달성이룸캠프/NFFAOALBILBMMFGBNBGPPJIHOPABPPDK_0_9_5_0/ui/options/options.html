@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Video Speed Controller: Options</title>
+  <link rel="stylesheet" href="options.css" />
+  <script src="options.js"></script>
+</head>
+
+<body>
+  <header>
+    <h1>Video Speed Controller</h1>
+  </header>
+
+  <section id="customs">
+    <h3>Shortcuts</h3>
+    <div class="row customs" id="display">
+      <select class="customDo">
+        <option value="display">Show/hide controller</option>
+      </select>
+      <input class="customKey" type="text" value="" placeholder="press a key" />
+      <input class="customValue" type="text" placeholder="value (0.10)" style="display: none;" />
+    </div>
+    <div class="row customs" id="slower">
+      <select class="customDo">
+        <option value="slower">Decrease speed</option>
+      </select>
+      <input class="customKey" type="text" value="" placeholder="press a key" />
+      <input class="customValue" type="text" placeholder="value (0.10)" />
+    </div>
+    <div class="row customs" id="faster">
+      <select class="customDo">
+        <option value="faster">Increase speed</option>
+      </select>
+      <input class="customKey" type="text" value="" placeholder="press a key" />
+      <input class="customValue" type="text" placeholder="value (0.10)" />
+    </div>
+    <div class="row customs" id="rewind">
+      <select class="customDo">
+        <option value="rewind">Rewind</option>
+      </select>
+      <input class="customKey" type="text" value="" placeholder="press a key" />
+      <input class="customValue" type="text" placeholder="value (10)" />
+    </div>
+    <div class="row customs" id="advance">
+      <select class="customDo">
+        <option value="advance">Advance</option>
+      </select>
+      <input class="customKey" type="text" value="" placeholder="press a key" />
+      <input class="customValue" type="text" placeholder="value (10)" />
+    </div>
+    <div class="row customs" id="reset">
+      <select class="customDo">
+        <option value="reset">Reset speed</option>
+      </select>
+      <input class="customKey" type="text" value="" placeholder="press a key" />
+      <input class="customValue" type="text" placeholder="value (1.00)" />
+    </div>
+    <div class="row customs" id="fast">
+      <select class="customDo">
+        <option value="fast">Preferred speed</option>
+      </select>
+      <input class="customKey" type="text" value="" placeholder="press a key" />
+      <input class="customValue" type="text" placeholder="value (1.80)" />
+    </div>
+    <div class="row customs" id="mark">
+      <select class="customDo">
+        <option value="mark">Set marker</option>
+      </select>
+      <input class="customKey" type="text" value="" placeholder="press a key" />
+      <input class="customValue" type="text" placeholder="value (0)" style="display: none;" />
+    </div>
+    <div class="row customs" id="jump">
+      <select class="customDo">
+        <option value="jump">Jump to marker</option>
+      </select>
+      <input class="customKey" type="text" value="" placeholder="press a key" />
+      <input class="customValue" type="text" placeholder="value (0)" style="display: none;" />
+    </div>
+
+    <button id="add">Add New</button>
+  </section>
+
+  <section>
+    <h3>Other</h3>
+    <div class="row">
+      <label for="audioBoolean">Audio support</label>
+      <input id="audioBoolean" type="checkbox" />
+    </div>
+    <div class="row">
+      <label for="rememberSpeed">Remember playback speed</label>
+      <input id="rememberSpeed" type="checkbox" />
+    </div>
+    <div class="row">
+      <label for="startHidden">Hide controller by default</label>
+      <input id="startHidden" type="checkbox" />
+    </div>
+    <div class="row">
+      <label for="forceLastSavedSpeed">Force last saved speed<br />
+        <em>Prevent video players that override VSC speed</em></label>
+      <input id="forceLastSavedSpeed" type="checkbox" />
+    </div>
+    <div class="row advanced-feature">
+      <label for="controllerOpacity">Controller opacity</label>
+      <input id="controllerOpacity" type="text" value="" />
+    </div>
+    <div class="row advanced-feature">
+      <label for="controllerButtonSize">Controller Button Size</label>
+      <input id="controllerButtonSize" type="text" value="" />
+    </div>
+    <div class="row advanced-feature">
+      <label for="logLevel">Console Log Level<br />
+        <em>Set verbosity in the browser console</em></label>
+      <select id="logLevel">
+        <option value="1">None</option>
+        <option value="2">Error</option>
+        <option value="3">Warning</option>
+        <option value="4">Info</option>
+        <option value="5">Debug</option>
+        <option value="6">Verbose</option>
+      </select>
+    </div>
+    <div class="row advanced-feature">
+      <label for="blacklist">Disable on sites<br />
+        <em>One host or <a href="https://www.regexpal.com/">Regex</a> per line. Use the literal notation, e.g.
+          <code>/(.+)youtube\.com(\/*)$/gi</code></em>
+      </label>
+      <textarea id="blacklist" rows="10" cols="50"></textarea>
+      </label>
+  </section>
+
+  <div class="button-group">
+    <div class="primary-buttons">
+      <button id="save">Save</button>
+      <button id="experimental">Show advanced features</button>
+    </div>
+    <button id="restore">Restore defaults</button>
+  </div>
+
+  <div id="status"></div>
+
+  <section>
+    <h3>Help & Support</h3>
+    <div class="row">
+      <button id="about" class="secondary">About Video Speed Controller</button>
+      <button id="feedback" class="secondary">Send Feedback</button>
+    </div>
+    <div id="faq">
+      <h4>The speed controls are not showing up for local videos or Incognito mode?</h4>
+      <p>
+        To enable playback of local media (e.g. File &gt; Open File) or Incognito mode, you need
+        to manually grant additional permissions to the extension.
+      </p>
+      <ul>
+        <li>In a new tab, navigate to <code>chrome://extensions</code></li>
+        <li>
+          Find "Video Speed Controller" extension in the list and enable "Allow
+          access to file URLs" and/or "Allow in Incognito".
+        </li>
+      </ul>
+    </div>
+
+
+  </section>
+</body>
+
+</html>
