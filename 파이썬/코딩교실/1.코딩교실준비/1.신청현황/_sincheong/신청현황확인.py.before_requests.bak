@@ -1,0 +1,358 @@
+import os
+import re
+from pathlib import Path
+
+import openpyxl
+from bs4 import BeautifulSoup
+from playwright.sync_api import sync_playwright
+
+
+BASE_DIR = Path(__file__).resolve().parent
+CONFIG_XLSX = BASE_DIR / "신청현황확인.xlsx"
+OUTPUT_XLSX = BASE_DIR / "코딩교실 신청 현황.xlsx"
+DOWNLOAD_DIR = BASE_DIR / "excel"
+
+LOCATION_CONFIG = {
+    "pohang": {
+        "months": [202406, 202409, 202510],
+        "headers": [
+            "No.",
+            "학교레벨",
+            "강좌명",
+            "재수강",
+            "회원명",
+            "회원ID",
+            "성별",
+            "학교",
+            "학년",
+            "휴대전화",
+            "학부모명",
+            "학부모연락처",
+            "주소2 (교재배송)",
+            "1번",
+            "2번",
+            "3번",
+            "4번",
+            "5번",
+            "6번",
+            "7번",
+        ],
+    },
+    "bukgu": {
+        "months": [202506, 202509, 202510],
+        "headers": [
+            "No.",
+            "학교레벨",
+            "강좌명",
+            "재수강",
+            "회원명",
+            "회원ID",
+            "성별",
+            "학교",
+            "학년",
+            "휴대전화",
+            "학부모명",
+            "학부모연락처",
+            "주소2 (교재배송)",
+            "Q1",
+            "Q2",
+            "Q3",
+            "Q4",
+            "Q5",
+            "2021",
+            "2022",
+            "2023",
+            "2024",
+            "2025",
+        ],
+    },
+    "gumi": {
+        "months": [202409],
+        "headers": [
+            "No.",
+            "학교레벨",
+            "강좌명",
+            "재수강",
+            "회원명",
+            "회원ID",
+            "성별",
+            "학교",
+            "학년",
+            "휴대전화",
+            "학부모명",
+            "학부모연락처",
+            "주소2 (교재배송)",
+            "Q1",
+            "Q2",
+            "Q3",
+            "Q4",
+            "Q5",
+        ],
+    },
+}
+
+RUNTIME = {}
+
+
+def read_html_text(path: Path) -> str:
+    raw = path.read_bytes()
+    meta_sample = raw[:2048].decode("ascii", errors="ignore").lower()
+    encodings = []
+    match = re.search(r"charset=([a-z0-9_-]+)", meta_sample)
+    if match:
+        encodings.append(match.group(1))
+    encodings.extend(["utf-8-sig", "euc-kr", "cp949", "utf-8"])
+
+    tried = set()
+    for encoding in encodings:
+        if encoding in tried:
+            continue
+        tried.add(encoding)
+        try:
+            return raw.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+
+    return raw.decode("utf-8", errors="replace")
+
+
+def expand_cells(row) -> list[str]:
+    values = []
+    for cell in row.find_all(["td", "th"]):
+        value = cell.get_text(" ", strip=True)
+        colspan = int(cell.get("colspan", 1) or 1)
+        values.extend([value] * colspan)
+    return values
+
+
+def normalize_course_name(value):
+    if not value:
+        return value
+    if "화목" in value:
+        return "화목"
+    if "월수" in value:
+        return "월수"
+    return value
+
+
+def normalize_cell_value(header, value):
+    if value is None:
+        return None
+    if isinstance(value, str):
+        value = value.strip()
+        if not value:
+            return None
+
+    if header == "강좌명":
+        return normalize_course_name(value)
+
+    if header in {"No.", "학년"} and isinstance(value, str):
+        text = value.replace(",", "")
+        if text.isdigit():
+            return int(text)
+
+    return value
+
+
+def output_header_value(header):
+    if header.isdigit():
+        return int(header)
+    return header
+
+
+def parse_download_table(download_path: Path, location: str):
+    html = read_html_text(download_path)
+    soup = BeautifulSoup(html, "html.parser")
+    table = soup.find("table")
+    if table is None:
+        raise ValueError(f"표를 찾지 못했습니다: {download_path}")
+
+    rows = table.find_all("tr")
+    if len(rows) < 2:
+        raise ValueError(f"헤더 행을 찾지 못했습니다: {download_path}")
+
+    title_cell = rows[0].find(["td", "th"])
+    title = title_cell.get_text(" ", strip=True) if title_cell else download_path.stem
+
+    headers = expand_cells(rows[1])
+    required_headers = set(LOCATION_CONFIG[location]["headers"]) | {"결제상태"}
+    missing_headers = sorted(required_headers - set(headers))
+    if missing_headers:
+        raise ValueError(
+            f"{location} 다운로드에 필요한 헤더가 없습니다: {', '.join(missing_headers)}"
+        )
+
+    output_headers = LOCATION_CONFIG[location]["headers"]
+    output_rows = []
+
+    for row in rows[2:]:
+        values = expand_cells(row)
+        if not values or len(values) == 1:
+            continue
+        if len(values) < len(headers):
+            values.extend([""] * (len(headers) - len(values)))
+
+        record = dict(zip(headers, values[: len(headers)]))
+        if not str(record.get("No.", "")).strip():
+            continue
+        if record.get("결제상태") != "결제완료":
+            continue
+
+        output_rows.append(
+            [normalize_cell_value(header, record.get(header, "")) for header in output_headers]
+        )
+
+    return title, output_headers, output_rows
+
+
+def clear_sheet(sheet):
+    if sheet.merged_cells.ranges:
+        for merged_range in list(sheet.merged_cells.ranges):
+            sheet.unmerge_cells(str(merged_range))
+
+    if sheet.max_row > 0:
+        sheet.delete_rows(1, sheet.max_row)
+
+
+def write_output_sheet(title, headers, rows, location, check_no):
+    if OUTPUT_XLSX.exists():
+        workbook = openpyxl.load_workbook(OUTPUT_XLSX)
+    else:
+        workbook = openpyxl.Workbook()
+
+    default_sheet = None
+    if (
+        "Sheet" in workbook.sheetnames
+        and len(workbook.sheetnames) == 1
+        and workbook["Sheet"]["A1"].value is None
+    ):
+        default_sheet = workbook["Sheet"]
+
+    sheet_name = f"{location}{check_no}"
+    if sheet_name in workbook.sheetnames:
+        sheet = workbook[sheet_name]
+        clear_sheet(sheet)
+    else:
+        sheet = workbook.create_sheet(title=sheet_name)
+        if default_sheet is not None:
+            del workbook[default_sheet.title]
+
+    sheet["A1"] = title
+    for col_idx, header in enumerate(headers, start=1):
+        sheet.cell(row=2, column=col_idx, value=output_header_value(header))
+
+    for row_idx, row_values in enumerate(rows, start=3):
+        for col_idx, value in enumerate(row_values, start=1):
+            sheet.cell(row=row_idx, column=col_idx, value=value)
+
+    workbook.save(OUTPUT_XLSX)
+    workbook.close()
+
+
+def load_runtime_config():
+    workbook = openpyxl.load_workbook(CONFIG_XLSX, data_only=True)
+    sheet = workbook.active
+
+    RUNTIME["admin_id"] = sheet.cell(row=1, column=17).value
+    RUNTIME["admin_password"] = sheet.cell(row=2, column=17).value
+    RUNTIME["pohang_login_url"] = sheet.cell(row=3, column=17).value
+    RUNTIME["pohang_order_url"] = sheet.cell(row=4, column=17).value
+    RUNTIME["bukgu_login_url"] = sheet.cell(row=5, column=17).value
+    RUNTIME["bukgu_order_url"] = sheet.cell(row=6, column=17).value
+    RUNTIME["gumi_login_url"] = sheet.cell(row=7, column=17).value
+    RUNTIME["gumi_order_url"] = sheet.cell(row=8, column=17).value
+
+    workbook.close()
+
+
+def get_location_runtime(location: str):
+    if location == "pohang":
+        return RUNTIME["pohang_login_url"], RUNTIME["pohang_order_url"]
+    if location == "bukgu":
+        return RUNTIME["bukgu_login_url"], RUNTIME["bukgu_order_url"]
+    if location == "gumi":
+        return RUNTIME["gumi_login_url"], RUNTIME["gumi_order_url"]
+    raise ValueError(f"지원하지 않는 위치입니다: {location}")
+
+
+def login_and_open_order_page(page, location: str, check_no: int):
+    if location not in LOCATION_CONFIG:
+        raise ValueError(f"지원하지 않는 위치입니다: {location}")
+
+    month_list = LOCATION_CONFIG[location]["months"]
+    month_index = check_no - 1
+    if not 0 <= month_index < len(month_list):
+        raise IndexError(
+            f"체크값 {check_no}에 해당하는 년월이 없습니다. (리스트 길이: {len(month_list)})"
+        )
+
+    target_month = month_list[month_index]
+    login_url, order_url = get_location_runtime(location)
+
+    page.goto(login_url)
+    page.wait_for_selector('input[name="tbAdminId"]')
+    page.fill('input[name="tbAdminId"]', RUNTIME["admin_id"])
+    page.fill('input[name="tbAdminPass"]', RUNTIME["admin_password"])
+    page.press('input[name="tbAdminPass"]', "Enter")
+    page.wait_for_load_state("networkidle")
+
+    page.goto(order_url)
+    page.wait_for_selector('select[name="ddlTargetDate"]')
+    page.select_option('select[name="ddlTargetDate"]', value=str(target_month))
+    page.select_option('select[name="ddlOrderType"]', value="결제완료")
+    page.press('input[name="tbKeyWord"].font_blue', "Enter")
+    page.wait_for_selector('a.button_yellow_small[title="일반 엑셀 출력"]')
+
+
+def handle_dialog(dialog):
+    try:
+        dialog.accept()
+    except Exception:
+        pass
+
+
+def download_excel(page, location: str, check_no: int):
+    DOWNLOAD_DIR.mkdir(exist_ok=True)
+    download_path = DOWNLOAD_DIR / f"{location}{check_no}.xls"
+
+    if download_path.exists():
+        download_path.unlink()
+
+    with page.expect_download() as download_info:
+        page.click('a.button_yellow_small[title="일반 엑셀 출력"]')
+
+    download_info.value.save_as(download_path)
+    page.click('a.button_gray_small:has-text("LOGOUT")')
+    edit_downloaded_file(download_path, location, check_no)
+
+
+def edit_downloaded_file(download_path: Path, location: str, check_no: int):
+    title, headers, rows = parse_download_table(download_path, location)
+    write_output_sheet(title, headers, rows, location, check_no)
+
+
+def run():
+    load_runtime_config()
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(
+            headless=False,
+            args=["--disable-popup-blocking"],
+        )
+        context = browser.new_context(accept_downloads=True)
+        page = context.new_page()
+        page.on("dialog", handle_dialog)
+
+        try:
+            # login_and_open_order_page(page, "bukgu", 3)
+            # download_excel(page, "bukgu", 3)
+            login_and_open_order_page(page, "pohang", 3)
+            download_excel(page, "pohang", 3)
+            os.startfile(str(OUTPUT_XLSX))
+        finally:
+            context.close()
+            browser.close()
+
+
+if __name__ == "__main__":
+    run()
