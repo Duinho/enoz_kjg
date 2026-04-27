@@ -1,0 +1,5 @@
+beautifulsoup4>=4.12
+gspread>=6.0
+google-auth>=2.29
+openpyxl>=3.1
+requests>=2.31

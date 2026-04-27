@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from openpyxl import load_workbook
+from openpyxl.cell.cell import MergedCell
 import os
 import shutil
 from tkinter import filedialog, messagebox
@@ -23,18 +24,20 @@ def process_names_in_excel(filepath, 저장_경로):
     # B열(B column)만 처리 (2열)
     for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=2, max_col=2):
         cell = row[0]
+        if isinstance(cell, MergedCell):
+            continue
         name = cell.value
 
         if name and isinstance(name, str) and len(name) > 1:
             # --- 1) A열: 순번 자동 채우기 (비어 있을 때만) ---
             a_cell = ws.cell(row=cell.row, column=1)  # A열
-            if a_cell.value in (None, ""):
+            if not isinstance(a_cell, MergedCell) and a_cell.value in (None, ""):
                 a_cell.value = seq
                 seq += 1
 
             # --- 2) C열: 원래 이름 백업 (비어 있을 때만) ---
             c_cell = ws.cell(row=cell.row, column=3)  # C열
-            if c_cell.value in (None, ""):
+            if not isinstance(c_cell, MergedCell) and c_cell.value in (None, ""):
                 c_cell.value = name
 
             # --- 3) B열: 이름 마스킹 ---

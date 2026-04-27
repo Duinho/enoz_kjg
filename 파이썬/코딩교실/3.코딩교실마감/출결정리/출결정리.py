@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 import os
 import shutil
@@ -136,6 +137,13 @@ def _to_str(value: Any) -> str:
     if isinstance(value, float):
         return str(int(value)) if value.is_integer() else str(value)
     return str(value).strip()
+
+
+def _round_half_up_rate(present_count: int, total_classes: int) -> int:
+    if total_classes <= 0:
+        return 0
+    rate = (Decimal(present_count) * Decimal(100)) / Decimal(total_classes)
+    return int(rate.quantize(Decimal("1"), rounding=ROUND_HALF_UP))
 
 
 def _parse_year(value: Any) -> int:
@@ -372,7 +380,7 @@ def _build_output_rows(
             if COUNT_MISSING_AS_ABSENT:
                 absent_count += missing_count
 
-            attendance_rate = round(present_count / total_classes * 100) if total_classes else 0
+            attendance_rate = _round_half_up_rate(present_count, total_classes)
 
             group_day = GROUP_NO_DAY_CODE.get(day_code, day_code)
             group_no = f"{target_ym}_{group_base}_{group_day}_{current_class_no:02d}"

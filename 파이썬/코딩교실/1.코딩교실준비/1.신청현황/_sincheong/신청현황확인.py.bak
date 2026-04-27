@@ -1,0 +1,233 @@
+import os
+import subprocess
+import time
+
+import cv2
+import mss
+import numpy as np
+import openpyxl
+import pyautogui as pag
+import pyperclip
+from bs4 import BeautifulSoup
+from playwright.sync_api import sync_playwright
+
+# 현재 작업 디렉토리 설정
+폴더경로 = os.path.dirname(os.path.abspath(__file__))
+
+
+""" 이미지 캡처 및 인식 전용 함수들 """
+def 전체화면캡쳐():
+    with mss.mss() as sct:
+        monitor = sct.monitors[0]  # 모든 모니터 캡처
+        sct_img = sct.grab(monitor)
+        img = np.array(sct_img)
+        return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
+
+def 이미지찾기(이미지_이름, confidence=0.9):
+    이미지경로 = os.path.join(폴더경로, 'pic', f'{이미지_이름}.png')
+    target = cv2.imread(이미지경로)
+    screen = 전체화면캡쳐()
+    res = cv2.matchTemplate(screen, target, cv2.TM_CCOEFF_NORMED)
+    _, max_val, _, max_loc = cv2.minMaxLoc(res)
+    if max_val >= confidence:
+        x, y = max_loc
+        h, w = target.shape[:2]
+        pag.click(x + w//2, y + h//2)
+        return True
+    return False
+
+def 인식대기(이미지_이름, confidence=0.9):
+    while not 이미지찾기(이미지_이름, confidence):
+        time.sleep(0.5)
+
+
+""" 엑셀 설정값 불러오기 """
+def 엑셀():
+    global 아이디, 비번, 포항로그인, 포항결제관리, 북구로그인, 북구결제관리, 구미로그인, 구미결제관리
+    global 포항년월, 북구년월, 구미년월
+
+    excel_file = os.path.join(폴더경로, '신청현황확인.xlsx')
+    wb = openpyxl.load_workbook(excel_file, data_only=True)
+    sheet = wb.active
+
+    아이디           = sheet.cell(row=1, column=17).value
+    비번             = sheet.cell(row=2, column=17).value
+    포항로그인       = sheet.cell(row=3, column=17).value
+    포항결제관리     = sheet.cell(row=4, column=17).value
+    북구로그인       = sheet.cell(row=5, column=17).value
+    북구결제관리     = sheet.cell(row=6, column=17).value
+    구미로그인       = sheet.cell(row=7, column=17).value
+    구미결제관리     = sheet.cell(row=8, column=17).value
+
+    포항년월 = [202406, 202409, 202510]
+    북구년월 = [202506, 202509, 202510]
+    구미년월 = [202409]
+
+    wb.close()
+
+
+""" LMS 로그인 및 결제관리 페이지로 이동 """
+def 로그인결제관리(page, 위치, 체크):
+    # 위치별 URL 및 년월 리스트 설정
+    if 위치 == 'pohang':
+        로그인_url, 결제관리_url, 년월리스트 = 포항로그인, 포항결제관리, 포항년월
+    elif 위치 == 'bukgu':
+        로그인_url, 결제관리_url, 년월리스트 = 북구로그인, 북구결제관리, 북구년월
+    elif 위치 == 'gumi':
+        로그인_url, 결제관리_url, 년월리스트 = 구미로그인, 구미결제관리, 구미년월
+    else:
+        raise ValueError(f"알 수 없는 위치: {위치}")
+
+    # 1-based 체크를 0-based 인덱스로 변환
+    list_index = 체크 - 1
+    if not (0 <= list_index < len(년월리스트)):
+        raise IndexError(f"체크값 {체크}에 해당하는 년월이 없습니다. (리스트 길이: {len(년월리스트)})")
+    선택년월 = 년월리스트[list_index]
+
+    # 로그인
+    page.goto(로그인_url)
+    page.wait_for_selector('input[name="tbAdminId"]')
+    page.fill('input[name="tbAdminId"]', 아이디)
+    page.fill('input[name="tbAdminPass"]', 비번)
+    page.press('input[name="tbAdminPass"]', 'Enter')
+    page.wait_for_load_state('networkidle')
+
+    # 결제관리 페이지로 이동, 필터 설정
+    page.goto(결제관리_url)
+    page.wait_for_selector('select[name="ddlTargetDate"]')
+    page.select_option('select[name="ddlTargetDate"]', value=str(선택년월))
+    page.select_option('select[name="ddlOrderType"]', value='결제완료')
+    page.press('input[name="tbKeyWord"].font_blue', 'Enter')
+    page.wait_for_load_state('networkidle')
+
+
+""" 엑셀 다운로드 및 포맷 변환 """
+def 엑셀다운(page, 위치, 체크):
+    # 팝업 다이얼로그 처리
+    def handle_dialog(dialog):
+        try:
+            dialog.accept()
+        except:
+            pass
+    page.on("dialog", handle_dialog)
+
+    # 다운로드
+    with page.expect_download() as download_info:
+        page.click('a.button_yellow_small[title="일반 엑셀 출력"]')
+    download = download_info.value
+    xls_path = os.path.join(폴더경로, 'excel', f'{위치}{체크}.xls')
+    download.save_as(xls_path)
+    time.sleep(2)
+    page.click('a.button_gray_small:has-text("LOGOUT")')
+
+    # 기존 xlsx 삭제 후, 엑셀로 열어 변환
+    xlsx_path = os.path.join(폴더경로, 'excel', f'{위치}{체크}.xlsx')
+    if os.path.exists(xlsx_path):
+        os.remove(xlsx_path)
+
+    subprocess.Popen(["start", "excel", xls_path], shell=True)
+    인식대기('yes')
+    pag.hotkey('alt', 'f2')
+    인식대기('html')
+    인식대기('xlsx')
+    인식대기('file')
+    pag.move(100, 0); pag.click()
+    pag.write(f'{위치}{체크}')
+    pag.press('enter')
+    time.sleep(0.5)
+    pag.hotkey('alt', 'f4')
+
+    # 최종 변환된 파일 편집
+    엑셀파일_편집(xlsx_path, 위치, 체크)
+
+
+""" 다운로드한 엑셀 파일 열, 필터링, 메인 파일에 병합 """
+def 엑셀파일_편집(xlsx_path, 위치, 체크):
+    # 열기
+    wb_src = openpyxl.load_workbook(xlsx_path)
+    sheet_src = wb_src.active
+
+    # Z열 3행부터 "결제완료" 아닌 행 삭제
+    for r in range(sheet_src.max_row, 2, -1):
+        if sheet_src[f"Z{r}"].value != "결제완료":
+            sheet_src.delete_rows(r)
+
+    # 병합 해제
+    for merged in list(sheet_src.merged_cells):
+        sheet_src.unmerge_cells(str(merged))
+
+    # H열 문자열 교정
+    for r in range(1, sheet_src.max_row + 1):
+        val = sheet_src[f"H{r}"].value
+        if val and '화목' in val:
+            sheet_src[f"H{r}"].value = '화목'
+        elif val and '월수' in val:
+            sheet_src[f"H{r}"].value = '월수'
+
+    # 메인 파일 열기 또는 새 생성
+    main_file = os.path.join(폴더경로, '코딩교실 신청 현황.xlsx')
+    if os.path.exists(main_file):
+        wb_main = openpyxl.load_workbook(main_file)
+    else:
+        wb_main = openpyxl.Workbook()
+
+    # 시트 이름은 위치+체크 (예: 'bukgu2')
+    sheet_name = f"{위치}{체크}"
+    if sheet_name in wb_main.sheetnames:
+        sheet_dest = wb_main[sheet_name]
+    else:
+        sheet_dest = wb_main.create_sheet(title=sheet_name)
+
+    # 위치별 열 매핑
+    if 위치 == 'bukgu':
+        mapping = {
+            'A':'A','AK':'B','H':'C','B':'D','L':'E','M':'F','N':'G','AL':'H','AM':'I','AJ':'J','K':'K','AR':'L','AH':'M',
+            'AU':'N','AV':'O','AW':'P','AX':'Q','AY':'R',
+            'AZ':'S','BA':'T','BB':'U','BC':'V','BD':'W'
+        }
+    elif 위치 == 'pohang':
+        mapping = {
+            'A':'A','AK':'B','H':'C','B':'D','L':'E','M':'F','N':'G','AL':'H','AM':'I','AJ':'J','K':'K','AR':'L','AH':'M',
+            'AT':'N','AU':'O','AV':'P','AW':'Q','AX':'R','AY':'S','AZ':'T'  
+        }
+    elif 위치 == 'gumi':
+        mapping = {
+            'A':'A','AK':'B','H':'C','B':'D','L':'E','M':'F','N':'G','AL':'H','AM':'I','AJ':'J','K':'K','AR':'L','AH':'M',
+            'AT':'N','AU':'O','AV':'P','AW':'Q','AX':'R'
+        }
+    else:
+        raise ValueError(f"알 수 없는 위치: {위치}")
+
+    # 매핑된 열대로 복사
+    for src_col, dst_col in mapping.items():
+        for row in range(1, sheet_src.max_row + 1):
+            sheet_dest[f"{dst_col}{row}"].value = sheet_src[f"{src_col}{row}"].value
+
+    # 저장하고 닫기
+    wb_main.save(main_file)
+    wb_src.close()
+    wb_main.close()
+
+
+""" 전체 동작 수행 """
+def 동작():
+    엑셀()
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(headless=False, args=['--disable-popup-blocking'])
+        context = browser.new_context(accept_downloads=True)
+        page = context.new_page()
+
+        # 예시: 북구의 두 번째(체크=2) 년월 선택, 시트명 'bukgu2'
+        #로그인결제관리(page, 'bukgu', 3)
+        #엑셀다운(page, 'bukgu', 3)
+        로그인결제관리(page, 'pohang', 3)
+        엑셀다운(page, 'pohang', 3)
+
+        # 최종 결과물 열기
+        main_file = os.path.join(폴더경로, '코딩교실 신청 현황.xlsx')
+        subprocess.Popen(["start", "excel", main_file], shell=True)
+
+        browser.close()
+
+if __name__ == "__main__":
+    동작()
