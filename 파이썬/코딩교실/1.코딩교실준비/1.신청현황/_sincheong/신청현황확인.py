@@ -8,12 +8,28 @@ from urllib.parse import urljoin
 import openpyxl
 import requests
 from bs4 import BeautifulSoup
+from openpyxl.utils import get_column_letter
 
 
 BASE_DIR = Path(__file__).resolve().parent
 CONFIG_XLSX = BASE_DIR / "신청현황확인.xlsx"
 OUTPUT_XLSX = BASE_DIR / "코딩교실 신청 현황.xlsx"
 DOWNLOAD_DIR = BASE_DIR / "excel"
+ADDITIONAL_STATUS_XLSX_CANDIDATES = [
+    Path(os.environ["ADDITIONAL_STATUS_XLSX"])
+    if os.environ.get("ADDITIONAL_STATUS_XLSX")
+    else None,
+    Path.home()
+    / "Documents"
+    / "GitHub"
+    / "enoz_kjg"
+    / "파이썬"
+    / "코딩교실"
+    / "1.코딩교실준비"
+    / "2.추가인원 수강신청"
+    / "1.추가인원 가입 수강신청"
+    / "추가인원 가입 현황.xlsx",
+]
 DEFAULT_TARGETS = [
     ("pohang", 1),
     ("gumi", 1),
@@ -104,6 +120,7 @@ LOCATION_CONFIG = {
 }
 
 RUNTIME = {}
+ADDITIONAL_MEMBER_IDS = None
 
 
 def log(message: str):
@@ -180,6 +197,41 @@ def output_header_value(header):
     return header
 
 
+def find_additional_status_xlsx() -> Path | None:
+    for candidate in ADDITIONAL_STATUS_XLSX_CANDIDATES:
+        if candidate and candidate.exists():
+            return candidate
+    return None
+
+
+def load_additional_member_ids() -> set[str]:
+    global ADDITIONAL_MEMBER_IDS
+    if ADDITIONAL_MEMBER_IDS is not None:
+        return ADDITIONAL_MEMBER_IDS
+
+    status_path = find_additional_status_xlsx()
+    if status_path is None:
+        log("추가인원 현황 파일을 찾지 못했습니다. 추가 열은 빈칸으로 처리합니다.")
+        ADDITIONAL_MEMBER_IDS = set()
+        return ADDITIONAL_MEMBER_IDS
+
+    workbook = openpyxl.load_workbook(status_path, data_only=True)
+    try:
+        member_ids = set()
+        for sheet in workbook.worksheets:
+            for row in sheet.iter_rows(min_row=2, values_only=True):
+                if len(row) < 2:
+                    continue
+                member_id = str(row[1] or "").strip()
+                if member_id:
+                    member_ids.add(member_id)
+        ADDITIONAL_MEMBER_IDS = member_ids
+        log(f"추가인원 ID {len(member_ids)}개 로드: {status_path}")
+        return ADDITIONAL_MEMBER_IDS
+    finally:
+        workbook.close()
+
+
 def parse_download_table(download_path: Path, location: str):
     html = read_html_text(download_path)
     soup = BeautifulSoup(html, "html.parser")
@@ -202,7 +254,8 @@ def parse_download_table(download_path: Path, location: str):
             f"{location} 다운로드에 필요한 헤더가 없습니다: {', '.join(missing_headers)}"
         )
 
-    output_headers = LOCATION_CONFIG[location]["headers"]
+    output_headers = LOCATION_CONFIG[location]["headers"] + ["추가"]
+    additional_member_ids = load_additional_member_ids()
     output_rows = []
 
     for row in rows[2:]:
@@ -218,9 +271,13 @@ def parse_download_table(download_path: Path, location: str):
         if record.get("결제상태") != "결제완료":
             continue
 
-        output_rows.append(
-            [normalize_cell_value(header, record.get(header, "")) for header in output_headers]
-        )
+        row_values = [
+            normalize_cell_value(header, record.get(header, ""))
+            for header in LOCATION_CONFIG[location]["headers"]
+        ]
+        member_id = str(record.get("회원ID", "") or "").strip()
+        row_values.append("추가" if member_id in additional_member_ids else None)
+        output_rows.append(row_values)
 
     return title, output_headers, output_rows
 
@@ -266,13 +323,18 @@ def write_output_sheet_to_workbook(workbook, title, headers, rows, location, che
         if default_sheet is not None:
             del workbook[default_sheet.title]
 
-    sheet["A1"] = title
     for col_idx, header in enumerate(headers, start=1):
-        sheet.cell(row=2, column=col_idx, value=output_header_value(header))
+        sheet.cell(row=1, column=col_idx, value=output_header_value(header))
 
-    for row_idx, row_values in enumerate(rows, start=3):
+    for row_idx, row_values in enumerate(rows, start=2):
         for col_idx, value in enumerate(row_values, start=1):
             sheet.cell(row=row_idx, column=col_idx, value=value)
+
+    if headers:
+        last_column = get_column_letter(len(headers))
+        last_row = max(len(rows) + 1, 1)
+        sheet.auto_filter.ref = f"A1:{last_column}{last_row}"
+        sheet.freeze_panes = "A2"
 
 
 def write_output_sheet(title, headers, rows, location, check_no):

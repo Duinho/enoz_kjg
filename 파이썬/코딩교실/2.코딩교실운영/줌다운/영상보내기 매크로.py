@@ -7,8 +7,14 @@ from datetime import datetime, timedelta
 
 import openpyxl
 import pytz
-from google.oauth2.service_account import Credentials
+import google.auth
+from google.auth.exceptions import DefaultCredentialsError
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials as OAuthCredentials
+from google.oauth2.service_account import Credentials as ServiceAccountCredentials
+from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 from openpyxl.utils import get_column_letter
 from playwright.sync_api import sync_playwright
 
@@ -16,6 +22,33 @@ from playwright.sync_api import sync_playwright
 폴더경로 = os.path.dirname(os.path.abspath(__file__))
 excel_file_path = os.path.join(폴더경로, "영상보내기.xlsx")
 기본_서비스계정_json = os.path.join(폴더경로, "auto-send-link-74f62fdbda52.json")
+기본_oauth_client_json = os.path.join(폴더경로, "google_oauth_client.json")
+기본_oauth_token_json = os.path.join(폴더경로, "google_token.json")
+GOOGLE_SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive",
+]
+
+
+def execute_google_request(request, description, attempts=5):
+    last_error = None
+    for attempt in range(1, attempts + 1):
+        try:
+            return request.execute(num_retries=3)
+        except HttpError as error:
+            status = getattr(error.resp, "status", None)
+            if status and status < 500 and status not in {403, 429}:
+                raise
+            last_error = error
+        except Exception as error:
+            last_error = error
+
+        if attempt >= attempts:
+            raise last_error
+
+        wait_seconds = min(30, attempt * 5)
+        print(f"Google API 재시도 {attempt}/{attempts - 1}: {description} - {last_error}")
+        time.sleep(wait_seconds)
 
 
 @dataclass(frozen=True)
@@ -55,6 +88,13 @@ class 대상자:
     학생이름: str
     학생번호: str
     학부모번호: str
+    아이디: str = ""
+
+
+전화번호_예외목록 = {
+    ("이시연", "sy0882"): "010-3559-0882",
+    ("정상율", "dylan1027"): "010-3556-4566",
+}
 
 
 class 드라이브링크해결기:
@@ -247,7 +287,7 @@ def load_settings():
             )
         )
 
-    raw_date = text_or_empty(worksheet.cell(row=1, column=17).value)
+    raw_date = text_or_empty(os.getenv("VIDEO_SEND_DATE", worksheet.cell(row=1, column=17).value))
     workbook.close()
     return common, raw_date, 세트목록
 
@@ -255,10 +295,15 @@ def load_settings():
 def find_date_column(시트데이터, 날짜):
     if len(시트데이터) < 2:
         return None
+    target_date = normalize_date_label(날짜)
     for col_index, value in enumerate(시트데이터[1], start=1):
-        if value == 날짜:
+        if value == 날짜 or normalize_date_label(value) == target_date:
             return col_index
     return None
+
+
+def normalize_date_label(value):
+    return re.sub(r"일(?=\()", "", text_or_empty(value))
 
 
 def find_target_rows(시트데이터, column_index, search_value):
@@ -289,10 +334,13 @@ def find_class_number(시트데이터, row_index):
 
 def parse_sheet_targets(sheets_service, 문맥):
     시트아이디 = extract_spreadsheet_id(문맥.시트링크)
-    result = sheets_service.spreadsheets().values().get(
-        spreadsheetId=시트아이디,
-        range=문맥.시트이름,
-    ).execute()
+    result = execute_google_request(
+        sheets_service.spreadsheets().values().get(
+            spreadsheetId=시트아이디,
+            range=문맥.시트이름,
+        ),
+        f"시트 읽기 {문맥.시트이름}",
+    )
     시트데이터 = result.get("values", [])
     if not 시트데이터:
         raise ValueError("No data found.")
@@ -305,6 +353,10 @@ def parse_sheet_targets(sheets_service, 문맥):
     ]
     이름열 = next(
         (col_index for col_index, value in enumerate(header_row, start=1) if value == "이름"),
+        None,
+    )
+    아이디열 = next(
+        (col_index for col_index, value in enumerate(header_row, start=1) if value == "아이디"),
         None,
     )
 
@@ -328,6 +380,7 @@ def parse_sheet_targets(sheets_service, 문맥):
                 학생이름=get_cell_value(row_values, 이름열),
                 학생번호=get_cell_value(row_values, 전화번호열[0]),
                 학부모번호=get_cell_value(row_values, 전화번호열[1]),
+                아이디=get_cell_value(row_values, 아이디열),
             )
         )
 
@@ -336,7 +389,8 @@ def parse_sheet_targets(sheets_service, 문맥):
 
 def build_recipient_text(대상):
     recipients = []
-    for number in [대상.학생번호, 대상.학부모번호]:
+    예외번호 = 전화번호_예외목록.get((대상.학생이름, getattr(대상, "아이디", "")))
+    for number in [예외번호, 대상.학생번호, 대상.학부모번호]:
         if number and number not in recipients:
             recipients.append(number)
     return "\n".join(recipients)
@@ -346,6 +400,23 @@ def send_message(page, recipients, message, callback_number):
     if not recipients:
         raise ValueError("수신번호가 없습니다.")
 
+    def close_blocking_layer():
+        for _ in range(4):
+            try:
+                if not page.locator("#bgLayer").is_visible(timeout=700):
+                    return
+            except Exception:
+                return
+            page.keyboard.press("Enter")
+            time.sleep(0.3)
+            try:
+                if page.locator("#bgLayer").is_visible(timeout=300):
+                    page.keyboard.press("Escape")
+                    time.sleep(0.3)
+            except Exception:
+                return
+
+    close_blocking_layer()
     page.fill("textarea#recvList", recipients)
     page.fill("textarea#msg", message)
     page.locator("a.hand.openLayer", has_text="선택").click()
@@ -358,22 +429,68 @@ def send_message(page, recipients, message, callback_number):
     frame.click("button[onclick*='callbackCheckForm']")
 
     time.sleep(0.3)
-    page.locator("a.hand.openLayer", has_text="전송하기").click()
+    close_blocking_layer()
+    send_button = page.locator("a.hand.openLayer", has_text="전송하기")
+    try:
+        send_button.click(timeout=5000)
+    except Exception:
+        close_blocking_layer()
+        send_button.click(timeout=5000, force=True)
     time.sleep(0.3)
     page.keyboard.press("Enter")
     time.sleep(0.3)
     page.keyboard.press("Enter")
+    time.sleep(0.5)
+    close_blocking_layer()
 
 
-def load_service_account_credentials():
-    scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+def save_oauth_credentials(credentials, token_path):
+    with open(token_path, "w", encoding="utf-8") as token_file:
+        token_file.write(credentials.to_json())
+
+
+def load_google_credentials():
     json_text = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON", "").strip()
     if json_text:
-        return Credentials.from_service_account_info(json.loads(json_text), scopes=scopes)
+        print("Google 인증: 환경변수 GOOGLE_SERVICE_ACCOUNT_JSON 사용")
+        return ServiceAccountCredentials.from_service_account_info(json.loads(json_text), scopes=GOOGLE_SCOPES)
 
     json_path = os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE", 기본_서비스계정_json)
     if os.path.exists(json_path):
-        return Credentials.from_service_account_file(json_path, scopes=scopes)
+        print(f"Google 인증: 서비스 계정 JSON 사용 - {json_path}")
+        return ServiceAccountCredentials.from_service_account_file(json_path, scopes=GOOGLE_SCOPES)
+
+    token_path = os.getenv("GOOGLE_OAUTH_TOKEN_FILE", 기본_oauth_token_json)
+    if os.path.exists(token_path):
+        credentials = OAuthCredentials.from_authorized_user_file(token_path, GOOGLE_SCOPES)
+        if not credentials.has_scopes(GOOGLE_SCOPES):
+            print(f"Google 인증: OAuth 토큰 권한이 부족해 재로그인합니다 - {token_path}")
+        else:
+            if credentials.expired and credentials.refresh_token:
+                credentials.refresh(Request())
+                save_oauth_credentials(credentials, token_path)
+            if credentials.valid:
+                print(f"Google 인증: 저장된 OAuth 토큰 사용 - {token_path}")
+                return credentials
+            print(f"Google 인증: OAuth 토큰이 만료/무효입니다 - {token_path}")
+
+    client_path = os.getenv("GOOGLE_OAUTH_CLIENT_FILE", 기본_oauth_client_json)
+    if os.path.exists(client_path):
+        print(f"Google 인증: OAuth 클라이언트로 로그인 진행 - {client_path}")
+        flow = InstalledAppFlow.from_client_secrets_file(client_path, GOOGLE_SCOPES)
+        credentials = flow.run_local_server(port=0, prompt="consent")
+        save_oauth_credentials(credentials, token_path)
+        return credentials
+
+    try:
+        credentials, _ = google.auth.default(scopes=GOOGLE_SCOPES)
+        if credentials.expired and getattr(credentials, "refresh_token", None):
+            credentials.refresh(Request())
+        print("Google 인증: Application Default Credentials 사용")
+        return credentials
+    except DefaultCredentialsError:
+        pass
+
     return None
 
 
@@ -382,10 +499,13 @@ def update_sheet(sheets_write_service, 시트아이디, 시트이름, 날짜위�
         return
 
     if sheets_write_service is None:
-        print("서비스 계정 JSON이 없어 Google Sheets 수정은 건너뜁니다.")
+        print("Google 쓰기 인증이 없어 Google Sheets 수정은 건너뜁니다.")
         return
 
-    spreadsheet = sheets_write_service.spreadsheets().get(spreadsheetId=시트아이디).execute()
+    spreadsheet = execute_google_request(
+        sheets_write_service.spreadsheets().get(spreadsheetId=시트아이디),
+        f"스프레드시트 메타데이터 읽기 {시트이름}",
+    )
     sheet_id = None
     for sheet in spreadsheet["sheets"]:
         if sheet["properties"]["title"] == 시트이름:
@@ -430,14 +550,20 @@ def update_sheet(sheets_write_service, 시트아이디, 시트이름, 날짜위�
             }
         )
 
-    sheets_write_service.spreadsheets().values().batchUpdate(
-        spreadsheetId=시트아이디,
-        body={"valueInputOption": "RAW", "data": value_updates},
-    ).execute()
-    sheets_write_service.spreadsheets().batchUpdate(
-        spreadsheetId=시트아이디,
-        body={"requests": note_updates},
-    ).execute()
+    execute_google_request(
+        sheets_write_service.spreadsheets().values().batchUpdate(
+            spreadsheetId=시트아이디,
+            body={"valueInputOption": "RAW", "data": value_updates},
+        ),
+        f"영상 발송 상태 값 업데이트 {시트이름}",
+    )
+    execute_google_request(
+        sheets_write_service.spreadsheets().batchUpdate(
+            spreadsheetId=시트아이디,
+            body={"requests": note_updates},
+        ),
+        f"영상 발송 상태 메모 업데이트 {시트이름}",
+    )
 
 
 def 로그인(page, common):
@@ -454,7 +580,11 @@ def 로그인(page, common):
 
 def process_set(page, common, set_config, raw_date, sheets_read_service, sheets_write_service, drive_resolver):
     문맥 = resolve_context(raw_date, set_config)
-    시트아이디, 날짜위치, 대상목록 = parse_sheet_targets(sheets_read_service, 문맥)
+    try:
+        시트아이디, 날짜위치, 대상목록 = parse_sheet_targets(sheets_read_service, 문맥)
+    except (ValueError, HttpError) as error:
+        print(f"{set_config.이름}: 시트 대상 확인 실패로 건너뜁니다. {error}")
+        return 문맥.회신번호
 
     if not 대상목록:
         print(f"{set_config.이름}: 발송 대상이 없습니다.")
@@ -479,16 +609,16 @@ def process_set(page, common, set_config, raw_date, sheets_read_service, sheets_
 
         문자내용 = f"{common.멘트1}\n영상 링크 : {영상링크}\n{common.멘트2}"
         send_message(page, recipients, 문자내용, 문맥.회신번호)
+        update_sheet(
+            sheets_write_service,
+            시트아이디,
+            문맥.시트이름,
+            날짜위치,
+            [대상.행번호],
+        )
         성공행목록.append(대상.행번호)
         print(f"{대상.반번호} {대상.학생이름} 학생 영상 발송 완료")
 
-    update_sheet(
-        sheets_write_service,
-        시트아이디,
-        문맥.시트이름,
-        날짜위치,
-        성공행목록,
-    )
     return 문맥.회신번호
 
 
@@ -498,14 +628,23 @@ def 완료(page, 알람받을번호, 회신번호):
 
 def 동작():
     common, raw_date, 세트목록 = load_settings()
-    sheets_read_service = build("sheets", "v4", developerKey=common.api키)
-    drive_service = build("drive", "v3", developerKey=common.api키)
-    drive_resolver = 드라이브링크해결기(drive_service)
-
-    credentials = load_service_account_credentials()
+    credentials = load_google_credentials()
     sheets_write_service = None
     if credentials is not None:
-        sheets_write_service = build("sheets", "v4", credentials=credentials)
+        sheets_read_service = build("sheets", "v4", credentials=credentials)
+        sheets_write_service = sheets_read_service
+        drive_service = build("drive", "v3", credentials=credentials)
+    else:
+        if not common.api키:
+            raise ValueError(
+                "Google 인증이 없습니다. google_oauth_client.json, google_token.json, "
+                "서비스 계정 JSON, ADC 중 하나를 설정하거나 영상보내기.xlsx의 API 키를 확인하세요."
+            )
+        print("Google 인증: OAuth/서비스 계정 없음. API 키로 읽기 전용 실행")
+        sheets_read_service = build("sheets", "v4", developerKey=common.api키)
+        drive_service = build("drive", "v3", developerKey=common.api키)
+
+    drive_resolver = 드라이브링크해결기(drive_service)
 
     마지막_회신번호 = ""
     with sync_playwright() as playwright:
@@ -529,5 +668,5 @@ def 동작():
         print("모든 영상 링크 발송 완료")
         browser.close()
 
-
-동작()
+if __name__ == "__main__":
+    동작()

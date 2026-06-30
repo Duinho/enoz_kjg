@@ -1,1 +1,17 @@
 .codex-backups/
+__pycache__/
+*.pyc
+
+# Local API credentials and browser-capture artifacts
+2.코딩교실운영/줌다운/config.json
+2.코딩교실운영/줌다운/google_oauth_client.json
+2.코딩교실운영/줌다운/google_token.json
+2.코딩교실운영/줌다운/zoom_credentials.partial.json
+2.코딩교실운영/줌다운/녹화영상/
+2.코딩교실운영/줌다운/google_oauth_setup.log
+2.코딩교실운영/줌다운/chrome_screen.png
+2.코딩교실운영/줌다운/oauth_dialog_*.png
+2.코딩교실운영/줌다운/zoom_*.png
+2.코딩교실운영/줌다운/~$*.xlsx
+1.코딩교실준비/1.신청현황/_secrets/*.json
+1.코딩교실준비/1.신청현황/logs/

@@ -91,50 +91,56 @@ def 반배정(page, 대상):
     """대상 칼럼 범위 선택 후 배정 실행"""
     if 대상 == '학생배정':
         col_range = slice(0, 3)   # 메인 A~C
+        start_env = "LMS_STUDENT_START_ROW"
     elif 대상 == '망령출동':
         col_range = slice(5, 8)   # 메인 F~H
+        start_env = "LMS_GHOST_IN_START_ROW"
     elif 대상 == '망령퇴장':
         col_range = slice(10, 13) # 메인 K~M
+        start_env = "LMS_GHOST_OUT_START_ROW"
     else:
         print(f"알 수 없는 대상: {대상}")
         return
 
+    시작행 = int(os.getenv(start_env, "2"))
     마지막_행 = ws.max_row
-    for row in ws.iter_rows(min_row=2, max_row=마지막_행, values_only=True):
+    for 행번호, row in enumerate(ws.iter_rows(min_row=시작행, max_row=마지막_행, values_only=True), start=시작행):
         반이름, 학생이름, 아이디 = row[col_range]
         아이디 = f'{아이디}' if 아이디 is not None else None
 
         if 아이디 is None:
-            print(f"{대상}에서 처리할 아이디가 없습니다. 다음으로 넘어갑니다.")
+            print(f"{대상} 종료: {행번호}행 아이디가 비어 있습니다.")
             return
 
         page.fill('input[name="tbKeyWord"].font_blue', 아이디)
         page.press('input[name="tbKeyWord"].font_blue', 'Enter')
 
         # 해당 날짜 링크 클릭 → 새 탭 열림
-        page.click(f'a[href*="{강의날짜}"].button_red_small')
-
-        # 새 탭 대기
         context = page.context
-        new_page = context.wait_for_event("page")
+        with context.expect_page() as page_info:
+            page.click(f'a[href*="{강의날짜}"].button_red_small')
+        new_page = page_info.value
         new_page.wait_for_load_state("load")
 
         # 새 탭에서 반이름 선택
-        new_page.evaluate(
+        selected = new_page.evaluate(
             '''(name) => { 
                 const selectElement = document.querySelector('select[name="ddlTargetGroupNo"]');
-                if (!selectElement) return;
+                if (!selectElement) return false;
                 for (const option of selectElement.options) {
                     const text = (option.textContent || "").trim();
                     if (text.includes(name)) {
                         selectElement.value = option.value;
                         selectElement.dispatchEvent(new Event('change', { bubbles: true }));
-                        break;
+                        return true;
                     }
                 }
+                return false;
             }''',
             반이름
         )
+        if not selected:
+            raise RuntimeError(f"{대상} {행번호}행: 반 선택 실패 - {반이름} / {학생이름}({아이디})")
 
         # 팝업 자동 승인
         def _on_dialog(dialog):
@@ -150,9 +156,13 @@ def 반배정(page, 대상):
             'a.button_red.bold:has-text("수강 인원이 모두 찼습니다. (변경불가 => 가능)")'
         ).click()
 
-        new_page.close()
+        try:
+            if not new_page.is_closed():
+                new_page.close()
+        except Exception:
+            pass
         page.bring_to_front()
-        print(f"{학생이름}({아이디})이(가) {반이름}으로 배정 완료")
+        print(f"{대상} {행번호}행: {학생이름}({아이디})이(가) {반이름}으로 배정 완료")
 
 def 동작():
     global browser
@@ -169,9 +179,9 @@ def 동작():
 
         # 3) 로그인 및 배정
         로그인(page)
-        #반배정(page, '망령출동')
+        반배정(page, '망령출동')
         반배정(page, '학생배정')
-        #반배정(page, '망령퇴장')
+        반배정(page, '망령퇴장')
 
         browser.close()
 

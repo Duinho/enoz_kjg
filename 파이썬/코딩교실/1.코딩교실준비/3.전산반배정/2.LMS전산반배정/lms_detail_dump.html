@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<title>:: Class관리 - 수강 변경 ::</title>
+<script type="text/javascript" language="javascript" src="/Common/js/script.js"></script>
+<link href="/Common/css/admin_style.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" language="javascript">
+	// 검색
+	function funcSearch() {
+		var obj = document.frm;
+		obj.action = "popCourseEdit.asp";
+		obj.submit();
+	}
+</script>
+<script type="text/javascript" language="javascript">
+	// 등록 / 수정
+	function popCourseEditProc(group_no, target_group_no) {
+		var obj = document.frm;
+
+		if( !funcIsNull(obj.ddlTargetGroupNo, "변경 Group No를", "select") ) return;
+		if (obj.group_no.value == obj.ddlTargetGroupNo.value)
+		{
+			alert("현재와 같은 그룹을 선택하셨습니다.");
+			return;
+		}
+		var yesno = confirm(group_no +"->"+ target_group_no  + "\n\n수강 변경 하시겠습니까?");
+		if( yesno == false ) {
+			return;
+		}
+		obj.action = "popCourseEditProc.asp";
+		obj.submit();
+	}
+</script>
+</head>
+
+<body>
+<table style="width:100%;">
+	<tbody><tr>
+		<td class="pop_title">Class관리 - 수강 변경</td>
+	</tr>
+	<tr>
+		<td class="h10"></td>
+	</tr>
+</tbody></table>
+
+
+<form name="frm" method="POST">
+<input type="hidden" name="user_id" value="honestyboldy533">
+<input type="hidden" name="order_no" value="PH260629141841751533">
+<input type="hidden" name="group_no" value="202606_S2_2_10_1900_24_16">
+<input type="hidden" name="hhdUserName" value="박호">
+<input type="hidden" name="hhdTargetDate" value="202606">
+<input type="hidden" name="hhdTargetGroupNo" value="">
+
+<table style="width:98%" align="center">
+	<tbody><tr><td colspan="2" class="head_line2"></td></tr>
+	<tr>
+		<td style="width:110px; height:40px" class="td1">학생정보</td>
+		<td class="p_left5">
+			<table>
+				<tbody><tr>
+					<td style="padding:5px 0px 3px 10px"><b>박호</b> (honestyboldy533)</td>
+				</tr>
+				<tr>
+					<td style="padding:5px 0px 3px 10px">PH260629141841751533 - 202606_S2_2_10_1900_24_16</td>
+				</tr>
+			</tbody></table>
+		</td>
+	</tr>
+	<tr><td colspan="2" class="dot_line"></td></tr>
+	<tr>
+		<td style="height:40px" class="td1">변경 GroupNo</td>
+		<td class="p_left10">
+			<select name="ddlTargetGroupNo" class="font14 bold" onchange="funcSearch(this)" style="width:98%;">
+				<option value="">변경할 Group No</option>
+				
+								<!--option value="202606_S2_2_10_1900_24_01" >[] 202606_S2_2_10_1900_24_01 (PH_MW_01명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_24_01">202606_S2_2_10_1900_24_01 (7명) PH_MW_01</option>
+				
+								<!--option value="202606_S2_2_10_1900_24_02" >[] 202606_S2_2_10_1900_24_02 (PH_MW_02명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_24_02">202606_S2_2_10_1900_24_02 (7명) PH_MW_02</option>
+				
+								<!--option value="202606_S2_2_10_1900_24_03" >[] 202606_S2_2_10_1900_24_03 (PH_MW_03명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_24_03">202606_S2_2_10_1900_24_03 (7명) PH_MW_03</option>
+				
+								<!--option value="202606_S2_2_10_1900_24_04" >[] 202606_S2_2_10_1900_24_04 (PH_MW_04명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_24_04">202606_S2_2_10_1900_24_04 (7명) PH_MW_04</option>
+				
+								<!--option value="202606_S2_2_10_1900_24_05" >[] 202606_S2_2_10_1900_24_05 (PH_MW_05명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_24_05">202606_S2_2_10_1900_24_05 (8명) PH_MW_05</option>
+				
+								<!--option value="202606_S2_2_10_1900_24_06" >[] 202606_S2_2_10_1900_24_06 (PH_MW_06명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_24_06">202606_S2_2_10_1900_24_06 (7명) PH_MW_06</option>
+				
+								<!--option value="202606_S2_2_10_1900_24_07" >[] 202606_S2_2_10_1900_24_07 (PH_MW_07명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_24_07">202606_S2_2_10_1900_24_07 (7명) PH_MW_07</option>
+				
+								<!--option value="202606_S2_2_10_1900_24_08" >[] 202606_S2_2_10_1900_24_08 (PH_MW_08명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_24_08">202606_S2_2_10_1900_24_08 (8명) PH_MW_08</option>
+				
+								<!--option value="202606_S2_2_10_1900_24_09" >[] 202606_S2_2_10_1900_24_09 (PH_MW_09명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_24_09">202606_S2_2_10_1900_24_09 (8명) PH_MW_09</option>
+				
+								<!--option value="202606_S2_2_10_1900_24_10" >[] 202606_S2_2_10_1900_24_10 (PH_MW_10명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_24_10">202606_S2_2_10_1900_24_10 (8명) PH_MW_10</option>
+				
+								<!--option value="202606_S2_2_10_1900_24_11" >[] 202606_S2_2_10_1900_24_11 (PH_MW_11명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_24_11">202606_S2_2_10_1900_24_11 (8명) PH_MW_11</option>
+				
+								<!--option value="202606_S2_2_10_1900_24_12" >[] 202606_S2_2_10_1900_24_12 (PH_MW_12명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_24_12">202606_S2_2_10_1900_24_12 (8명) PH_MW_12</option>
+				
+								<!--option value="202606_S2_2_10_1900_24_13" >[] 202606_S2_2_10_1900_24_13 (PH_MW_13명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_24_13">202606_S2_2_10_1900_24_13 (9명) PH_MW_13</option>
+				
+								<!--option value="202606_S2_2_10_1900_24_14" >[] 202606_S2_2_10_1900_24_14 (PH_MW_14명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_24_14">202606_S2_2_10_1900_24_14 (8명) PH_MW_14</option>
+				
+								<!--option value="202606_S2_2_10_1900_24_15" >[] 202606_S2_2_10_1900_24_15 (PH_MW_15명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_24_15">202606_S2_2_10_1900_24_15 (7명) PH_MW_15</option>
+				
+								<!--option value="202606_S2_2_10_1900_24_16" >[] 202606_S2_2_10_1900_24_16 (PH_MW_16명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_24_16">202606_S2_2_10_1900_24_16 (141명) PH_MW_16</option>
+				
+								<!--option value="202606_S2_2_10_1900_35_01" >[] 202606_S2_2_10_1900_35_01 (PH_TT_01명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_35_01">202606_S2_2_10_1900_35_01 (10명) PH_TT_01</option>
+				
+								<!--option value="202606_S2_2_10_1900_35_02" >[] 202606_S2_2_10_1900_35_02 (PH_TT_02명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_35_02">202606_S2_2_10_1900_35_02 (10명) PH_TT_02</option>
+				
+								<!--option value="202606_S2_2_10_1900_35_03" >[] 202606_S2_2_10_1900_35_03 (PH_TT_03명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_35_03">202606_S2_2_10_1900_35_03 (10명) PH_TT_03</option>
+				
+								<!--option value="202606_S2_2_10_1900_35_04" >[] 202606_S2_2_10_1900_35_04 (PH_TT_04명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_35_04">202606_S2_2_10_1900_35_04 (10명) PH_TT_04</option>
+				
+								<!--option value="202606_S2_2_10_1900_35_05" >[] 202606_S2_2_10_1900_35_05 (PH_TT_05명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_35_05">202606_S2_2_10_1900_35_05 (10명) PH_TT_05</option>
+				
+								<!--option value="202606_S2_2_10_1900_35_06" >[] 202606_S2_2_10_1900_35_06 (PH_TT_06명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_35_06">202606_S2_2_10_1900_35_06 (10명) PH_TT_06</option>
+				
+								<!--option value="202606_S2_2_10_1900_35_07" >[] 202606_S2_2_10_1900_35_07 (PH_TT_07명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_35_07">202606_S2_2_10_1900_35_07 (10명) PH_TT_07</option>
+				
+								<!--option value="202606_S2_2_10_1900_35_08" >[] 202606_S2_2_10_1900_35_08 (PH_TT_08명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_35_08">202606_S2_2_10_1900_35_08 (10명) PH_TT_08</option>
+				
+								<!--option value="202606_S2_2_10_1900_35_09" >[] 202606_S2_2_10_1900_35_09 (PH_TT_09명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_35_09">202606_S2_2_10_1900_35_09 (9명) PH_TT_09</option>
+				
+								<!--option value="202606_S2_2_10_1900_35_10" >[] 202606_S2_2_10_1900_35_10 (PH_TT_10명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_35_10">202606_S2_2_10_1900_35_10 (2명) PH_TT_10</option>
+				
+								<!--option value="202606_S2_2_10_1900_35_17" >[] 202606_S2_2_10_1900_35_17 (PH_TT_17명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_35_17">202606_S2_2_10_1900_35_17 (160명) PH_TT_17</option>
+				
+								<!--option value="202606_S2_2_10_1900_35_21" >[] 202606_S2_2_10_1900_35_21 (명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_35_21">202606_S2_2_10_1900_35_21 (7명) </option>
+				
+								<!--option value="202606_S2_2_10_1900_35_22" >[] 202606_S2_2_10_1900_35_22 (명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_35_22">202606_S2_2_10_1900_35_22 (10명) </option>
+				
+								<!--option value="202606_S2_2_10_1900_35_23" >[] 202606_S2_2_10_1900_35_23 (명)</option-->
+				
+								<option style="font-size:14px;" class="" value="202606_S2_2_10_1900_35_23">202606_S2_2_10_1900_35_23 (9명) </option>
+				
+			</select>
+		</td>
+	</tr>
+	<tr><td colspan="2" class="dot_line"></td></tr>
+	<tr>
+		<td class="td1" style="height:40px">교재 변경</td>
+		<td class="p_left10"><input type="checkbox" name="cbOrderBook" id="cbOrderBook"> <label for="cbOrderBook"><b>교재 변경</b> (새교재를 보내야 할 경우 체크)</label></td>
+	</tr>
+	<tr><td colspan="2" class="dot_line"></td></tr>
+	<tr>
+		<td class="td1" style="height:40px">대상 회원</td>
+		<td style="padding:5px 0px 3px 10px">
+		
+		</td>
+	</tr>
+	<tr><td colspan="2" class="head_line1"></td></tr>
+</tbody></table>
+
+
+<table style="width:98%" align="center">
+	<tbody><tr>
+		<td style="height:50px" align="center">
+		변경할 Group No를 선택하세요.
+		</td>
+	</tr>
+</tbody></table>
+<input type="hidden" name="hhdTargetOrderNo" value="">
+
+</form>
+
+
+<br>
+<br>
+<br>
+
+
+
+</body></html>

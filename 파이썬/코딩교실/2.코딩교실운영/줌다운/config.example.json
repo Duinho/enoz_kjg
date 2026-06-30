@@ -1,0 +1,19 @@
+{
+  "Zoom": {
+    "client_id": "",
+    "client_secret": "",
+    "account_id": ""
+  },
+  "Recordings": {
+    "start_date": "자동",
+    "end_date": "자동",
+    "delete_after_download": false,
+    "max_workers": 4,
+    "upload_workers": 4,
+    "upload_to_drive": true
+  },
+  "Automation": {
+    "send_video_links_after_upload": true,
+    "send_completion_sms": false
+  }
+}

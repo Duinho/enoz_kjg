@@ -3,7 +3,7 @@
 
 <!--### TABLE ##### -->
 <table border="1">
-	<tr><td colspan="41"><font size="4"><b>구미_202605_주문현황 (2026-04-21)</b></font></td></tr>
+	<tr><td colspan="41"><font size="4"><b>구미_202605_주문현황 (2026-06-30)</b></font></td></tr>
 	<tr>
 		<td><b>No.</b></td>
 		<td><b>재수강</b></td>
@@ -64,7 +64,520 @@
 					<td>1</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_24_04</td>
+					<td>GM260427185031385015</td>
+					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
+					<td><b>STARTER 1</b></td>
+					<td>1개월/주2회/월수/90분</td>
+					<td>1 : 5</td>
+					<td>19:00 ~ 20:30</td>
+					<td><b>이경린</b></td>
+					<td><b>김지유</b></td>
+					<td>jiyu1015</td>
+					<td>여</td>
+					<td style="mso-number-format:'\@';"><font color='black'>(일반)</font></td>
+					<td>무통장</td>
+					<td>2026.04.27</td>
+					<td> ()</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td></td>
+					<td>김지유</td>
+					<td>2026.04.27 오후 6:50:31</td>
+					<td><font color='blue'><b>결제완료</b></font></td>
+					<td>          </td>
+					<td></td>
+					<td>0</td>
+					<td></td>
+					<td></td>
+					<td>[39342  ] 경북 구미시 박정희로 90-14 (상모동, 세양청마루아파트)104-1006</td>
+					<td></td>
+					<td>[39342  ] 경북 구미시 박정희로 90-14 (상모동, 세양청마루아파트)104-1006</td>
+					<td></td>
+					<td>010-8028-3337</td>
+					<td>초등학교</td>
+					<td>정수초등학교</td>
+					<td>4</td>
+					<td>1</td>
+					<td>2016-10-15</td>
+					<td>0</td>
+					<td>가정통신문</td>
+					<td>010-8028-3337</td>
+					<td></td>
+					<td>PC</td>
+					<td>전혀 그렇지 않다</td>
+					<td>전혀 그렇지 않다</td>
+					<td>전혀 그렇지 않다</td>
+					<td>전혀 그렇지 않다</td>
+					<td>전혀 그렇지 않다</td>
+					
+				</tr>
+	
+				<tr>
+					<td>2</td>
+					<td><span class='font_b font11'>1 회</span></td>
+					<td>202605</td>					
+					<td>202605_S1_2_5_1900_24_04</td>
+					<td>GM260423161048441011</td>
+					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
+					<td><b>STARTER 1</b></td>
+					<td>1개월/주2회/월수/90분</td>
+					<td>1 : 5</td>
+					<td>19:00 ~ 20:30</td>
+					<td><b>최유진</b></td>
+					<td><b>천윤준</b></td>
+					<td>Curse5011</td>
+					<td>남</td>
+					<td style="mso-number-format:'\@';"><font color='black'>(일반)</font></td>
+					<td>무통장</td>
+					<td>2026.04.23</td>
+					<td> ()</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td></td>
+					<td>천윤준</td>
+					<td>2026.04.23 오후 4:10:48</td>
+					<td><font color='blue'><b>결제완료</b></font></td>
+					<td>          </td>
+					<td></td>
+					<td>0</td>
+					<td></td>
+					<td></td>
+					<td>[39343  ] 경북 구미시 박정희로 45-10 (상모동, 상모동신홈그린타운)303동402호</td>
+					<td></td>
+					<td>[39343  ] 경북 구미시 박정희로 45-10 (상모동, 상모동신홈그린타운)303동402호</td>
+					<td></td>
+					<td>010-4105-5890</td>
+					<td>초등학교</td>
+					<td>정수초등학교</td>
+					<td>4</td>
+					<td>2</td>
+					<td>2016-09-09</td>
+					<td>0</td>
+					<td>가정통신문</td>
+					<td>010-4105-5890</td>
+					<td></td>
+					<td>PC</td>
+					<td>보통이다</td>
+					<td>전혀 그렇지 않다</td>
+					<td>전혀 그렇지 않다</td>
+					<td>전혀 그렇지 않다</td>
+					<td>전혀 그렇지 않다</td>
+					
+				</tr>
+	
+				<tr>
+					<td>3</td>
+					<td><span class='font_b font11'>1 회</span></td>
+					<td>202605</td>					
+					<td>202605_S1_2_5_1900_35_01</td>
+					<td>GM260423160720374L11</td>
+					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
+					<td><b>STARTER 1</b></td>
+					<td>1개월/주2회/화목/90분</td>
+					<td>1 : 5</td>
+					<td>19:00 ~ 20:30</td>
+					<td><b>김태진</b></td>
+					<td><b>김주하</b></td>
+					<td>xownlsl11</td>
+					<td>여</td>
+					<td style="mso-number-format:'\@';"><font color='black'>(일반)</font></td>
+					<td>무통장</td>
+					<td>2026.04.23</td>
+					<td> ()</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td></td>
+					<td>김주하</td>
+					<td>2026.04.23 오후 4:07:20</td>
+					<td><font color='blue'><b>결제완료</b></font></td>
+					<td>          </td>
+					<td></td>
+					<td>0</td>
+					<td></td>
+					<td></td>
+					<td>[39342  ] 경북 구미시 박정희로 76 (상모동, 상모한신휴플러스)111동1703호</td>
+					<td></td>
+					<td>[39342  ] 경북 구미시 박정희로 76 (상모동, 상모한신휴플러스)111동1703호</td>
+					<td></td>
+					<td>010-3902-8508</td>
+					<td>초등학교</td>
+					<td>정수초등학교</td>
+					<td>4</td>
+					<td>4</td>
+					<td>2016-08-16</td>
+					<td>0</td>
+					<td></td>
+					<td>010-3902-8508</td>
+					<td></td>
+					<td>PC</td>
+					<td>전혀 그렇지 않다</td>
+					<td>전혀 그렇지 않다</td>
+					<td>전혀 그렇지 않다</td>
+					<td>전혀 그렇지 않다</td>
+					<td>전혀 그렇지 않다</td>
+					
+				</tr>
+	
+				<tr>
+					<td>4</td>
+					<td><span class='font_b font11'>1 회</span></td>
+					<td>202605</td>					
+					<td>202605_S1_2_5_1900_24_03</td>
+					<td>GM260422144001052803</td>
+					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
+					<td><b>STARTER 1</b></td>
+					<td>1개월/주2회/월수/90분</td>
+					<td>1 : 5</td>
+					<td>19:00 ~ 20:30</td>
+					<td><b>민현민</b></td>
+					<td><b>김민건</b></td>
+					<td>guni0803</td>
+					<td>남</td>
+					<td style="mso-number-format:'\@';"><font color='black'>(일반)</font></td>
+					<td>무통장</td>
+					<td>2026.04.22</td>
+					<td> ()</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td></td>
+					<td>김민건</td>
+					<td>2026.04.22 오후 2:40:01</td>
+					<td><font color='blue'><b>결제완료</b></font></td>
+					<td>          </td>
+					<td></td>
+					<td>0</td>
+					<td></td>
+					<td></td>
+					<td>[39292  ] 경북 구미시 형곡로 88 (형곡동, 신화오페라하우스)301동1002호</td>
+					<td></td>
+					<td>[39292  ] 경북 구미시 형곡로 88 (형곡동, 신화오페라하우스)301동1002호</td>
+					<td></td>
+					<td>010-4844-4282</td>
+					<td>초등학교</td>
+					<td>형일초등학교</td>
+					<td>4</td>
+					<td>3</td>
+					<td>2016-08-03</td>
+					<td>0</td>
+					<td>학교 안내문</td>
+					<td>010-4844-4282</td>
+					<td></td>
+					<td>PC</td>
+					<td>전혀 그렇지 않다</td>
+					<td>전혀 그렇지 않다</td>
+					<td>전혀 그렇지 않다</td>
+					<td>전혀 그렇지 않다</td>
+					<td>전혀 그렇지 않다</td>
+					
+				</tr>
+	
+				<tr>
+					<td>5</td>
+					<td><span class='font_b font11'>1 회</span></td>
+					<td>202605</td>					
+					<td>202605_S1_2_5_1900_24_02</td>
+					<td>GM260421114331783020</td>
+					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
+					<td><b>STARTER 1</b></td>
+					<td>1개월/주2회/월수/90분</td>
+					<td>1 : 5</td>
+					<td>19:00 ~ 20:30</td>
+					<td><b>임미라</b></td>
+					<td><b>최지완</b></td>
+					<td>yesendno1020</td>
+					<td>남</td>
+					<td style="mso-number-format:'\@';"><font color='black'>(일반)</font></td>
+					<td>무통장</td>
+					<td>2026.04.21</td>
+					<td> ()</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td></td>
+					<td>최지완</td>
+					<td>2026.04.21 오전 11:43:31</td>
+					<td><font color='blue'><b>결제완료</b></font></td>
+					<td>          </td>
+					<td></td>
+					<td>0</td>
+					<td></td>
+					<td></td>
+					<td>[39196  ] 경북 구미시 송동로 128 (도량동, 도량4주공아파트)406동304호</td>
+					<td></td>
+					<td>[39196  ] 경북 구미시 송동로 128 (도량동, 도량4주공아파트)406동304호</td>
+					<td></td>
+					<td>010-6773-3663</td>
+					<td>초등학교</td>
+					<td>도량초등학교</td>
+					<td>6</td>
+					<td>2</td>
+					<td>2014-04-29</td>
+					<td>0</td>
+					<td>가정통신문</td>
+					<td>010-2422-4999</td>
+					<td></td>
+					<td>PC</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					
+				</tr>
+	
+				<tr>
+					<td>6</td>
+					<td><span class='font_b font11'>1 회</span></td>
+					<td>202605</td>					
+					<td>202605_S1_2_5_1900_35_03</td>
+					<td>GM260421103706533823</td>
+					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
+					<td><b>STARTER 1</b></td>
+					<td>1개월/주2회/화목/90분</td>
+					<td>1 : 5</td>
+					<td>19:00 ~ 20:30</td>
+					<td><b>곽호자</b></td>
+					<td><b>오재원</b></td>
+					<td>Jaewon2823</td>
+					<td>남</td>
+					<td style="mso-number-format:'\@';"><font color='black'>(일반)</font></td>
+					<td>무통장</td>
+					<td>2026.04.21</td>
+					<td> ()</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td></td>
+					<td>오재원</td>
+					<td>2026.04.21 오전 10:37:06</td>
+					<td><font color='blue'><b>결제완료</b></font></td>
+					<td>          </td>
+					<td></td>
+					<td>0</td>
+					<td></td>
+					<td></td>
+					<td>[39343  ] 경북 구미시 모로실로 32-1 (상모동, e편한세상 구미상모 트리베뉴)104동101호</td>
+					<td></td>
+					<td>[39343  ] 경북 구미시 모로실로 32-1 (상모동, e편한세상 구미상모 트리베뉴)104동101호</td>
+					<td></td>
+					<td>010-8626-2823</td>
+					<td>초등학교</td>
+					<td>정수초등학교</td>
+					<td>5</td>
+					<td>4</td>
+					<td>2015-10-27</td>
+					<td>0</td>
+					<td>가정통신문</td>
+					<td>010-8626-2823</td>
+					<td></td>
+					<td>PC</td>
+					<td>그렇지 않다</td>
+					<td>그렇지 않다</td>
+					<td>그렇지 않다</td>
+					<td>그렇지 않다</td>
+					<td>그렇지 않다</td>
+					
+				</tr>
+	
+				<tr>
+					<td>7</td>
+					<td><span class='font_b font11'>1 회</span></td>
+					<td>202605</td>					
+					<td>202605_S1_2_5_1900_24_02</td>
+					<td>GM260421100844386824</td>
+					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
+					<td><b>STARTER 1</b></td>
+					<td>1개월/주2회/월수/90분</td>
+					<td>1 : 5</td>
+					<td>19:00 ~ 20:30</td>
+					<td><b>김은진</b></td>
+					<td><b>김진율</b></td>
+					<td>jin0824</td>
+					<td>남</td>
+					<td style="mso-number-format:'\@';"><font color='black'>(일반)</font></td>
+					<td>무통장</td>
+					<td>2026.04.21</td>
+					<td> ()</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td></td>
+					<td>김진율</td>
+					<td>2026.04.21 오전 10:08:44</td>
+					<td><font color='blue'><b>결제완료</b></font></td>
+					<td>          </td>
+					<td></td>
+					<td>0</td>
+					<td></td>
+					<td></td>
+					<td>[39342  ] 경북 구미시 박정희로 76 (상모동, 상모한신휴플러스)107동805호</td>
+					<td></td>
+					<td>[39342  ] 경북 구미시 박정희로 76 (상모동, 상모한신휴플러스)107동805호</td>
+					<td></td>
+					<td>010-7499-8787</td>
+					<td>초등학교</td>
+					<td>정수초등학교</td>
+					<td>6</td>
+					<td>4</td>
+					<td>2014-08-24</td>
+					<td>0</td>
+					<td>학교</td>
+					<td>010-7499-8787</td>
+					<td></td>
+					<td>PC</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					
+				</tr>
+	
+				<tr>
+					<td>8</td>
+					<td><span class='font_b font11'>1 회</span></td>
+					<td>202605</td>					
+					<td>202605_S1_2_5_1900_24_01</td>
+					<td>GM260421100149429550</td>
+					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
+					<td><b>STARTER 1</b></td>
+					<td>1개월/주2회/월수/90분</td>
+					<td>1 : 5</td>
+					<td>19:00 ~ 20:30</td>
+					<td><b>황성이</b></td>
+					<td><b>이시준</b></td>
+					<td>sijun4550</td>
+					<td>남</td>
+					<td style="mso-number-format:'\@';"><font color='black'>(일반)</font></td>
+					<td>무통장</td>
+					<td>2026.04.21</td>
+					<td> ()</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td></td>
+					<td>이시준</td>
+					<td>2026.04.21 오전 10:01:49</td>
+					<td><font color='blue'><b>결제완료</b></font></td>
+					<td>          </td>
+					<td></td>
+					<td>0</td>
+					<td></td>
+					<td></td>
+					<td>[39844  ] 경북 칠곡군 석적읍 남율로9길 61 (남율리, 칠곡남율효성해링턴플레이스2단지)206동1502호</td>
+					<td></td>
+					<td>[39844  ] 경북 칠곡군 석적읍 남율로9길 61 (남율리, 칠곡남율효성해링턴플레이스2단지)206동1502호</td>
+					<td></td>
+					<td>010-3994-4550</td>
+					<td>초등학교</td>
+					<td>형일초등학교</td>
+					<td>4</td>
+					<td>3</td>
+					<td>2016-05-08</td>
+					<td>0</td>
+					<td></td>
+					<td>010-4525-5585</td>
+					<td></td>
+					<td>PC</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					
+				</tr>
+	
+				<tr>
+					<td>9</td>
+					<td><span class='font_b font11'>1 회</span></td>
+					<td>202605</td>					
+					<td>202605_S1_2_5_1900_24_01</td>
+					<td>GM260421100053420902</td>
+					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
+					<td><b>STARTER 1</b></td>
+					<td>1개월/주2회/월수/90분</td>
+					<td>1 : 5</td>
+					<td>19:00 ~ 20:30</td>
+					<td><b>김진경</b></td>
+					<td><b>김정헌</b></td>
+					<td>Kjh0902</td>
+					<td>남</td>
+					<td style="mso-number-format:'\@';"><font color='black'>(일반)</font></td>
+					<td>무통장</td>
+					<td>2026.04.21</td>
+					<td> ()</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td></td>
+					<td>김정헌</td>
+					<td>2026.04.21 오전 10:00:53</td>
+					<td><font color='blue'><b>결제완료</b></font></td>
+					<td>          </td>
+					<td></td>
+					<td>0</td>
+					<td></td>
+					<td></td>
+					<td>[39211  ] 경북 구미시 도봉로5길 13 (봉곡동, 구미봉곡 뜨란채)106동603호</td>
+					<td></td>
+					<td>[39211  ] 경북 구미시 도봉로5길 13 (봉곡동, 구미봉곡 뜨란채)106동603호</td>
+					<td></td>
+					<td>010-5604-7670</td>
+					<td>초등학교</td>
+					<td>도량초등학교</td>
+					<td>5</td>
+					<td>1</td>
+					<td>2015-09-02</td>
+					<td>0</td>
+					<td></td>
+					<td>010-5604-7670</td>
+					<td></td>
+					<td>PC</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					
+				</tr>
+	
+				<tr>
+					<td>10</td>
+					<td><span class='font_b font11'>1 회</span></td>
+					<td>202605</td>					
+					<td>202605_S1_2_5_1900_35_04</td>
 					<td>GM260420211620892022</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -118,10 +631,10 @@
 				</tr>
 	
 				<tr>
-					<td>2</td>
+					<td>11</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_35_02</td>
 					<td>GM260419200052001816</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -175,10 +688,10 @@
 				</tr>
 	
 				<tr>
-					<td>3</td>
+					<td>12</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_24_02</td>
 					<td>GM260417223515395003</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -232,10 +745,10 @@
 				</tr>
 	
 				<tr>
-					<td>4</td>
+					<td>13</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_35_02</td>
 					<td>GM260417125813592NHJ</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -289,10 +802,10 @@
 				</tr>
 	
 				<tr>
-					<td>5</td>
+					<td>14</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_24_03</td>
 					<td>GM260417094615955229</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -346,10 +859,10 @@
 				</tr>
 	
 				<tr>
-					<td>6</td>
+					<td>15</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_24_02</td>
 					<td>GM260416182823416807</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -403,10 +916,10 @@
 				</tr>
 	
 				<tr>
-					<td>7</td>
+					<td>16</td>
 					<td><span class='font_red bold font11'>2 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_35_02</td>
 					<td>GM260416180552883777</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -460,10 +973,10 @@
 				</tr>
 	
 				<tr>
-					<td>8</td>
+					<td>17</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_35_02</td>
 					<td>GM260416143833072U25</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -517,10 +1030,10 @@
 				</tr>
 	
 				<tr>
-					<td>9</td>
+					<td>18</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_24_02</td>
 					<td>GM260416074632502123</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -574,10 +1087,10 @@
 				</tr>
 	
 				<tr>
-					<td>10</td>
+					<td>19</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_35_01</td>
 					<td>GM260414150600065013</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -631,10 +1144,10 @@
 				</tr>
 	
 				<tr>
-					<td>11</td>
+					<td>20</td>
 					<td><span class='font_red bold font11'>2 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_35_02</td>
 					<td>GM260414145051461225</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -688,67 +1201,10 @@
 				</tr>
 	
 				<tr>
-					<td>12</td>
+					<td>21</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
-					<td>GM260414082412776803</td>
-					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
-					<td><b>STARTER 1</b></td>
-					<td>1개월/주2회/화목/90분</td>
-					<td>1 : 5</td>
-					<td>19:00 ~ 20:30</td>
-					<td><b>민현민</b></td>
-					<td><b>김민건</b></td>
-					<td>guni0803</td>
-					<td>남</td>
-					<td style="mso-number-format:'\@';"><font color='black'>(일반)</font></td>
-					<td>무통장</td>
-					<td>2026.04.14</td>
-					<td> ()</td>
-					<td>0</td>
-
-					<td>0</td>
-					<td>0</td>
-
-					<td>0</td>
-					<td></td>
-					<td>김민건</td>
-					<td>2026.04.14 오전 8:24:12</td>
-					<td><font color='blue'><b>결제완료</b></font></td>
-					<td>          </td>
-					<td></td>
-					<td>0</td>
-					<td></td>
-					<td></td>
-					<td>[39292  ] 경북 구미시 형곡로 88 (형곡동, 신화오페라하우스)301동1002호</td>
-					<td></td>
-					<td>[39292  ] 경북 구미시 형곡로 88 (형곡동, 신화오페라하우스)301동1002호</td>
-					<td></td>
-					<td>010-4844-4282</td>
-					<td>초등학교</td>
-					<td>형일초등학교</td>
-					<td>4</td>
-					<td>3</td>
-					<td>2016-08-03</td>
-					<td>0</td>
-					<td>학교 안내문</td>
-					<td>010-4844-4282</td>
-					<td></td>
-					<td>PC</td>
-					<td>전혀 그렇지 않다</td>
-					<td>그렇지 않다</td>
-					<td>전혀 그렇지 않다</td>
-					<td>전혀 그렇지 않다</td>
-					<td>전혀 그렇지 않다</td>
-					
-				</tr>
-	
-				<tr>
-					<td>13</td>
-					<td><span class='font_b font11'>1 회</span></td>
-					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_35_01</td>
 					<td>GM260413153511936A22</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -802,10 +1258,10 @@
 				</tr>
 	
 				<tr>
-					<td>14</td>
+					<td>22</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_35_04</td>
 					<td>GM260412211256152N14</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -859,10 +1315,10 @@
 				</tr>
 	
 				<tr>
-					<td>15</td>
+					<td>23</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_35_03</td>
 					<td>GM260412072401235W15</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -916,10 +1372,10 @@
 				</tr>
 	
 				<tr>
-					<td>16</td>
+					<td>24</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_35_04</td>
 					<td>GM260411221050028220</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -973,10 +1429,10 @@
 				</tr>
 	
 				<tr>
-					<td>17</td>
+					<td>25</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_24_03</td>
 					<td>GM260410204616536880</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -1030,10 +1486,10 @@
 				</tr>
 	
 				<tr>
-					<td>18</td>
+					<td>26</td>
 					<td><span class='font_red bold font11'>2 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_35_04</td>
 					<td>GM260410194520809411</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -1087,10 +1543,10 @@
 				</tr>
 	
 				<tr>
-					<td>19</td>
+					<td>27</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_24_01</td>
 					<td>GM260410172841829VE3</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -1144,10 +1600,67 @@
 				</tr>
 	
 				<tr>
-					<td>20</td>
+					<td>28</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_24_04</td>
+					<td>GM260410132337720703</td>
+					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
+					<td><b>STARTER 1</b></td>
+					<td>1개월/주2회/월수/90분</td>
+					<td>1 : 5</td>
+					<td>19:00 ~ 20:30</td>
+					<td><b>신지아</b></td>
+					<td><b>임도윤</b></td>
+					<td>tnrl9703</td>
+					<td>남</td>
+					<td style="mso-number-format:'\@';"><font color='black'>(일반)</font></td>
+					<td>무통장</td>
+					<td>2026.04.21</td>
+					<td> ()</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td>0</td>
+
+					<td>0</td>
+					<td></td>
+					<td>임도윤</td>
+					<td>2026.04.10 오후 1:23:37</td>
+					<td><font color='blue'><b>결제완료</b></font></td>
+					<td>          </td>
+					<td></td>
+					<td>0</td>
+					<td></td>
+					<td></td>
+					<td>[39341  ] 경북 구미시 상사서로 18 (상모동, 우방신세계타운 1단지)105동401호</td>
+					<td></td>
+					<td>[39341  ] 경북 구미시 상사서로 18 (상모동, 우방신세계타운 1단지)105동401호</td>
+					<td></td>
+					<td>010-8855-8514</td>
+					<td>초등학교</td>
+					<td>정수초등학교</td>
+					<td>4</td>
+					<td>2</td>
+					<td>2016-09-06</td>
+					<td>0</td>
+					<td>학교</td>
+					<td>010-8855-8514</td>
+					<td></td>
+					<td>PC</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					<td>보통이다</td>
+					
+				</tr>
+	
+				<tr>
+					<td>29</td>
+					<td><span class='font_b font11'>1 회</span></td>
+					<td>202605</td>					
+					<td>202605_S1_2_5_1900_35_03</td>
 					<td>GM260410124038924272</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -1201,10 +1714,10 @@
 				</tr>
 	
 				<tr>
-					<td>21</td>
+					<td>30</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_24_03</td>
 					<td>GM260410120513184004</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -1258,10 +1771,10 @@
 				</tr>
 	
 				<tr>
-					<td>22</td>
+					<td>31</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_24_04</td>
 					<td>GM260410114321703429</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -1315,17 +1828,17 @@
 				</tr>
 	
 				<tr>
-					<td>23</td>
+					<td>32</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_35_03</td>
 					<td>GM260410091928030CHS</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
 					<td>1개월/주2회/화목/90분</td>
 					<td>1 : 5</td>
 					<td>19:00 ~ 20:30</td>
-					<td><b>백경싄</b></td>
+					<td><b>백경선</b></td>
 					<td><b>최헌성</b></td>
 					<td>cdhchs</td>
 					<td>남</td>
@@ -1372,10 +1885,10 @@
 				</tr>
 	
 				<tr>
-					<td>24</td>
+					<td>33</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_24_01</td>
 					<td>GM260410090932950RT1</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -1429,10 +1942,10 @@
 				</tr>
 	
 				<tr>
-					<td>25</td>
+					<td>34</td>
 					<td><span class='font_b font11'>1 회</span></td>
 					<td>202605</td>					
-					<td>-</td>
+					<td>202605_S1_2_5_1900_35_01</td>
 					<td>GM260410090245345183</td>
 					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
 					<td><b>STARTER 1</b></td>
@@ -1482,63 +1995,6 @@
 					<td>전혀 그렇지 않다</td>
 					<td>전혀 그렇지 않다</td>
 					<td>전혀 그렇지 않다</td>
-					
-				</tr>
-	
-				<tr>
-					<td>26</td>
-					<td><span class='font_b font11'>1 회</span></td>
-					<td>202605</td>					
-					<td>-</td>
-					<td>GM260409141420011MI2</td>
-					<td style="mso-number-format:'\@';"><br><span class='font11' style='color:blue'>(일반)</span></td>
-					<td><b>STARTER 1</b></td>
-					<td>1개월/주2회/월수/90분</td>
-					<td>1 : 5</td>
-					<td>19:00 ~ 20:30</td>
-					<td><b>구경연</b></td>
-					<td><b>테스트</b></td>
-					<td>gumi2</td>
-					<td>남</td>
-					<td style="mso-number-format:'\@';"><font color='black'>(일반)</font></td>
-					<td>무통장</td>
-					<td>2026.04.09</td>
-					<td> ()</td>
-					<td>0</td>
-
-					<td>0</td>
-					<td>0</td>
-
-					<td>0</td>
-					<td></td>
-					<td>테스트</td>
-					<td>2026.04.09 오후 2:14:20</td>
-					<td><font color='blue'><b>결제완료</b></font></td>
-					<td>          </td>
-					<td></td>
-					<td>0</td>
-					<td></td>
-					<td></td>
-					<td>[39305  ] 경북 구미시 산책길 19 (원평동, 금오초등학교)1</td>
-					<td></td>
-					<td>[39305  ] 경북 구미시 산책길 19 (원평동, 금오초등학교)1</td>
-					<td>010-3322-2093</td>
-					<td>010-3322-2093</td>
-					<td>초등학교</td>
-					<td>금오초등학교</td>
-					<td>4</td>
-					<td>1</td>
-					<td>2007-11-21</td>
-					<td>0</td>
-					<td>가정통신문</td>
-					<td>010-3322-2093</td>
-					<td></td>
-					<td>PC</td>
-					<td>매우 그렇다</td>
-					<td>매우 그렇다</td>
-					<td>매우 그렇다</td>
-					<td>매우 그렇다</td>
-					<td>매우 그렇다</td>
 					
 				</tr>
 	

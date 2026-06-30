@@ -1,3 +1,10 @@
-https://console.cloud.google.com/iam-admin/serviceaccounts/details/114555326287535612807/keys?inv=1&invt=Ab1CCQ&project=auto-send-link
+Google 인증 설정
 
-위 링크에서 키 추가 후 이름 변경
+1. 서비스 계정 키 생성이 가능하면 JSON 파일을 이 폴더에 두고 이름을 auto-send-link-74f62fdbda52.json 으로 변경한다.
+2. 서비스 계정 키 생성이 막히면 OAuth 클라이언트 JSON을 이 폴더에 두고 이름을 google_oauth_client.json 으로 변경한다.
+   - 실행 시 브라우저 로그인 창이 뜨고, 승인 후 google_token.json 이 자동 생성된다.
+3. gcloud ADC를 쓸 수도 있다.
+   - gcloud auth application-default login --scopes=https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive
+
+기존 서비스 계정 키 링크:
+https://console.cloud.google.com/iam-admin/serviceaccounts/details/114555326287535612807/keys?inv=1&invt=Ab1CCQ&project=auto-send-link

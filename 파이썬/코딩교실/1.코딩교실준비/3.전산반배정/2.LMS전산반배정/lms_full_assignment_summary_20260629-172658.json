@@ -1,0 +1,17 @@
+{
+  "expected_total": 5,
+  "ok_count": 5,
+  "mismatch_count": 0,
+  "error_count": 0,
+  "group_total": 1,
+  "group_ok_count": 0,
+  "group_mismatch_count": 1,
+  "fix_attempts": 0,
+  "fix_submitted": 0,
+  "seconds": 15.3,
+  "result_csv": "C:\\Users\\KJG\\Documents\\GitHub\\enoz_kjg\\파이썬\\코딩교실\\1.코딩교실준비\\3.전산반배정\\2.LMS전산반배정\\lms_full_assignment_verify_20260629-172658.csv",
+  "group_csv": "C:\\Users\\KJG\\Documents\\GitHub\\enoz_kjg\\파이썬\\코딩교실\\1.코딩교실준비\\3.전산반배정\\2.LMS전산반배정\\lms_full_assignment_groups_20260629-172658.csv",
+  "fix_csv": "",
+  "conflict_count": 31,
+  "conflict_csv": "C:\\Users\\KJG\\Documents\\GitHub\\enoz_kjg\\파이썬\\코딩교실\\1.코딩교실준비\\3.전산반배정\\2.LMS전산반배정\\lms_full_assignment_conflicts_20260629-172658.csv"
+}

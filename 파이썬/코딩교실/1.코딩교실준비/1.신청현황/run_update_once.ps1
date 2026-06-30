@@ -34,10 +34,20 @@ try {
     Write-Host "Targets: $($Targets -join ', ')"
 
     $Runner = Get-PythonRunner
-    $MainScript = Join-Path $Root "_sincheong\신청현황확인.py"
-    if (-not (Test-Path $MainScript)) {
-        throw "Main script not found: $MainScript"
+    $SincheongDir = Join-Path $Root "_sincheong"
+    if (-not (Test-Path $SincheongDir)) {
+        throw "Script directory not found: $SincheongDir"
     }
+
+    $MainScriptInfo = Get-ChildItem -LiteralPath $SincheongDir -Filter "*.py" -File |
+        Where-Object { $_.Name -notlike "*.bak" } |
+        Sort-Object Name |
+        Select-Object -First 1
+
+    if ($null -eq $MainScriptInfo) {
+        throw "Main script not found in: $SincheongDir"
+    }
+    $MainScript = $MainScriptInfo.FullName
 
     $MainArgs = @($MainScript)
     foreach ($Target in $Targets) {

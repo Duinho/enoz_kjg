@@ -1,0 +1,14 @@
+{
+  "source": "ghost-out-actionable",
+  "workbook": "C:\\Users\\KJG\\Documents\\GitHub\\enoz_kjg\\파이썬\\코딩교실\\1.코딩교실준비\\3.전산반배정\\2.LMS전산반배정\\LMS전산반배정.xlsx",
+  "class_date": "202606",
+  "prefix": "PH",
+  "total": 269,
+  "class_count": 2,
+  "duplicates_same_target": 0,
+  "conflicts": 0,
+  "distribution": {
+    "PH_MW_16": 110,
+    "PH_TT_17": 159
+  }
+}

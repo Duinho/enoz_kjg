@@ -1,0 +1,20 @@
+{
+  "source": "mw",
+  "workbook": "C:\\Users\\KJG\\Documents\\GitHub\\enoz_kjg\\파이썬\\코딩교실\\1.코딩교실준비\\3.전산반배정\\2.LMS전산반배정\\LMS전산반배정.xlsx",
+  "class_date": "202606",
+  "prefix": "PH",
+  "total": 20,
+  "class_count": 3,
+  "duplicates_same_target": 0,
+  "conflicts": 0,
+  "distribution": {
+    "PH_MW_01": 7,
+    "PH_MW_02": 7,
+    "PH_MW_03": 6
+  },
+  "result_csv": "C:\\Users\\KJG\\Documents\\GitHub\\enoz_kjg\\파이썬\\코딩교실\\1.코딩교실준비\\3.전산반배정\\2.LMS전산반배정\\lms_source_mw_results_20260629-182237.csv",
+  "status_counts": {
+    "ALREADY_OK": 20
+  },
+  "seconds": 28.2
+}

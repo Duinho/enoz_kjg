@@ -1,0 +1,27 @@
+﻿phase,row,teacher_id,status,message
+verify,2,BG_MW_01,OK,matched
+verify,3,BG_MW_02,FAIL,expected=https://us06web.zoom.us/j/88426903477?pwd=MbOKEYP7lUAt10X5nDaLlNd1jituqM.1 current=https://us02web.zoom.us/j/81193221983?pwd=dlaX4n2zJJbrzv88yv0Q9w7ezeIlxv.1
+verify,4,BG_MW_03,FAIL,expected=https://us06web.zoom.us/j/87424360703?pwd=Rb7DbDIMeZsr5bEiKDLbm1aFoW9Suj.1 current=https://us02web.zoom.us/j/85718103327?pwd=NmEhhhRk2aEnQHtwNzYNFglQaET8uQ.1
+verify,5,BG_MW_04,FAIL,expected=https://us06web.zoom.us/j/83841508641?pwd=wa1PR1oCOMYzPTnO1UbFDwdEaQwdHN.1 current=https://us02web.zoom.us/j/86217792106?pwd=Knxr51BVj1c7s3bHUhYo2V4vSnKOfI.1
+verify,6,BG_MW_05,FAIL,expected=https://us06web.zoom.us/j/84910601449?pwd=c1JbLDtGb4MbjuwCLhEZD8mmdabDe7.1 current=https://us02web.zoom.us/j/89271860506?pwd=LOyyEtbCJjxFmGd5baRGb3DuY9kIy4.1
+verify,7,BG_MW_06,FAIL,expected=https://us06web.zoom.us/j/83875368690?pwd=VxTQWQbahaYFtLOjZ3j6CdW3LK4lNY.1 current=https://us02web.zoom.us/j/87481279863?pwd=wAxjnajBbbdykfhrhUYRf78kAbaxYI.1
+verify,8,BG_MW_07,FAIL,expected=https://us06web.zoom.us/j/84085897744?pwd=zwMdigSsgIwMsRoYNTFGLd5w01lDBm.1 current=https://us02web.zoom.us/j/81959809961?pwd=QyUjNfW0n3bjrFaw6U3BBua0b07Gxr.1
+verify,9,BG_MW_08,FAIL,expected=https://us06web.zoom.us/j/81826882837?pwd=gwxI8Ti79ObtW59MVGeafyY283kYD4.1 current=https://us02web.zoom.us/j/83983224518?pwd=0H5HHnogqWjHQyaZhrTQWwprObX8Z9.1
+verify,10,BG_MW_09,OK,matched
+verify,11,BG_MW_10,FAIL,expected=https://us06web.zoom.us/j/84991625621?pwd=GfmmZaWw7a2JdriQ1WuDbrRc8GhW98.1 current=https://us02web.zoom.us/j/84386193333?pwd=bO3IYLi0jtoUIYLkIduxNtFnn6v0Jt.1
+verify,12,BG_MW_11,FAIL,expected=https://us06web.zoom.us/j/85109040871?pwd=x9VOJa1FJY4mpBVJrd0NiJUVp4c3ck.1 current=https://us02web.zoom.us/j/86959584428?pwd=kMvA0at3ciRC3UEF8tOSbQEGwhiwo2.1
+verify,13,BG_MW_12,FAIL,expected=https://us06web.zoom.us/j/82298900317?pwd=32RWerdlFjsZNkDkBh21sbB2UudQIv.1 current=https://us02web.zoom.us/j/86336628154?pwd=KVC2uLz1S7OfLqYXJXJpX3CUwmcLhJ.1
+verify,14,BG_MW_13,FAIL,expected=https://us06web.zoom.us/j/89762103299?pwd=w9hEVVlbeR1rghzfG59KVybe4Vv3ZV.1 current=https://us02web.zoom.us/j/89267054774?pwd=pB6yYaiybb1GsxJLjgzgJcBjuBaBgr.1
+verify,15,BG_TT_01,FAIL,expected=https://us06web.zoom.us/j/82026610080?pwd=TolmOYRbBmYazhQMkJwW06HhxxhP1I.1 current=https://us02web.zoom.us/j/88260643671?pwd=etPerEnQW3KEUlcE2Q7YQQpk3WMmTA.1
+verify,16,BG_TT_02,FAIL,expected=https://us06web.zoom.us/j/88426903477?pwd=MbOKEYP7lUAt10X5nDaLlNd1jituqM.1 current=https://us02web.zoom.us/j/81193221983?pwd=dlaX4n2zJJbrzv88yv0Q9w7ezeIlxv.1
+verify,17,BG_TT_03,FAIL,expected=https://us06web.zoom.us/j/87424360703?pwd=Rb7DbDIMeZsr5bEiKDLbm1aFoW9Suj.1 current=https://us02web.zoom.us/j/85718103327?pwd=NmEhhhRk2aEnQHtwNzYNFglQaET8uQ.1
+verify,18,BG_TT_04,FAIL,expected=https://us06web.zoom.us/j/83841508641?pwd=wa1PR1oCOMYzPTnO1UbFDwdEaQwdHN.1 current=https://us02web.zoom.us/j/86217792106?pwd=Knxr51BVj1c7s3bHUhYo2V4vSnKOfI.1
+verify,19,BG_TT_05,FAIL,expected=https://us06web.zoom.us/j/84910601449?pwd=c1JbLDtGb4MbjuwCLhEZD8mmdabDe7.1 current=https://us02web.zoom.us/j/89271860506?pwd=LOyyEtbCJjxFmGd5baRGb3DuY9kIy4.1
+verify,20,BG_TT_06,FAIL,expected=https://us06web.zoom.us/j/83875368690?pwd=VxTQWQbahaYFtLOjZ3j6CdW3LK4lNY.1 current=https://us02web.zoom.us/j/87481279863?pwd=wAxjnajBbbdykfhrhUYRf78kAbaxYI.1
+verify,21,BG_TT_07,FAIL,expected=https://us06web.zoom.us/j/84085897744?pwd=zwMdigSsgIwMsRoYNTFGLd5w01lDBm.1 current=https://us02web.zoom.us/j/81959809961?pwd=QyUjNfW0n3bjrFaw6U3BBua0b07Gxr.1
+verify,22,BG_TT_08,FAIL,expected=https://us06web.zoom.us/j/81826882837?pwd=gwxI8Ti79ObtW59MVGeafyY283kYD4.1 current=https://us02web.zoom.us/j/83983224518?pwd=0H5HHnogqWjHQyaZhrTQWwprObX8Z9.1
+verify,23,BG_TT_09,FAIL,expected=https://us06web.zoom.us/j/82719303053?pwd=XxTtcNfL9a2dbzBjzmaXr2Qem3AEjq.1 current=https://us02web.zoom.us/j/84969155425?pwd=X0vlZ5TJOQSwVyVb6GMSHy0xQAiKkv.1
+verify,24,BG_TT_10,FAIL,expected=https://us06web.zoom.us/j/84991625621?pwd=GfmmZaWw7a2JdriQ1WuDbrRc8GhW98.1 current=https://us02web.zoom.us/j/84386193333?pwd=bO3IYLi0jtoUIYLkIduxNtFnn6v0Jt.1
+verify,25,BG_TT_11,FAIL,expected=https://us06web.zoom.us/j/85109040871?pwd=x9VOJa1FJY4mpBVJrd0NiJUVp4c3ck.1 current=https://us02web.zoom.us/j/86959584428?pwd=kMvA0at3ciRC3UEF8tOSbQEGwhiwo2.1
+verify,26,BG_TT_12,FAIL,expected=https://us06web.zoom.us/j/82298900317?pwd=32RWerdlFjsZNkDkBh21sbB2UudQIv.1 current=https://us02web.zoom.us/j/86336628154?pwd=KVC2uLz1S7OfLqYXJXJpX3CUwmcLhJ.1
+verify,27,BG_TT_13,FAIL,expected=https://us06web.zoom.us/j/89762103299?pwd=w9hEVVlbeR1rghzfG59KVybe4Vv3ZV.1 current=https://us02web.zoom.us/j/89267054774?pwd=pB6yYaiybb1GsxJLjgzgJcBjuBaBgr.1
